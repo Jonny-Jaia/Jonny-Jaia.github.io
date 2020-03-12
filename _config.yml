@@ -2,7 +2,7 @@
 title: MY Blog
 SEOTitle: 小江的博客|MY Blog
 header-img: img/post-bg-desk.jpg
-email: qiubaiying@gmail.com
+email: 1363816086@qq.com
 description: "Every failure is leading towards success."
 keyword: "CNN, Slam, 小江的博客, Opencv"
 url: "https://jonny-jaia.github.io/"          # your host, for absolute URL
@@ -12,17 +12,17 @@ github_repo: "https://github.com/Jonny-Jaia/Jonny-Jaia.github.io.git" # you code
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "Goals determine what you going to be!"
-sidebar-avatar: /img/about-BY-gentle.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/Sidebar_dog.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
 # SNS settings
 RSS: false
 # weibo_username:     qiubaiying
-zhihu_username:     qiubaiying
-github_username:    qiubaiying
-facebook_username:  baiying.qiu.7
-jianshu_username:   e71990ada2fd
+zhihu_username:     None
+github_username:    Jonny-Jaia
+facebook_username:  None
+jianshu_username:   None
 #twitter_username:   qiubaiying
 
 
@@ -57,16 +57,16 @@ kramdown:
 
 # 评论系统
 # Disqus（https://disqus.com/）
-# disqus_username: qiubaiying
+disqus_username: JiangYihua
 
 # Gitalk
 gitalk:
   enable: true    #是否开启Gitalk评论
-  clientID: f2c84e7629bb1446c1a4                            #生成的clientID
-  clientSecret: ca6d6139d1e1b8c43f8b2e19492ddcac8b322d0d    #生成的clientSecret
-  repo: qiubaiying.github.io    #仓库名称
-  owner: qiubaiying    #github用户名
-  admin: qiubaiying
+  clientID: 02c3af38e1e94edd6e09                            #生成的clientID
+  clientSecret: 2b009a5ce1dba5ef225aea2d23e2f957e95e7b70    #生成的clientSecret
+  repo: Jonny-Jaia.github.io    #仓库名称
+  owner: Jonny-Jaia    #github用户名
+  admin: Jonny-Jaia
   distractionFreeMode: true #是否启用类似FB的阴影遮罩
 
 
@@ -74,11 +74,11 @@ gitalk:
 
 # Analytics settings
 # Baidu Analytics
-ba_track_id: b50bf2b12b5338a1845e33832976fd68
+#ba_track_id: b50bf2b12b5338a1845e33832976fd68
 
 # Google Analytics
-ga_track_id: 'UA-90855596-1'            # Format: UA-xxxxxx-xx
-ga_domain: qiubaiying.top              # 默认的是 auto, 这里我是自定义了的域名，你如果没有自己的域名，需要改成auto
+#ga_track_id: 'UA-90855596-1'            # Format: UA-xxxxxx-xx
+#ga_domain: qiubaiying.top              # 默认的是 auto, 这里我是自定义了的域名，你如果没有自己的域名，需要改成auto
 
 
 
@@ -97,14 +97,9 @@ service-worker: true
 
 
 # Friends
+
 friends: [
     {
-        title: "WY",
-        href: "http://zhengwuyang.com"
-    },{
-        title: "简书·BY",
-        href: "http://www.jianshu.com/u/e71990ada2fd"
-    },{
         title: "Apple",
         href: "https://apple.com"
     },{

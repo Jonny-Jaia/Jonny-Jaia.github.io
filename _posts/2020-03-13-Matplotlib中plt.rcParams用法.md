@@ -5,10 +5,11 @@ subtitle:   matplotlib可视化
 date:       2020-03-13
 author:     Jonny
 header-img: img/post-bg-ios9-web.jpg
-catalog:    true
+catalog:true
 tags:
-  			- Python
-  			- 可视化
+    - python
+    - matplotlib
+    - 可视化
 ---
 
 > 搬运相关资料

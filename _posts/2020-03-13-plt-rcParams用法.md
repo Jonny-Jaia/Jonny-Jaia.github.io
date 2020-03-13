@@ -1,3 +1,15 @@
+---
+layout:     post
+title:      plt.rcParams用法
+subtitle:   小技巧
+date:       2020-03-13
+author:     Jonny
+header-img: img/post-bg-2015.jpg
+catalog: true
+tags:
+    - python
+    - matplotlib
+---
 > 搬运相关资料
 
 

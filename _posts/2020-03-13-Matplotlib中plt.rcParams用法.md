@@ -1,15 +1,15 @@
 ---
 layout:     post
-title:      plt.rcParams用法  
-subtitle:   matplotlib可视化
+title:      plt.rcParams用法
+subtitle:   Matplotlib用法笔记
 date:       2020-03-13
 author:     Jonny
-header-img: img/post-bg-ios9-web.jpg
-catalog:true
+header-img: img/post-bg-re-vs-ng2.jpg
+catalog: true
 tags:
     - python
-    - matplotlib
-    - 可视化
+    -可视化
+    -matplotlib
 ---
 
 > 搬运相关资料

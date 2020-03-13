@@ -27,15 +27,20 @@ x = np.linspace(0, 4*np.pi)
 y = np.sin(x)
 
 plt.rcParams['figure.figsize'] = (5.0, 4.0)     # 显示图像的最大范围
+
 plt.rcParams['image.interpolation'] = 'nearest' # 差值方式，设置 interpolation style
+
 plt.rcParams['image.cmap'] = 'gray'             # 灰度空间
 
 #设置rc参数显示中文标题
+
 #设置字体为SimHei显示中文
 plt.rcParams['font.sans-serif'] = 'SimHei'
+
 #设置正常显示字符
 plt.rcParams['axes.unicode_minus'] = False
 plt.title('sin曲线')
+
 #设置线条样式
 plt.rcParams['lines.linestyle'] = '-.'
 #设置线条宽度

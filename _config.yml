@@ -4,7 +4,7 @@ SEOTitle: 小江的博客|MY Blog
 header-img: img/post-bg-desk.jpg
 email: 1363816086@qq.com
 description: "Every failure is leading towards success."
-keyword: "CNN, Slam, 小江的博客, Opencv"
+keyword: "CNN, Slam, 小江的博客, Opencv，python"
 url: "https://jonny-jaia.github.io/"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
 github_repo: "https://github.com/Jonny-Jaia/Jonny-Jaia.github.io.git" # you code repository
@@ -86,7 +86,7 @@ gitalk:
 
 # Featured Tags
 featured-tags: true                     # 是否使用首页标签
-featured-condition-size: 1              # 相同标签数量大于这个数，才会出现在首页
+featured-condition-size: 0              # 相同标签数量大于这个数，才会出现在首页
 
 
 

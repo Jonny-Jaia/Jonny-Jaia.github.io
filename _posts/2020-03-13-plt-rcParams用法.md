@@ -1,17 +1,3 @@
----
-layout:     post
-title:      plt.rcParams用法
-subtitle:   Matplotlib用法笔记
-date:       2020-03-13
-author:     Jonny
-header-img: img/post-bg-re-vs-ng2.jpg
-catalog: true
-tags:
-    - python
-    -可视化
-    -matplotlib
----
-
 > 搬运相关资料
 
 

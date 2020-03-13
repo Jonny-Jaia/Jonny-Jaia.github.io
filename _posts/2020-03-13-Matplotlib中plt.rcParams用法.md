@@ -16,7 +16,7 @@ tags:
 
 
 
-# 代码
+# Matplotlib中plt.rcParams用法
 
 ```python
 import numpy as np

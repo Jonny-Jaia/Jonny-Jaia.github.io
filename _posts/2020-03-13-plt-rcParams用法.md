@@ -36,11 +36,11 @@ plt.rcParams['image.cmap'] = 'gray'             # 灰度空间
 
 #设置rc参数显示中文标题
 
-#设置字体为SimHei显示中文
-plt.rcParams['font.sans-serif'] = 'SimHei'
+plt.rcParams['font.sans-serif'] = 'SimHei'		#设置字体为SimHei显示中文
 
-#设置正常显示字符
-plt.rcParams['axes.unicode_minus'] = False
+
+plt.rcParams['axes.unicode_minus'] = False		#设置正常显示字符
+
 plt.title('sin曲线')
 
 #设置线条样式
@@ -51,6 +51,7 @@ plt.rcParams['lines.linewidth'] = 3
 plt.plot(x, y, label='$sin(x)$')
  
 # plt.savefig('sin.png')
+
 # plt.show()
 ```
 
@@ -106,7 +107,7 @@ cumsum(2)：实现2轴上的累加：以最里面的元素为累加单位，即1
 
 # numpy查漏知识
 
-> 预防忘记
+> 预防忘记，做个笔记
 
 ## **1. arange函数**
 
@@ -114,7 +115,9 @@ cumsum(2)：实现2轴上的累加：以最里面的元素为累加单位，即1
 a = np.arange(0, 100, 10)
 b = np.arange(0, 3, 0.3)
 a.reshape(5,-1)
-#结果：
+
+#输出结果：
+
 [ 0 10 20 30 40 50 60 70 80 90]
 [0.  0.3 0.6 0.9 1.2 1.5 1.8 2.1 2.4 2.7]
 [[ 0, 10],
@@ -130,8 +133,60 @@ a.reshape(5,-1)
 
 ```python
 np.linspace(start,stop,num)
-np.linspace(0, 1, 10) # 步长为1/9
-np.linspace(0, 1, 10, endpoint=False) # 步长为1/10
+np.linspace(0, 1, 10)				   # 步长为1/9
+
+np.linspace(0, 1, 10, endpoint=False)  # 步长为1/10
 ```
 
 ## **3. logspace函数**
+
+>logspace函数和linspace类似，不过它创建等比数列
+
+```python
+np.logspace(0, 2, 20)
+
+#结果：
+
+[  1.        ,   1.27427499,   1.62377674,   2.06913808,
+2.6366509 ,   3.35981829,   4.2813324 ,   5.45559478,
+6.95192796,   8.8586679 ,  11.28837892,  14.38449888,
+18.32980711,  23.35721469,  29.76351442,  37.92690191,
+48.32930239,  61.58482111,  78.47599704, 100.        ]
+```
+
+## **4. 从字节序列创建数组**
+
+> 使用frombuffer,  fromfile等函数可以从字节序列创建数组
+
+```python
+s =  b'abc'
+a = np.frombuffer(s,dtype='S1',offset=0) 
+a = np.frombuffer(s,dtype='S1',offset=1) #S1 定长为1的字符串
+
+#array([b'a', b'b', b'c'], dtype='|S1')
+
+#array([b'b', b'c'], dtype='|S1')
+```
+
+##  **5. 从fromfunction创建数组**
+
+> `fromfunction`函数的第一个参数为**计算每个数组元素的函数**，第二个参数为**数组的大小(shape)**，因为它支持多维数组，所以第二个参数**必须是一个序列**，本例中用(10,)创建一个10元素的一维数组。
+
+```python
+def func(i):
+  return i%4+1
+
+a = np.fromfunction(func, (10,))
+
+#array([1., 2., 3., 4., 1., 2., 3., 4., 1., 2.])
+```
+
+*九九乘法表*
+
+```python
+def func2(i, j):
+ return (i+1) * ( j+1)
+a = np.fromfunction(func2, (9,9))
+a
+```
+

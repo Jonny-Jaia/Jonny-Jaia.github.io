@@ -1,0 +1,1086 @@
+---
+layout:     post
+title:      数据缺失原因及解决办法
+subtitle:   模式识别问题
+date:       2020-04-09
+author:     Jonny
+header-img: img/post-bg-ios9-web.jpg
+catalog: true
+tags:
+    - 数据预处理
+    - 模式识别
+---
+
+# 研究题目：
+
+在模式识别系统中，真实数据往往或出现有缺失的情况（Missing data），
+- 1.请问产生缺失数据的原因是什么？
+- 2.如何对缺失数据进行预处理以便后续的分类算法？
+
+# 数据缺失的原因：
+
+- **信息被遗漏**，在输入信息的过程中，因硬件因素、人为因素等外部因素的影响而产生信息遗漏；
+
+- **信息暂时无法获取**，信息的采集需要一定时间、空间；
+
+- **获取这些信息的代价太大**。
+
+
+# 空值的影响
+
+对数据挖掘来说，空值的存在，造成了以下影响：
+- 1.统丢失了大量的有用信息；
+- 2.系统中所表现出的不确定性更加显著，系统中蕴涵的确定性成分更难把握；
+- 3.包含空值的数据会使挖掘过程陷入混乱，导致不可靠的输出。
+
+# 缺失值处理的方法
+
+缺失值处理主要有三种主要方法：删除元组、数据补齐
+
+## 1、删除元组
+将存在遗漏信息属性值的对象（元组，记录）删除，从而得到一个完备的信息表。
+
+- 优点：快速，不需要任何先验知识；
+- 缺点：它以减少历史数据来换取信息的完备，会造成资源的浪费，会丢弃大量隐藏在这些对象中的信息。删除少量对象就可能影响到信息表信息的客观性和结果的正确性。
+
+
+#### 主要方法：(pandas 库)
+
+.dropna(how='any') # 这一行有任意值为空时删除
+
+.dropna(how='all') #这一行所有值都为空时删除
+
+.dropna(how='any',axis=1)  #删除有空值的列
+
+.dropna(how='any',axis=0)  #删除有空值的行
+
+
+```python
+import pandas as pd
+import numpy as np
+s = pd.Series([1,3,5,np.nan,6,8])
+print('原始的series为：\n',s)
+s1 = s.dropna(how='any')
+print('去除空值后的series:\n',s1)
+```
+
+    原始的series为：
+     0    1.0
+    1    3.0
+    2    5.0
+    3    NaN
+    4    6.0
+    5    8.0
+    dtype: float64
+    去除空值后的series:
+     0    1.0
+    1    3.0
+    2    5.0
+    4    6.0
+    5    8.0
+    dtype: float64
+
+
+
+```python
+# 生成数据
+data={'state':['Ohio','Ohio','Ohio','Nevada','Nevada'],
+      'year':[2000, 2001, 2002, 2001, 2002],
+      'pop':[1.5, 1.7, 3.6, 2.4, 2.9]}
+df3 = pd.DataFrame(data,columns=['year', 'state', 'pop', 'debt'],
+            index=['one', 'two', 'three', 'four', 'five'])
+val = pd.Series([-1.2, -1.5, -1.7], index=[ 'two', 'four', 'five'])
+df3['debt'] = val
+df3
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>state</th>
+      <th>pop</th>
+      <th>debt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>one</td>
+      <td>2000</td>
+      <td>Ohio</td>
+      <td>1.5</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>two</td>
+      <td>2001</td>
+      <td>Ohio</td>
+      <td>1.7</td>
+      <td>-1.2</td>
+    </tr>
+    <tr>
+      <td>three</td>
+      <td>2002</td>
+      <td>Ohio</td>
+      <td>3.6</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>four</td>
+      <td>2001</td>
+      <td>Nevada</td>
+      <td>2.4</td>
+      <td>-1.5</td>
+    </tr>
+    <tr>
+      <td>five</td>
+      <td>2002</td>
+      <td>Nevada</td>
+      <td>2.9</td>
+      <td>-1.7</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df3.dropna(how='any',axis=0)#这一行有任意值为空时删除
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>state</th>
+      <th>pop</th>
+      <th>debt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>two</td>
+      <td>2001</td>
+      <td>Ohio</td>
+      <td>1.7</td>
+      <td>-1.2</td>
+    </tr>
+    <tr>
+      <td>four</td>
+      <td>2001</td>
+      <td>Nevada</td>
+      <td>2.4</td>
+      <td>-1.5</td>
+    </tr>
+    <tr>
+      <td>five</td>
+      <td>2002</td>
+      <td>Nevada</td>
+      <td>2.9</td>
+      <td>-1.7</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df3.dropna(how='any',axis=1)#这一列有任意值为空时删除
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>state</th>
+      <th>pop</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>one</td>
+      <td>2000</td>
+      <td>Ohio</td>
+      <td>1.5</td>
+    </tr>
+    <tr>
+      <td>two</td>
+      <td>2001</td>
+      <td>Ohio</td>
+      <td>1.7</td>
+    </tr>
+    <tr>
+      <td>three</td>
+      <td>2002</td>
+      <td>Ohio</td>
+      <td>3.6</td>
+    </tr>
+    <tr>
+      <td>four</td>
+      <td>2001</td>
+      <td>Nevada</td>
+      <td>2.4</td>
+    </tr>
+    <tr>
+      <td>five</td>
+      <td>2002</td>
+      <td>Nevada</td>
+      <td>2.9</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+## 2. 数据补齐
+这类方法是用一定的值去填充空值，从而使信息表完备化。
+
+数据的补齐方法如下：
+
+### (1)人工填写（filling manually）
+
+对某一对象缺失的属性值进行人工填充。
+
+- 优点：可以使数据的更加符合用户的实际情况，产生的数据偏离最小
+
+- 缺点：当数据规模很大、空值很多的时候，需要耗费较大的人力成本
+
+
+```python
+print(df3)
+df3=df3.fillna(-1.3)
+df3
+```
+
+           year   state  pop  debt
+    one    2000    Ohio  1.5   NaN
+    two    2001    Ohio  1.7  -1.2
+    three  2002    Ohio  3.6   NaN
+    four   2001  Nevada  2.4  -1.5
+    five   2002  Nevada  2.9  -1.7
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>state</th>
+      <th>pop</th>
+      <th>debt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>one</td>
+      <td>2000</td>
+      <td>Ohio</td>
+      <td>1.5</td>
+      <td>-1.3</td>
+    </tr>
+    <tr>
+      <td>two</td>
+      <td>2001</td>
+      <td>Ohio</td>
+      <td>1.7</td>
+      <td>-1.2</td>
+    </tr>
+    <tr>
+      <td>three</td>
+      <td>2002</td>
+      <td>Ohio</td>
+      <td>3.6</td>
+      <td>-1.3</td>
+    </tr>
+    <tr>
+      <td>four</td>
+      <td>2001</td>
+      <td>Nevada</td>
+      <td>2.4</td>
+      <td>-1.5</td>
+    </tr>
+    <tr>
+      <td>five</td>
+      <td>2002</td>
+      <td>Nevada</td>
+      <td>2.9</td>
+      <td>-1.7</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### (2)特殊值填充（Treating Missing Attribute values as Special values）
+将空值作为一种特殊的属性值来处理，它不同于其他的任何属性值。如所有的空值都用“unknown”填充。这样将形成另一个不同的值概念，可能导致严重的数据偏离。
+
+
+```python
+data={'state':['Ohio','Ohio','Ohio','Nevada','Nevada'],
+      'year':[2000, 2001, 2002, 2001, 2002],
+      'pop':[1.5, 1.7, 3.6, 2.4, 2.9]}
+df3 = pd.DataFrame(data,columns=['year', 'state', 'pop', 'debt'],
+            index=['one', 'two', 'three', 'four', 'five'])
+val = pd.Series([-1.2, -1.5, -1.7], index=[ 'two', 'four', 'five'])
+df3['debt'] = val
+df4=df3.fillna('unknown')
+print('df3:\n',df3)
+print('\ndf4:\n',df4)
+```
+
+    df3:
+            year   state  pop  debt
+    one    2000    Ohio  1.5   NaN
+    two    2001    Ohio  1.7  -1.2
+    three  2002    Ohio  3.6   NaN
+    four   2001  Nevada  2.4  -1.5
+    five   2002  Nevada  2.9  -1.7
+    
+    df4:
+            year   state  pop     debt
+    one    2000    Ohio  1.5  unknown
+    two    2001    Ohio  1.7     -1.2
+    three  2002    Ohio  3.6  unknown
+    four   2001  Nevada  2.4     -1.5
+    five   2002  Nevada  2.9     -1.7
+
+
+### (3)平均值填充（Mean/Mode Completer）
+将初始数据集中的属性分为**数值属性**和**非数值属性**来分别进行处理。
+
+如果空值是数值型的，就根据该属性在其他所有对象的取值的平均值来填充该缺失的属性值；
+
+如果空值是非数值型的，就根据统计学中的众数原理，用该属性在其他所有对象的取值次数最多的值(即出现频率最高的值)来补齐该缺失的属性值。
+
+
+
+```python
+data={'state':['Ohio','Ohio','Ohio','Nevada','Nevada'],
+      'year':[2000, 2001, 2002, 2001, 2002],
+      'pop':[1.5, 1.7, 3.6, 2.4, 2.9]}
+df = pd.DataFrame(data,columns=['year', 'state', 'pop', 'debt'],
+            index=['one', 'two', 'three', 'four', 'five'])
+val = pd.Series([-1.2, -1.5, -1.7], index=[ 'two', 'four', 'five'])
+df['debt'] = val
+print(df)
+df.fillna(df['debt'].mean(),inplace=True)
+df
+```
+
+           year   state  pop  debt
+    one    2000    Ohio  1.5   NaN
+    two    2001    Ohio  1.7  -1.2
+    three  2002    Ohio  3.6   NaN
+    four   2001  Nevada  2.4  -1.5
+    five   2002  Nevada  2.9  -1.7
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>state</th>
+      <th>pop</th>
+      <th>debt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>one</td>
+      <td>2000</td>
+      <td>Ohio</td>
+      <td>1.5</td>
+      <td>-1.466667</td>
+    </tr>
+    <tr>
+      <td>two</td>
+      <td>2001</td>
+      <td>Ohio</td>
+      <td>1.7</td>
+      <td>-1.200000</td>
+    </tr>
+    <tr>
+      <td>three</td>
+      <td>2002</td>
+      <td>Ohio</td>
+      <td>3.6</td>
+      <td>-1.466667</td>
+    </tr>
+    <tr>
+      <td>four</td>
+      <td>2001</td>
+      <td>Nevada</td>
+      <td>2.4</td>
+      <td>-1.500000</td>
+    </tr>
+    <tr>
+      <td>five</td>
+      <td>2002</td>
+      <td>Nevada</td>
+      <td>2.9</td>
+      <td>-1.700000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+df3['debt'].mean()
+```
+
+
+
+
+    -1.4666666666666668
+
+
+
+
+```python
+#中位数填充
+data={'state':['Ohio','Ohio','Ohio','Nevada','Nevada'],
+      'year':[2000, 2001, 2002, 2001, 2002],
+      'pop':[1.5, 1.7, 3.6, 2.4, 2.9]}
+df = pd.DataFrame(data,columns=['year', 'state', 'pop', 'debt'],
+            index=['one', 'two', 'three', 'four', 'five'])
+val = pd.Series([-1.2, -1.5, -1.7,-1.6], index=['one', 'two', 'four', 'five'])
+df['debt'] = val
+print(df,'\n')
+
+df.fillna(df.median(),inplace=True)
+print(df)
+```
+
+           year   state  pop  debt
+    one    2000    Ohio  1.5  -1.2
+    two    2001    Ohio  1.7  -1.5
+    three  2002    Ohio  3.6   NaN
+    four   2001  Nevada  2.4  -1.7
+    five   2002  Nevada  2.9  -1.6 
+    
+           year   state  pop  debt
+    one    2000    Ohio  1.5 -1.20
+    two    2001    Ohio  1.7 -1.50
+    three  2002    Ohio  3.6 -1.55
+    four   2001  Nevada  2.4 -1.70
+    five   2002  Nevada  2.9 -1.60
+
+
+关于SKLearn中的Imputer
+
+其中提供了**fit_transform**函数可以进行缺失值补充
+
+
+
+```python
+import pandas as pd
+import numpy as np
+df=pd.DataFrame([["XXL", 8, "black", "class 1", 22],
+["L", np.nan, "gray", "class 2", 20],
+["XL", 10, "blue", "class 2", 19],
+["M", np.nan, "orange", "class 1", 17],
+["M", 11, "green", "class 3", np.nan],
+["M", 7, "red", "class 1", 22]])
+df.columns=["size", "price", "color", "class", "boh"]
+print('Original data : \n',df)
+from sklearn.preprocessing import Imputer
+# 1. 创建Imputer器
+imp =Imputer(missing_values="NaN", strategy="most_frequent",axis=0 )
+# @param strategy :
+# mean : 平均值代替
+# median : 中值代替
+# most_frequent : 众数代替
+# 2. 使用fit_transform()函数即可完成缺失值填充了
+df[['price', 'boh']] = imp.fit_transform(df[['price', 'boh']])
+print('\nNew data:\n',df)
+```
+
+    Original data : 
+       size  price   color    class   boh
+    0  XXL    8.0   black  class 1  22.0
+    1    L    NaN    gray  class 2  20.0
+    2   XL   10.0    blue  class 2  19.0
+    3    M    NaN  orange  class 1  17.0
+    4    M   11.0   green  class 3   NaN
+    5    M    7.0     red  class 1  22.0
+    
+    New data:
+       size  price   color    class   boh
+    0  XXL    8.0   black  class 1  22.0
+    1    L    7.0    gray  class 2  20.0
+    2   XL   10.0    blue  class 2  19.0
+    3    M    7.0  orange  class 1  17.0
+    4    M   11.0   green  class 3  22.0
+    5    M    7.0     red  class 1  22.0
+
+
+    /Users/jonpai/opt/anaconda3/lib/python3.7/site-packages/sklearn/utils/deprecation.py:66: DeprecationWarning: Class Imputer is deprecated; Imputer was deprecated in version 0.20 and will be removed in 0.22. Import impute.SimpleImputer from sklearn instead.
+      warnings.warn(msg, category=DeprecationWarning)
+
+
+### (4)插值填充
+
+参考：https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.interpolate.html
+
+
+
+```python
+#线性插值
+s = pd.Series([0, 1, np.nan, 3])
+print('original data:\n',s)
+s=s.interpolate(method = 'linear') #线性插值
+print('\nnew data:\n',s)
+```
+
+    original data:
+     0    0.0
+    1    1.0
+    2    NaN
+    3    3.0
+    dtype: float64
+    
+    new data:
+     0    0.0
+    1    1.0
+    2    2.0
+    3    3.0
+    dtype: float64
+
+
+
+```python
+#多项式插值
+df = pd.DataFrame([(0.0, np.nan, -1.0, 1.0),
+                   (np.nan, 2.0, np.nan, np.nan),
+                   (2.0, 3.0, np.nan, 9.0),
+                   (np.nan, 4.0, -4.0, 16.0)],
+                  columns=list('abcd'))
+print(df)
+df['d'].interpolate(method='polynomial', order=2)
+```
+
+         a    b    c     d
+    0  0.0  NaN -1.0   1.0
+    1  NaN  2.0  NaN   NaN
+    2  2.0  3.0  NaN   9.0
+    3  NaN  4.0 -4.0  16.0
+
+
+
+
+
+    0     1.0
+    1     4.0
+    2     9.0
+    3    16.0
+    Name: d, dtype: float64
+
+
+
+### (5)热卡填充（Hot deck imputation，或就近补齐
+#### 概念
+
+对于一个包含空值的对象，热卡填充法在完整数据中找到一个与它最相似的对象，然后用这个相似对象的值来进行填充。
+
+不同的问题可能会选用不同的标准来对相似进行判定。
+
+#### 特点
+> 优点：
+    该方法概念上很简单，且利用了数据间的关系来进行空值估计
+
+> 缺点
+    难以定义相似标准，主观因素较多。
+
+### (6)K最近距离邻法（K-means clustering）
+利用无监督机器学习的聚类方法。通过K均值的聚类方法将所有样本进行聚类划分，然后再通过划分的种类的均值对各自类中的缺失值进行填补。
+
+归其本质还是通过找相似来填补缺失值。
+
+**注：缺失值填补的准确性就要看聚类结果的好坏了，而聚类结果的可变性很大，通常与初始选择点有关，并且在下图中可看到单独的每一类中特征值也有很大的差别。**
+
+![image.png](https://i.imgur.com/llZSEa8.png)
+
+> **K均值聚类算法**： 创建k个点作为起始支点(随机选择)。当任意一个簇的分配结果发生改变的时候，计算各质心与各数据点之间的距离，将数据分配到距离其最近的簇;对每一簇，计算簇中所有点的均值并将其均值作为质心。
+
+
+```python
+#K均值聚类
+from matplotlib import pyplot as plt
+from sklearn import datasets
+import pandas as pd
+import numpy as np
+iris = datasets.load_iris()
+X, y = iris.data, iris.target
+data = X[:,[1,3]] # 为了便于可视化，只取两个维度
+plt.scatter(data[:,0],data[:,1]);
+```
+
+
+```python
+def kmeans(data,k=2):
+    def distance(p1,p2):
+        tmp = np.sum((p1-p2)**2)
+        return np.sqrt(tmp)
+    def rand_center(data,k):
+        """Generate k center within the range of data set."""
+        n = data.shape[1] # features
+        centroids = np.zeros((k,n)) # init with (0,0)....
+        for i in range(n):
+            dmin, dmax = np.min(data[:,i]), np.max(data[:,i])
+            centroids[:,i] = dmin + (dmax - dmin) * np.random.rand(k)
+        return centroids
+    
+    def _converged(centroids1, centroids2):
+        #中心不变时，即认为收敛
+         set1 = set([tuple(c) for c in centroids1])
+         set2 = set([tuple(c) for c in centroids2])
+         return (set1 == set2)
+        
+    
+    n = data.shape[0] # number of entries
+    centroids = rand_center(data,k)
+    label = np.zeros(n,dtype=np.int) # track the nearest centroid
+    assement = np.zeros(n) # for the assement of our model
+    converged = False
+    
+    while not converged:
+        old_centroids = np.copy(centroids)
+        for i in range(n):
+            # determine the nearest centroid and track it with label
+            min_dist, min_index = np.inf, -1
+            for j in range(k):
+                dist = distance(data[i],centroids[j])
+                if dist < min_dist:
+                    min_dist, min_index = dist, j
+                    label[i] = j
+            assement[i] = distance(data[i],centroids[label[i]])**2
+        
+        # update centroid
+        for m in range(k):
+            centroids[m] = np.mean(data[label==m],axis=0)
+        converged = _converged(old_centroids,centroids)    
+    return centroids, label, np.sum(assement)
+
+best_assement = np.inf
+best_centroids = None
+best_label = None
+
+for i in range(10):
+    centroids, label, assement = kmeans(data,2)
+    if assement < best_assement:
+        best_assement = assement
+        best_centroids = centroids
+        best_label = label
+
+data0 = data[best_label==0]
+data1 = data[best_label==1]
+fig, (ax1,ax2) = plt.subplots(1,2,figsize=(12,5))
+ax1.scatter(data[:,0],data[:,1],c='c',s=30,marker='o')
+ax2.scatter(data0[:,0],data0[:,1],c='r')
+ax2.scatter(data1[:,0],data1[:,1],c='c')
+ax2.scatter(centroids[:,0],centroids[:,1],c='b',s=120,marker='o')
+plt.show()
+```
+
+
+![png](0419/output_27_0.png)
+
+
+### (7)回归（Regression）
+#### 概念
+    基于完整的数据集，建立回归方程。对于包含空值的对象，将已知属性值代入方程来估计未知属性值，以此估计值来进行填充。当变量不是线性相关时会导致有偏差的估计。
+#### 应用场景
+    回归方程充填法，是选择若干能预测缺失值的自变量，通过建立回归方程估算缺失值。
+    该方法能尽可能地利用原数据集中的信息，但也存在一些不足之处：
+        1. 虽然这是一个无偏估计，但会忽视随机误差，低估标准差和其他未知性质的测量值。
+        2.使用前，必须假设存在缺失值所在的变量与其他变量是存在线性关系的,但现实它们不一定存在这样的线性关系。
+#### 使用步骤
+- a. 确定充填缺失值的变量（特征列）
+- b. 拆分原始数据集：
+    根据需要充填缺失值的变量，把原始数据集拆分为2个子集（1. 不含有缺失值：dataset_train; 2. 只含有缺失值dataset_pred)
+- c. 辨析并检验相关变量的相关性：
+    经验分析判定与充填缺失值的变量相关的属性列有哪些，应用统计分析工具，在dataset_train数据集上查看验证所选择的属性列之间的相关性。
+- d. 建模并预测：
+    使用dataset_train数据集建立线性回归模型，并应用建好的模型对dataset_pred数据集中的缺失变量进行预测估计
+- e. 合并还原数据集：
+    将两个子集合并还原为一个数据集，为后续建模准备好数据。
+
+
+
+
+```python
+# 读取数据
+import  pandas as pd
+dataset = pd.read_csv('02/data.csv')
+# 提取缺失数据的item
+# 找到含有缺失值的记录，建立需要预测的子集
+import numpy as np 
+import pandas as pd
+dataset_pred = dataset[np.isnan(dataset['sepal_width'])]
+
+# 将其他完整的item数据组合为训练子集
+dataset_train = dataset.dropna(subset = ['sepal_width'],axis = 0)
+dataset_pred
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>item</th>
+      <th>sepal length</th>
+      <th>sepal_width</th>
+      <th>petal length</th>
+      <th>petal width</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>5.1</td>
+      <td>NaN</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>9</td>
+      <td>4.4</td>
+      <td>NaN</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>18</td>
+      <td>5.1</td>
+      <td>NaN</td>
+      <td>1.4</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>26</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>1.6</td>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# 使用皮尔逊相关系数
+import seaborn as sns
+import matplotlib.style as style
+dataset_te = dataset_train.drop(['item'],axis = 1)
+X_pred = pd.DataFrame(dataset_te)
+y_pred = dataset_te['sepal_width']
+
+style.use('fivethirtyeight')
+print(dataset_te.corr())
+sns.heatmap(dataset_te.corr())
+```
+
+                  sepal length  sepal_width  petal length  petal width
+    sepal length      1.000000     0.773193      0.282151     0.424245
+    sepal_width       0.773193     1.000000      0.118777     0.550284
+    petal length      0.282151     0.118777      1.000000     0.384191
+    petal width       0.424245     0.550284      0.384191     1.000000
+
+
+
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1a1aabf950>
+
+
+
+
+![png](0419/output_30_3.png)
+
+
+> ***皮尔逊相关系数*** 的变化范围为-1到1。 系数的值为1意味着X和Y可以很好的由直线方程来描述，两者呈良好的正相关关系。系数的值为−1意味着两者呈现负相关。系数的值为0意味着两个变量之间没有线性关系。
+
+
+```python
+# 建模并进行预测
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+line_reg = LinearRegression()
+X_pred.dropna(inplace=True) # 删除有缺失值的行
+y_pred.dropna(inplace=True)
+X = X_pred.drop(['sepal_width'],axis = 1)
+X_train , X_test , y_train ,y_test = train_test_split(X,y_pred,test_size=0.2,random_state = 10)
+line_reg.fit(X_train,y_train)
+print('intercept:' + str(line_reg.intercept_))
+print('line_reg.coef_:',line_reg.coef_)
+```
+
+    intercept:-0.12966654107636177
+    line_reg.coef_: [ 0.70140739 -0.08715078  0.72401031]
+
+
+因此，由上面可以得到回归方程如下：
+
+sepal_width = -0.12966654107636177 + sepal_length * 0.70140739 - 0.08715078 * petal_length + 0.72401031 * petal_width
+
+
+```python
+print(X_train.shape)
+pred = dataset_pred.drop(['sepal_width'],axis = 1)
+pred = pred.drop(['item'],axis = 1)
+sepal_width = line_reg.predict(pred)
+dataset_pred['sepal_width'] = sepal_width
+dataset_pred
+```
+
+    (20, 3)
+
+
+    /Users/jonpai/opt/anaconda3/lib/python3.7/site-packages/ipykernel_launcher.py:5: SettingWithCopyWarning: 
+    A value is trying to be set on a copy of a slice from a DataFrame.
+    Try using .loc[row_indexer,col_indexer] = value instead
+    
+    See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+      """
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+    
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>item</th>
+      <th>sepal length</th>
+      <th>sepal_width</th>
+      <th>petal length</th>
+      <th>petal width</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>5.1</td>
+      <td>3.470302</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>9</td>
+      <td>4.4</td>
+      <td>2.979317</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>18</td>
+      <td>5.1</td>
+      <td>3.542703</td>
+      <td>1.4</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>26</td>
+      <td>5.0</td>
+      <td>3.382731</td>
+      <td>1.6</td>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+#### 与真实数据集进行了比较。
+
+|item序号|   实际测量数据   |   通过回归方程得到数据   |
+| :---:|   :---:|   :---:|
+|0|3.5|3.470302|
+|9|2.9|2.979317|
+|18|3.5|3.542703|
+|26|3|3.382731|
+
+
+### (8)期望值最大化方法（Expectation maximization，EM）
+EM算法是一种在不完全数据情况下计算极大似然估计或者后验分布的迭代算法。
+
+在每一迭代循环过程中交替执行两个步骤：
+- 1.E步（Excepctaion step,期望步），在给定完全数据和前一次迭代所得到的参数估计的情况下计算完全数据对应的对数似然函数的条件期望；
+- 2.M步（Maximzation step，极大化步），用极大化对数似然函数以确定参数的值，并用于下步的迭代。
+
+算法在E步和M步之间不断迭代直至收敛，即两次迭代之间的参数变化小于一个预先给定的阈值时结束。
+
+#### 特点
+> 优点：该方法比删除个案和单值插补更有吸引力，它一个重要前提：适用于大样本。有效样本的数量足够以保证ML估计值是渐近无偏的并服从正态分布。
+
+> 缺点：该方法可能会陷入局部极值，收敛速度也不是很快，并且计算很复杂。
+
+# 总结
+总的来说，处理缺失值的主要方法如下：
+
+- 使用可用特征的均值来填补缺失值
+- 使用特殊值来填补缺失值
+- 忽略有缺失值的样本
+- 使用相似样本的均值填补缺失值
+- 使用另外的机器学习算法预测缺失值
+
+参考：
+
+https://blog.csdn.net/ge341204/article/details/80720369?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+
+https://blog.csdn.net/vivian_ll/article/details/91900323
+
+[缺失值的处理 (文字无代码）](http://blog.sina.com.cn/s/blog_670445240102v08m.html)
+
+
+[python做数据分析时缺失值填补、缺失值填充方法汇总（含有一些代码）](https://blog.csdn.net/qq_41780234/article/details/103306928)
+
+[slearn 缺失值处理器： Imputer](https://blog.csdn.net/dss_dssssd/article/details/82831240)
+
+[zhihu](https://zhuanlan.zhihu.com/p/40775756)
+
+https://mp.weixin.qq.com/s?__biz=MzUzODYwMDAzNA==&mid=2247484373&idx=1&sn=d73864c04b0ab2f6ebf32df6b1c7ba86&chksm=fad474d8cda3fdcee903ecf24fc7cabd33c0add870e0a6af0d00712f221107bfe4e49acbd25e&scene=21#wechat_redirect
+
+[随机森林例子](https://mp.weixin.qq.com/s?__biz=MzUzODYwMDAzNA==&mid=2247484373&idx=1&sn=d73864c04b0ab2f6ebf32df6b1c7ba86&chksm=fad474d8cda3fdcee903ecf24fc7cabd33c0add870e0a6af0d00712f221107bfe4e49acbd25e&scene=21#wechat_redirect)

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#3367D6"/>
+  <link rel="apple-touch-icon" href="/icons-192.png">
+  <link rel="manifest" href="/manifest.json">
+  
+  <meta name="generator" content="Hexo 7.0.0">
+
+  
+
+  
+
+  
+    <meta name="author" content="JiangYH">
+  
+
+  
+
+  
+
+  <title>注意力机制笔记 | 通往成功的道路</title>
+
+  
+
+  
+    <link rel="shortcut icon" href="/favicon.ico">
+  
+
+  <!--mathjax latex数学公式显示支持-->
+  
+  
+
+  
+
+  
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+  <div class="root-container">
+    
+<!-- header container -->
+<header class="header-container post">
+  
+    <div class="post-image" style="background-image: url(https://qiniu.sukoshi.xyz/src/images/68686407_p0.jpg)"></div>
+  
+
+  <!-- navbar -->
+<nav class="navbar">
+  <div class="navbar-content">
+    <!-- logo -->
+    <div class="navbar-logo">
+      <a href="/">
+        
+          通往成功的道路
+        
+      </a>
+    </div>
+    <!-- link -->
+    <div class="navbar-link">
+      <div class="navbar-btn">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <ul class="navbar-list">
+        
+          <li class="navbar-list-item"><a href="/">首页</a></li>
+        
+          <li class="navbar-list-item"><a href="/links">友链</a></li>
+        
+          <li class="navbar-list-item"><a href="/about">关于</a></li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+    <div class="header-content">
+      <div class="post-text layout-block">
+        <div class="layout-margin">
+          <h1 class="title-wrap">注意力机制笔记</h1>
+          <h2 class="title-sub-wrap">
+            <strong>JiangYh</strong>
+            <span>发布于</span>
+            <time  class="article-date" datetime="2023-12-13T04:00:43.548Z" itemprop="datePublished">2023-12-13</time>
+          </h2>
+          
+          
+          <ul class="wrap-list dark">
+  
+    <li><a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">📒 学习笔记</a></li>
+  
+</ul>
+          <ul class="wrap-list dark">
+  
+    <li><a href="/tags/Transformer%E6%A8%A1%E5%9E%8B-self-attention/">🏷️ Transformer模型 - self-attention</a></li>
+  
+</ul>
+        </div>
+      </div>
+    </div>
+  
+
+  
+  
+  
+</header>
+
+    <!-- 文章 -->
+
+<!-- 文章内容 -->
+<div class="body-container">
+  <article class="content-container layout-block post-container">
+    <div class="article-info">
+      
+      
+      
+      
+      <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
+        <ul>
+<li><a href="#transformer">Transformer</a><ul>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C">位置编码相关工作</a><ul>
+<li><a href="#%E6%80%BB%E8%BF%B0">总述</a><ul>
+<li><a href="#%E7%BB%9D%E5%AF%B9%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81">绝对位置编码</a></li>
+<li><a href="#%E7%9B%B8%E5%AF%B9%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81">相对位置编码</a></li>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
+<li><a href="#rope">RoPE</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%8D%E5%90%8C%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0%E4%B8%8E%E4%BC%98%E5%8C%96%E5%99%A8%E8%AE%BE%E8%AE%A1">不同激活函数与优化器设计</a><ul>
+<li><a href="#%E4%BC%98%E5%8C%96%E5%99%A8">优化器</a></li>
+<li><a href="#%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0">激活函数</a><ul>
+<li><a href="#swiglu">SwiGLU</a></li>
+<li><a href="#%E5%8F%82%E8%80%83-1">参考</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%A8%A1%E5%9E%8B%E7%BB%93%E6%9E%84%E5%BE%AE%E8%B0%83">模型结构微调</a><ul>
+<li><a href="#norm">Norm</a><ul>
+<li><a href="#pre-norm">Pre-Norm</a></li>
+<li><a href="#norm%E7%B1%BB%E5%9E%8B">Norm类型</a></li>
+<li><a href="#%E5%8F%82%E8%80%83-2">参考</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%B8%8D%E5%90%8Cattention%E5%AE%9E%E7%8E%B0">不同attention实现</a><ul>
+<li><a href="#flash-attention">Flash-Attention</a></li>
+<li><a href="#pageattention">PageAttention</a></li>
+<li><a href="#multi-query-attention">Multi-Query Attention</a></li>
+<li><a href="#group-query-attention">Group-Query Attention</a></li>
+</ul>
+</li>
+<li><a href="#bert%E4%B8%8Egpt%E7%9A%84%E4%B8%8D%E5%90%8C">Bert与GPT的不同</a><ul>
+<li><a href="#%E8%87%AA%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B">自回归模型</a><ul>
+<li><a href="#gpt%E7%B3%BB%E5%88%97%E6%A8%A1%E5%9E%8B">GPT系列模型</a></li>
+</ul>
+</li>
+<li><a href="#%E8%87%AA%E7%BC%96%E7%A0%81%E6%A8%A1%E5%9E%8B">自编码模型</a></li>
+<li><a href="#encoder-decoder">Encoder-Decoder</a></li>
+<li><a href="#%E5%8F%82%E8%80%83-3">参考</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="Transformer"><a href="#Transformer" class="headerlink" title="Transformer"></a>Transformer</h1><p>结构篇：</p>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/640.png" alt="transformer结构"></p>
+<p>encoder-decoder:6 block</p>
+<p>相关问题</p>
+<ol>
+<li><p>self-attention实现</p>
+<p> $Softmax\frac{(Q*k)}{\sqrt{d_k}}V$，其中$d_k$是Q,K的列数，防止内积过大；可以使得输入的数据的分布变得更好，防止梯度消失，让模型能够更容易训练。</p>
+<p> 只要能够建模相关性，别的建模方式也能够代替当前的自注意力计算；同样的能够缓解梯度消失问题也不用除掉列数值。</p>
+<p> 对位置信息不敏感，需要增加pos-emb；embedding 的直接相加,类似于信号的叠加，只要保证频率不同叠加的信号就能够再后续发挥作用。</p>
+<p> QKV的不同主要是为了增强容量和表达能力。多头也是为了增加参数量进而增强模型的表达能力，</p>
+</li>
+<li><p>整体的维度变化</p>
+<p> input:(bs,max_len)<br> embedding:(bs,max_len,hidden_size)<br> MHA:(bs,max_len,hidden_size)</p>
+<pre><code> Q(K,V): (bs,max_len,hidden_size)
+ 多头机制：
+ input:(bs*num_heads,max_len,hidden_size//num_heads)
+ output:(bs*num_heads,max_len,hidden_size//num_heads)
+ concat&amp;Linear:(bs,max_len,hidden_size)
+</code></pre>
+<p> add&amp;Post-Norm:(bs,max_len,hidden_size)<br> FF:(bs,max_len,hidden_size)</p>
+<pre><code> 先升维再降维
+ FF1:(bs,max_len,hidden_size*4)
+ FF2:(bs,max_len,hidden_size)
+</code></pre>
+</li>
+<li><p>计算复杂度对比</p>
+</li>
+</ol>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/v2-7792863eb59d96636cbddbf85788c1c4_1440w.webp" alt="img"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMTU5Njg4NQ==&mid=2247490647&idx=1&sn=a711ed1c556cdae1821bab251ee3893f&chksm=9bbff96dacc8707bdb133acfa55d599ca8dcea47027aa1fc2344d06d84584dbd4981c939fee0&scene=21#wechat_redirect">【关于Transformer】 那些的你不知道的事（上）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/neumy/p/15932615.html">从Attention 到 MultiHeadAttention</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/338817680">Transformer模型详解（图解最完整版）</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/hyzhyzhyz12345/article/details/104119375">说说transformer当中的维度变化</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643560888">大模型面试八股</a></li>
+</ol>
+<h1 id="位置编码相关工作"><a href="#位置编码相关工作" class="headerlink" title="位置编码相关工作"></a>位置编码相关工作</h1><h2 id="总述"><a href="#总述" class="headerlink" title="总述"></a>总述</h2><p>基于自注意力机制本身的计算原理，其对位置信息不敏感，具体从公式角度来看：</p>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/image.png" alt="Attention-cal"></p>
+<p>调换序列中两个元素的位置不会影响到当前的注意力得分计算。</p>
+<h3 id="绝对位置编码"><a href="#绝对位置编码" class="headerlink" title="绝对位置编码"></a>绝对位置编码</h3><ul>
+<li>训练式</li>
+</ul>
+<p>直接将位置编码当作可训练参数。一般的认为，该方法的缺点在于没有外推性，超过预设窗口大小的内容就无法处理了。(当前有一些可以通过如层次分解的方法将位置编码外推足够长的范围)</p>
+<ul>
+<li>三角式-transformer：</li>
+</ul>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/image-20230718230559320.png" alt="image-20230718230559320"></p>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/image-20230718230640108.png" alt="image-20230718230640108"></p>
+<p>通过内积的方法将相对位置信息融入到特征中。但具体实现中，由于参数矩阵也需要参与计算$p^{T}<em>{t}W^{T}</em>{Q}W_{K}p_s \not &#x3D;{p^{T}_{t}p_s}.$经相关研究，可知由于参数矩阵使得余弦波不再是理想情况，无法真正感知元素的相对未知信息。</p>
+<ul>
+<li>递归式</li>
+</ul>
+<p>本质思想是RNN这类递归模型，学习位置编码，再接入transformer。但最大的问题是牺牲了一定的并行性，会带来速度瓶颈。</p>
+<h3 id="相对位置编码"><a href="#相对位置编码" class="headerlink" title="相对位置编码"></a>相对位置编码</h3><p>相对位置编码在计算自注意力矩阵时，根据矩阵元素的下标，直接考虑每个元素对应的两个token间的相对位置关系。此外，相比于绝对位置编码仅仅在输入层考虑顺序特征，相对位置编码则通过修改自注意力计算的过程，植入到Transformer架构的每一层。</p>
+<p>不同模型的相对位置编码：</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/631363482">Transformer位置编码（基础）</a></li>
+<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/8130">让研究人员绞尽脑汁的Transformer位置编码</a></li>
+<li></li>
+</ol>
+<h2 id="RoPE"><a href="#RoPE" class="headerlink" title="RoPE"></a><a target="_blank" rel="noopener" href="https://gitee.com/Jonny-Jaia/ready-blog/blob/master/%E6%9D%82/4-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AE%9E%E4%B9%A0/LongContextWindow.md#rope">RoPE</a></h2><h1 id="不同激活函数与优化器设计"><a href="#不同激活函数与优化器设计" class="headerlink" title="不同激活函数与优化器设计"></a>不同激活函数与优化器设计</h1><h2 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h2><p>AdamW</p>
+<h2 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h2><h3 id="SwiGLU"><a href="#SwiGLU" class="headerlink" title="SwiGLU"></a>SwiGLU</h3><ol>
+<li>siwish-线性函数与ReLU之间的平滑</li>
+</ol>
+<p>$f(x)&#x3D;x \times sigmoid(\beta x)$</p>
+<ol start="2">
+<li>GELU-高斯误差线性单元，RELU的变种</li>
+</ol>
+<p>$f(x)&#x3D;x \times \phi(x),\phi(x)是正态分布的累积函数$，和Swish形式性质相似，表现相当</p>
+<ol start="3">
+<li>GLU-门控<br>$\text{GLU}(a, b) &#x3D; a \otimes \sigma(b)$<br><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/v2-1520514ff5f2c6ea2a0def6ace10bb42_720w.png"></li>
+</ol>
+<p>具体就是首先通过中间向量g(x)&#x3D;xW进行门控操作，使用Sigmoid函数σ将其映射到0到1之间的范围，表示每个元素被保留的概率。然后，将输入向量x与门控后的向量进行逐元素相乘（即 ⊗ 操作），得到最终的输出向量。</p>
+<ol start="4">
+<li>GEGL-GLU变体</li>
+</ol>
+<p>就是将GLU中的sigmoid激活函数替换成GELU激活函数<br>5. SwiGLU<br><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/v2-a7a7b4ad7ce1018183e1b8eb654f3f91_1440w.webp" alt="swishglu"></p>
+<p>就是将GLU中的sigmoid激活函数替换成Swish激活函数</p>
+<h3 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/638735903">大语言模型综述&lt;演进，技术路线，区别，微调，实践，潜在问题与讨论&gt;</a></li>
+</ol>
+<h1 id="模型结构微调"><a href="#模型结构微调" class="headerlink" title="模型结构微调"></a>模型结构微调</h1><h2 id="Norm"><a href="#Norm" class="headerlink" title="Norm"></a>Norm</h2><h3 id="Pre-Norm"><a href="#Pre-Norm" class="headerlink" title="Pre-Norm"></a>Pre-Norm</h3><ul>
+<li>LayerNorm会影响训练的稳定性</li>
+</ul>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://readpaper.com/pdf-annotate/note?pdfId=4500336028413485057&noteId=1867628851738139648">Megatron-LM</a> 用实验证明layernorm后置效果要更加稳定</p>
+</blockquote>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/image-20230712101727279.png" alt="image-20230712101727279"></p>
+<p>Post-LN（原始的BERT）</p>
+<p>Pre-LN：On layer normalization in the transformer architecture</p>
+<p>Sandwich-LN: Cogview: Mastering text-to-image generation via transformers</p>
+<p>通常认为稳定性上: Sandwich-LN &gt; Pre-LN &gt; Post-LN</p>
+<h3 id="Norm类型"><a href="#Norm类型" class="headerlink" title="Norm类型"></a>Norm类型</h3><ul>
+<li><p>LayerNorm<br>传统transformer-Post-LN、随着层数加深梯度范数会增大导致训练不稳定。<br>Pre-LN:使用pre LN的深层transformer训练更稳定，可以缓解训练不稳定问题。但缺点是pre LN可能会轻微影响transformer模型的性能 大语言模型的一个挑战就是如何提升训练的稳定性。<br><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/v2-dcd81bd8ea2fcba1e777f700ac1e5146_1440w.webp" alt="LayerNorm"></p>
+<p>Norm中采用的性质：</p>
+<ol>
+<li>平移不变性：均值</li>
+<li>缩放不变性：方差</li>
+</ol>
+</li>
+<li><p>RMSNorm<br>只保留缩放，简化计算的同时，效果基本相当甚至还略有提升。<br><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/v2-f1eb53988e49ac7358d2af489ec4b9bd_1440w.webp" alt="RMSNorm"></p>
+</li>
+<li><p>DeepNorm</p>
+<p><img src="/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6.assets/98a70456797347a68085cce705d71ed3.png" alt="deepnorm"></p>
+<p>用以缓解爆炸式模型更新的问题，更可以再此基础上实现千层堆积。<br>$x &#x3D; LayerNorm(x \times \alpha + f(x))$</p>
+<ol>
+<li>DeepNorm在进行Layer Norm之前会以 α参数扩大残差连接</li>
+<li>在Xavier参数初始化过程中以 β减小部分参数的初始化范围</li>
+</ol>
+</li>
+</ul>
+<h3 id="参考-2"><a href="#参考-2" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/638735903">大语言模型综述&lt;演进，技术路线，区别，微调，实践，潜在问题与讨论&gt;</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/479860623">DEEPNORM：千层transformer…</a></li>
+</ol>
+<h1 id="不同attention实现"><a href="#不同attention实现" class="headerlink" title="不同attention实现"></a>不同attention实现</h1><h2 id="Flash-Attention"><a href="#Flash-Attention" class="headerlink" title="Flash-Attention"></a><a target="_blank" rel="noopener" href="https://gitee.com/Jonny-Jaia/ready-blog/blob/master/%E6%9D%82/4-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AE%9E%E4%B9%A0/FlashAttention.md#flashattention">Flash-Attention</a></h2><h2 id="PageAttention"><a href="#PageAttention" class="headerlink" title="PageAttention"></a><a target="_blank" rel="noopener" href="https://gitee.com/Jonny-Jaia/ready-blog/blob/master/%E6%9D%82/4-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AE%9E%E4%B9%A0/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F.md#vllmpagedattention">PageAttention</a></h2><h2 id="Multi-Query-Attention"><a href="#Multi-Query-Attention" class="headerlink" title="Multi-Query Attention"></a><a href="">Multi-Query Attention</a></h2><h2 id="Group-Query-Attention"><a href="#Group-Query-Attention" class="headerlink" title="Group-Query Attention"></a><a href="">Group-Query Attention</a></h2><h1 id="Bert与GPT的不同"><a href="#Bert与GPT的不同" class="headerlink" title="Bert与GPT的不同"></a>Bert与GPT的不同</h1><h2 id="自回归模型"><a href="#自回归模型" class="headerlink" title="自回归模型"></a>自回归模型</h2><p>AR，代表GPT，从左向右学习。</p>
+<p>AR模型通常用于生成式任务，在长文本的生成能力很强，比如自然语言生成（NLG）领域的任务：摘要、翻译或抽象问答。</p>
+<p>具体来说，就是利用上文词预测下一个词的发生概率。</p>
+<p>优点：AR模型擅长生成式NLP任务。AR模型使用注意力机制，预测下一个token，因此自然适用于文本生成。此外，AR模型可以简单地将训练目标设置为预测语料库中的下一个token，因此生成数据相对容易。</p>
+<p>缺点：AR模型只能用于前向或者后向建模，不能同时使用双向的上下文信息，不能完全捕捉token的内在联系。</p>
+<h3 id="GPT系列模型"><a href="#GPT系列模型" class="headerlink" title="GPT系列模型"></a>GPT系列模型</h3><ul>
+<li><p>GPT1<br>通过无监督预训练+有监督微调实现模型性能的提升。另外，将预训练目标作为辅助目标加入下游任务loss中，将会提高有监督模型的泛化性能，并加速收敛。</p>
+</li>
+<li><p>GPT2-15B</p>
+</li>
+</ul>
+<blockquote>
+<p> “所有的有监督学习都是无监督语言模型的一个子集”</p>
+</blockquote>
+<p>  增大了模型大小与参数规模，提出了zero-shot，并且提出了以一个通用预训练模型为基础，使得下游任务无需手动生成或标记训练数据集，更不需要修改预训练模型的参数或结构。</p>
+<p>  GPT2通过实验验证了海量数据与大量参数训练得到的语言模型可以迁移到下游其他任务中，无需额外训练和微调。</p>
+<ul>
+<li><p>GPT3-175B<br>引入了In-Context Learning的概念，GPT3参数量增大的同时，期望不通过微调直接能够通过上下文指示也能够有较好的性能。</p>
+<p>In-Context learning是元学习（Meta-learning）的一种，元学习的核心思想在于通过<strong>少量的数据寻找一个合适的初始化范围</strong>，使得模型能够在有限的数据集上快速拟合，并获得不错的效果。</p>
+</li>
+<li><p>InstructGPT</p>
+<blockquote>
+<p>提出动机：让模型的输出达到3H(helpful,honest,harmless)</p>
+</blockquote>
+<ol>
+<li>RLHF</li>
+</ol>
+<p>  人类喜欢的内容大致符合以上的3H标准，并且也能够保证生成内容流畅性与语法正确性；</p>
+<p>  通过RL指导模型训练，以人类反馈作为奖励，实现将人类经验内容的注入。</p>
+<ol start="2">
+<li>实验步骤</li>
+</ol>
+<p>  有监督微调-基于人工标注的对比数据训练奖励模型-基于RM利用PPO微调SFT模型；</p>
+<p>  三部分数据集：<br>  SFT数据：简单任务、few-shot任务、用户相关的任务；<br>  RM数据：让模型先生成一批候选文本，然后针对这部分数据进行排序；<br>  PPO数据：无标注数据，来自GPT3的API用户调用任务数据；</p>
+<p>  训练设置：<br>  SFT：与GPT3一致，适当过拟合有助于后续的训练；<br>  RM：输入prompt和response，输出奖励值；训练过程中将同一个prompt的k个输出成对取出共有$C_{K}^{2}$个结果作为一个batch输入，loss就是最大化结果的差值；<br>  PPO：KL惩罚确保两个策略的输出差距不会很大；为了防止模型在通用NLP任务上性能大幅度下降，优化目标中增加了通用语言模型的目标；</p>
+<ol start="3">
+<li>优缺点</li>
+</ol>
+<p>  优点：结果更真实，无害性提高，coding能力提升；<br>  缺点：会降低在通用NLP任务上的效果；依然会给出奇怪的输出；对指示十分敏感；对简单概念过分解读。</p>
+</li>
+<li><p>GPT4-1.8T</p>
+</li>
+</ul>
+<ol>
+<li>模型架构</li>
+</ol>
+<p>采用的是MoE的架构</p>
+<ol start="2">
+<li>数据组成</li>
+</ol>
+<h2 id="自编码模型"><a href="#自编码模型" class="headerlink" title="自编码模型"></a>自编码模型</h2><p>AE，代表BERT，主要是对掩码部分能够实现重建，常用于内容理解任务，比如自然语言理解（NLU）中的分类任务：情感分析、提取式问答。</p>
+<p>优点：在上下文依赖中，BERT的表示可以涵盖前后向两边的上下文。BERT使用双向transformer，在语言理解相关的任务中表现很好。</p>
+<p>缺点：</p>
+<ul>
+<li>输入噪声：<br>BERT在预训练过程中使用【mask】符号对输入进行处理，这些符号在下游的finetune任务中永远不会出现，这会导致预训练-微调差异。而AR模型不会依赖于任何被mask的输入，因此不会遇到这类问题。</li>
+<li>BERT在对联合条件概率进行因式分解时，基于一个独立假设：在给定了unmasked tokens时，所有待预测（masked）的tokens是相互独立的。</li>
+</ul>
+<h2 id="Encoder-Decoder"><a href="#Encoder-Decoder" class="headerlink" title="Encoder-Decoder"></a>Encoder-Decoder</h2><p>同时包含编码器和解码器两部分，常用的有T5、BART等模型</p>
+<h2 id="参考-3"><a href="#参考-3" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/626494749">[万字长文]ChatGPT系列论文精读——大模型经典论文GPT1、GPT2、GPT3</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/625714067">一文读懂GPT家族和BERT的底层区别——自回归和自编码语言模型详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/642927542">大规模语言模型（LLMs）预训练十六: GPT-4大揭密</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.semianalysis.com/p/gpt-4-architecture-infrastructure">GPT-4 Architecture, Infrastructure, Training Dataset, Costs, Vision, MoE (semianalysis.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/590311003">ChatGPT&#x2F;InstructGPT详解</a></li>
+</ol>
+
+      </section>
+
+      
+      
+        <nav class="article-nav">
+          
+            <div class="article-nav-item layout-padding">
+  <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
+    
+    <div class="card-text">
+      
+        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">生成式模型学习</h2>
+        </a>
+      
+      <div class="card-text--row">Newer</div>
+    </div>
+  </article>
+</div>
+          
+          
+            <div class="article-nav-item layout-padding">
+  <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
+    
+    <div class="card-text">
+      
+        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">(no title)</h2>
+        </a>
+      
+      <div class="card-text--row">Older</div>
+    </div>
+  </article>
+</div>
+          
+        </nav>
+      
+
+      <section class="page-message-container layout-padding">
+        
+
+
+  
+  
+
+  
+  
+
+
+      </section>
+    </div>
+    <div class="widget-info">
+      <section class="widget-author widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-body">
+    
+      <img src="https://s.gravatar.com/avatar/2d6b803eea37de0257620d5fabee7e64?s=200&amp;r=g&amp;d=retro" class="soft-size--round soft-style--box" alt="JiangYH">
+    
+    
+      <h2>JiangYH</h2>
+    
+    
+      <p>贵在坚持</p>
+    
+
+    <div class="count-box">
+      <div class="count-box--item">
+        <svg class="icon icon-article" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M240.51564747 647.74217627h196.07203239c16.59071043 0 30.16492806-13.57421762 30.16492805-30.16492806V165.10332731c0-33.18142087-30.16492806-60.32985613-60.32985612-60.32985611H245.04038668C225.43318342 104.7734712 210.35071939 119.85593522 210.35071939 139.46313845V617.57724821c0 16.59071043 13.57421762 30.16492806 30.16492808 30.16492806z m663.62841731-452.47392089v482.63884894c0 33.18142087-27.14843525 60.32985613-60.32985612 60.32985613H180.18579134c-33.18142087 0-60.32985613-27.14843525-60.32985612-60.32985613V195.26825538c-49.77213131 0-90.49478418 40.72265287-90.49478417 90.49478417v452.4739209c0 49.77213131 40.72265287 90.49478418 90.49478417 90.49478417h286.56681657c16.59071043 0 30.16492806 13.57421762 30.16492807 30.16492807s13.57421762 30.16492806 30.16492805 30.16492806h90.49478418c16.59071043 0 30.16492806-13.57421762 30.16492805-30.16492806s13.57421762-30.16492806 30.16492807-30.16492807h286.56681657c49.77213131 0 90.49478418-40.72265287 90.49478417-90.49478417V285.76303955c0-49.77213131-40.72265287-90.49478418-90.49478417-90.49478417zM587.41232014 647.74217627h191.54729318c19.60720323 0 34.68966726-15.08246403 34.68966729-34.68966727V134.93839925c0-16.59071043-13.57421762-30.16492806-30.16492808-30.16492805H617.57724821c-30.16492806 0-60.32985613 27.14843525-60.32985612 60.32985611v452.4739209c0 16.59071043 13.57421762 30.16492806 30.16492805 30.16492806z" fill="currentColor"></path>
+</svg>
+        <span>10</span>
+      </div>
+      <div class="count-box--item">
+        <svg class="icon icon-categories" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M900.3614811 257.09082106h-339.81629553l-67.96326003-101.9448889c-19.41807444-29.12711113-48.54518557-43.69066667-82.52681443-43.69066667H123.6385189c-53.39970333 0-97.09036999 43.69066667-97.09037113 97.09036999v582.54222222c0 53.39970333 43.69066667 97.09036999 97.09037113 97.09037002h776.7229622c53.39970333 0 97.09036999-43.69066667 97.09037113-97.09037002V354.18119104c0-53.39970333-43.69066667-97.09036999-97.09037113-97.09036998z m-97.09036999 242.72592554H220.72888889c-24.27259221 0-48.54518557-24.27259221-48.54518556-48.54518556s24.27259221-48.54518557 48.54518556-48.54518444h582.54222222c24.27259221 0 48.54518557 24.27259221 48.54518556 48.54518444s-24.27259221 48.54518557-48.54518556 48.54518556z" fill="currentColor"></path>
+</svg>
+        1
+      </div>
+      <div class="count-box--item">
+        <svg class="icon icon-tags" viewBox="0 0 1098 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M283.42180005 272q0-28.38857157-20.09142843-48.48000001t-48.47999998-20.09142842-48.48000002 20.09142842-20.09142846 48.48000001 20.09142846 48.48 48.48000002 20.09142843 48.47999998-20.09142843 20.09142843-48.48zM855.0332285 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.03999997 263.58857157q-20.9142853 19.81714313-48.75428534 19.81714312-28.38857157 0-48.20571468-19.81714312l-383.04-383.58857157q-20.36571468-19.81714313-34.55999999-54.10285688t-14.19428534-62.6742853l0-222.85714313q0-27.84000002 20.36571469-48.20571469t48.2057147-20.36571466l222.85714313 0q28.38857157 0 62.6742853 14.19428529t54.65142842 34.55999999l383.04000001 382.49142843q19.81714313 20.9142853 19.81714314 48.75428532zM1060.74751475 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.04 263.58857157q-20.9142853 19.81714313-48.75428531 19.81714312-19.26857155 0-31.61142843-7.47428531t-28.38857159-24.13714314l251.79428534-251.7942853q19.81714313-19.81714313 19.81714308-48.20571469 0-27.84000002-19.81714308-48.75428531l-383.04000001-382.49142845q-20.36571468-20.36571468-54.65142842-34.55999999t-62.67428532-14.19428534l120 0q28.38857157 0 62.67428532 14.19428534t54.65142842 34.55999999l383.03999998 382.49142845q19.81714313 20.9142853 19.81714314 48.75428531z" fill="currentColor"></path>
+</svg>
+        12
+      </div>
+    </div>
+  </div>
+</section>
+
+      
+
+      
+<section class="widet-notice widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-notice" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M512 945.02305225v28.15620663a24.27259221 24.27259221 0 0 1-24.27259221 24.27259335H394.0352a48.54518557 48.54518557 0 0 1-41.74885888-23.78714112l-110.68302222-184.47170332a132.04290333 132.04290333 0 0 1-17.47626667-48.54518557h118.4502511a200.97706667 200.97706667 0 0 1 76.21594113 14.56355556l20.38897777 133.49925888a48.54518557 48.54518557 0 0 0 36.40888888 27.67075555l16.01991111 2.91271112a24.27259221 24.27259221 0 0 1 20.38897778 25.72894889zM997.45185223 463.45481443a194.18074112 194.18074112 0 0 1-38.8361489 116.50844445 24.75804445 24.75804445 0 0 1-36.4088889 0l-34.95253333-34.95253333a24.27259221 24.27259221 0 0 1-2.91271111-30.58346667 97.09036999 97.09036999 0 0 0 0-106.79940665 24.27259221 24.27259221 0 0 1 2.91271111-30.58346666l34.95253333-34.95253334a24.75804445 24.75804445 0 0 1 18.93262223-7.28177777 26.2144 26.2144 0 0 1 17.47626667 9.70903665A194.18074112 194.18074112 0 0 1 997.45185223 463.45481443z m-194.18074112-388.36148111v776.72296335a48.54518557 48.54518557 0 0 1-48.54518556 48.54518443h-28.64165888a48.54518557 48.54518557 0 0 1-33.98163001-14.07810332l-145.63555556-143.20829668A291.27111111 291.27111111 0 0 0 342.57730333 657.63555556H172.18370333a145.63555556 145.63555556 0 0 1-145.63555556-145.63555556v-97.09036999a145.63555556 145.63555556 0 0 1 145.63555556-145.63555556h170.3936a291.27111111 291.27111111 0 0 0 206.31703779-85.43952668l145.63555555-143.20829554a48.54518557 48.54518557 0 0 1 33.98162888-14.07810446H754.72592555a48.54518557 48.54518557 0 0 1 48.54518556 48.54518555z" fill="currentColor"></path>
+</svg>
+    <span>NOTICE</span>
+  </div>
+  <div class="widget-body">
+    <p>flex-block主题部分重构，详情查看https://github.com/miiiku/flex-block</p>
+  </div>
+</section>
+
+
+      <section class="widget-categorys widget-item layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-categories" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M900.3614811 257.09082106h-339.81629553l-67.96326003-101.9448889c-19.41807444-29.12711113-48.54518557-43.69066667-82.52681443-43.69066667H123.6385189c-53.39970333 0-97.09036999 43.69066667-97.09037113 97.09036999v582.54222222c0 53.39970333 43.69066667 97.09036999 97.09037113 97.09037002h776.7229622c53.39970333 0 97.09036999-43.69066667 97.09037113-97.09037002V354.18119104c0-53.39970333-43.69066667-97.09036999-97.09037113-97.09036998z m-97.09036999 242.72592554H220.72888889c-24.27259221 0-48.54518557-24.27259221-48.54518556-48.54518556s24.27259221-48.54518557 48.54518556-48.54518444h582.54222222c24.27259221 0 48.54518557 24.27259221 48.54518556 48.54518444s-24.27259221 48.54518557-48.54518556 48.54518556z" fill="currentColor"></path>
+</svg>
+    <span>CATEGORYS</span>
+  </div>
+  <div class="widget-body">
+    <ul class="categorys-list">
+      
+        <li class="categorys-list-item">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+            学习笔记 (8)
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+</section>
+
+      <section class="widget-tags widget-item  layout-margin content-padding--primary soft-size--large soft-style--box">
+  <div class="widget-title">
+    <svg class="icon icon-tags" viewBox="0 0 1098 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M283.42180005 272q0-28.38857157-20.09142843-48.48000001t-48.47999998-20.09142842-48.48000002 20.09142842-20.09142846 48.48000001 20.09142846 48.48 48.48000002 20.09142843 48.47999998-20.09142843 20.09142843-48.48zM855.0332285 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.03999997 263.58857157q-20.9142853 19.81714313-48.75428534 19.81714312-28.38857157 0-48.20571468-19.81714312l-383.04-383.58857157q-20.36571468-19.81714313-34.55999999-54.10285688t-14.19428534-62.6742853l0-222.85714313q0-27.84000002 20.36571469-48.20571469t48.2057147-20.36571466l222.85714313 0q28.38857157 0 62.6742853 14.19428529t54.65142842 34.55999999l383.04000001 382.49142843q19.81714313 20.9142853 19.81714314 48.75428532zM1060.74751475 580.57142843q0 28.38857157-19.81714313 48.2057147l-263.04 263.58857157q-20.9142853 19.81714313-48.75428531 19.81714312-19.26857155 0-31.61142843-7.47428531t-28.38857159-24.13714314l251.79428534-251.7942853q19.81714313-19.81714313 19.81714308-48.20571469 0-27.84000002-19.81714308-48.75428531l-383.04000001-382.49142845q-20.36571468-20.36571468-54.65142842-34.55999999t-62.67428532-14.19428534l120 0q28.38857157 0 62.67428532 14.19428534t54.65142842 34.55999999l383.03999998 382.49142845q19.81714313 20.9142853 19.81714314 48.75428531z" fill="currentColor"></path>
+</svg>
+    <span>TAGS</span>
+  </div>
+  <div class="widget-body">
+    <div class="tags-cloud">
+      <a href="/tags/CV%E5%9F%BA%E7%A1%80/" style="font-size: 10px;" class="tags-cloud-0">CV基础</a> <a href="/tags/CV%E6%A8%A1%E5%9E%8B/" style="font-size: 20px;" class="tags-cloud-10">CV模型</a> <a href="/tags/NLP%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/" style="font-size: 20px;" class="tags-cloud-10">NLP预训练模型</a> <a href="/tags/Transformer%E6%A8%A1%E5%9E%8B-self-attention/" style="font-size: 10px;" class="tags-cloud-0">Transformer模型 - self-attention</a> <a href="/tags/UIE%E6%A8%A1%E5%9E%8B/" style="font-size: 20px;" class="tags-cloud-10">UIE模型</a> <a href="/tags/Word2Vec/" style="font-size: 10px;" class="tags-cloud-0">Word2Vec</a> <a href="/tags/prompt%E6%9E%84%E5%BB%BA%E5%8E%9F%E5%88%99/" style="font-size: 10px;" class="tags-cloud-0">prompt构建原则</a> <a href="/tags/prompt%E6%A8%A1%E5%9E%8B/" style="font-size: 20px;" class="tags-cloud-10">prompt模型</a> <a href="/tags/vision-transformer%E7%B3%BB%E5%88%97/" style="font-size: 20px;" class="tags-cloud-10">vision transformer系列</a> <a href="/tags/%E6%A8%A1%E5%9E%8B%E5%88%9B%E6%96%B0/" style="font-size: 10px;" class="tags-cloud-0">模型创新</a> <a href="/tags/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" style="font-size: 10px;" class="tags-cloud-0">生成模型</a> <a href="/tags/%E8%A7%A3%E7%A0%81%E7%AE%97%E6%B3%95/" style="font-size: 10px;" class="tags-cloud-0">解码算法</a>
+    </div>
+  </div>
+</section>
+    </div>
+  </article>
+</div>
+
+    <!-- footer container -->
+<footer id="footer" class="footer">
+  <div class="footer-container">
+    
+    <div class="social-icons">
+      
+        
+      
+        
+      
+        
+      
+        
+          <a href="https://github.com/miiiku/" class="soft-size--primary soft-style--box" target="_blank" rel="noopener noreferrer">
+            <svg class="icon icon-github" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M64.6 512c0 195.6 125.4 361.9 300.1 422.9 23.5 5.9 19.9-10.8 19.9-22.2v-77.6c-135.8 15.9-141.3-74-150.5-89-18.5-31.5-61.9-39.5-49-54.5 31-15.9 62.5 4 98.9 58 26.4 39.1 77.9 32.5 104.1 26 5.7-23.5 17.9-44.5 34.7-60.9-140.7-25.2-199.4-111.1-199.4-213.3 0-49.5 16.4-95.1 48.4-131.8-20.4-60.6 1.9-112.4 4.9-120.1 58.2-5.2 118.5 41.6 123.3 45.3 33.1-8.9 70.8-13.7 112.9-13.7 42.4 0 80.3 4.9 113.5 13.9 11.3-8.6 67.3-48.8 121.4-43.9 2.9 7.7 24.7 58.3 5.5 118.1 32.5 36.8 49 82.8 49 132.4 0 102.3-59 188.3-200.2 213.2 23.5 23.3 38.1 55.5 38.1 91.1v112.7c0.8 9 0 17.9 15.1 17.9C832.7 877 960.4 709.4 960.4 512.1c0-247.5-200.6-447.9-447.9-447.9C265 64.1 64.6 264.5 64.6 512z"></path>
+</svg>
+          </a>
+        
+      
+        
+          <a href="https://twitter.com/guanquanhong" class="soft-size--primary soft-style--box" target="_blank" rel="noopener noreferrer">
+            <svg class="icon icon-twitter" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path d="M962.285714 233.142857q-38.285714 56-92.571429 95.428571 0.571429 8 0.571429 24 0 74.285714-21.714286 148.285714t-66 142-105.428571 120.285714-147.428571 83.428571-184.571429 31.142857q-154.857143 0-283.428571-82.857143 20 2.285714 44.571429 2.285714 128.571429 0 229.142857-78.857143-60-1.142857-107.428571-36.857143t-65.142857-91.142857q18.857143 2.857143 34.857143 2.857143 24.571429 0 48.571429-6.285714-64-13.142857-106-63.714286t-42-117.428571l0-2.285714q38.857143 21.714286 83.428571 23.428571-37.714286-25.142857-60-65.714286t-22.285714-88q0-50.285714 25.142857-93.142857 69.142857 85.142857 168.285714 136.285714t212.285714 56.857143q-4.571429-21.714286-4.571429-42.285714 0-76.571429 54-130.571429t130.571429-54q80 0 134.857143 58.285714 62.285714-12 117.142857-44.571429-21.142857 65.714286-81.142857 101.714286 53.142857-5.714286 106.285714-28.571429z"></path>
+</svg>
+          </a>
+        
+      
+    </div>
+     
+    <p>&copy; 2023 <a href="/" target="_blank">JiangYH</a></p>
+
+    
+
+    <p>Powered by <a href="https://hexo.io" target="_blank" rel="noopener noreferrer">Hexo</a> Theme - <a href="https://github.com/miiiku/flex-block" target="_blank" rel="noopener noreferrer author">flex-block</a></p>
+
+    <p>
+      <a href="javascript:;" id="theme-light">🌞 浅色</a>
+      <a href="javascript:;" id="theme-dark">🌛 深色</a>
+      <a href="javascript:;" id="theme-auto">🤖️ 自动</a>
+    </p>
+  </div>
+</footer>
+  </div>
+
+  <div class="back-to-top-fixed soft-size--round soft-style--box">
+    <svg class="icon icon-back-to-top" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+      <path d="M725.333333 426.666667c-12.8 0-21.333333-4.266667-29.866667-12.8l-213.333333-213.333333c-17.066667-17.066667-17.066667-42.666667 0-59.733333s42.666667-17.066667 59.733333 0l213.333333 213.333333c17.066667 17.066667 17.066667 42.666667 0 59.733333C746.666667 422.4 738.133333 426.666667 725.333333 426.666667z"></path>
+      <path d="M298.666667 426.666667c-12.8 0-21.333333-4.266667-29.866667-12.8-17.066667-17.066667-17.066667-42.666667 0-59.733333l213.333333-213.333333c17.066667-17.066667 42.666667-17.066667 59.733333 0s17.066667 42.666667 0 59.733333l-213.333333 213.333333C320 422.4 311.466667 426.666667 298.666667 426.666667z"></path>
+      <path d="M512 896c-25.6 0-42.666667-17.066667-42.666667-42.666667L469.333333 170.666667c0-25.6 17.066667-42.666667 42.666667-42.666667s42.666667 17.066667 42.666667 42.666667l0 682.666667C554.666667 878.933333 537.6 896 512 896z"></path>
+    </svg>
+  </div>
+
+  
+  <!-- aplayer -->
+
+
+<!-- dplayer -->
+
+
+<!-- copy button  -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+
+<!-- https://clipboardjs.com/ -->
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+  <!-- 尾部用户自定义相关内容 -->
+</body>
+</html>

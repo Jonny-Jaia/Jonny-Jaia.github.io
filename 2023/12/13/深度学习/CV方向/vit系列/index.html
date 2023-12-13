@@ -22,7 +22,7 @@
 
   
 
-  <title>CV基础 | 通往成功的道路</title>
+  <title>ViT系列模型学习 | 通往成功的道路</title>
 
   
 
@@ -99,12 +99,17 @@
     <div class="header-content">
       <div class="post-text layout-block">
         <div class="layout-margin">
-          <h1 class="title-wrap">CV基础</h1>
+          <h1 class="title-wrap">ViT系列模型学习</h1>
           <h2 class="title-sub-wrap">
             <strong>JiangYh</strong>
             <span>发布于</span>
-            <time  class="article-date" datetime="2023-12-13T03:41:38.643Z" itemprop="datePublished">2023-12-13</time>
+            <time  class="article-date" datetime="2023-12-13T03:41:38.644Z" itemprop="datePublished">2023-12-13</time>
           </h2>
+          
+            <h2 class="last-time">
+              <span>最后更新于</span>
+              <time  class="article-updated" datetime="2023-08-15T13:45:47.154Z" itemprop="dateUpdated">2023-08-15</time>
+            </h2>
           
           
           <ul class="wrap-list dark">
@@ -114,7 +119,9 @@
 </ul>
           <ul class="wrap-list dark">
   
-    <li><a href="/tags/CV%E5%9F%BA%E7%A1%80/">🏷️ CV基础</a></li>
+    <li><a href="/tags/CV%E6%A8%A1%E5%9E%8B/">🏷️ CV模型</a></li>
+  
+    <li><a href="/tags/vision-transformer%E7%B3%BB%E5%88%97/">🏷️ vision transformer系列</a></li>
   
 </ul>
         </div>
@@ -138,13 +145,97 @@
       
       
       <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
-        <h1 id="CV中的特征维度变换"><a href="#CV中的特征维度变换" class="headerlink" title="CV中的特征维度变换"></a>CV中的特征维度变换</h1><p>CNN的卷积核通道数 &#x3D; 卷积输入层的通道数<br>CNN的卷积输出层通道数(深度)&#x3D; 卷积核的个数</p>
-<p>设输入图像尺寸为WxW，卷积核尺寸为FxF，步幅为S，Padding使用P,经过该卷积层后输出的图像尺寸为NxN：</p>
-<p><img src="/CV%E5%9F%BA%E7%A1%80.assets/20181220165133496" alt="N=\frac{W-F+2P}{S}+1"></p>
-<p>池化计算：</p>
-<p><img src="/CV%E5%9F%BA%E7%A1%80.assets/20181220165133551" alt="W=\frac{W-F}{S}+1"></p>
-<p><img src="/CV%E5%9F%BA%E7%A1%80.assets/20181220165133564" alt="H=\frac{H-F}{S}+1"></p>
-<p><img src="/CV%E5%9F%BA%E7%A1%80.assets/image-20230811193549728.png" alt="image-20230811193549728"></p>
+        <h1 id="ViT模型"><a href="#ViT模型" class="headerlink" title="ViT模型"></a>ViT模型</h1><!-- 论文名 -->
+<blockquote>
+<p>ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越大效果越好），成为了transformer在CV领域应用的里程碑著作，也引爆了后续相关研究.</p>
+<p>ViT原论文中最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果.</p>
+<p>但是当训练数据集不够大的时候，ViT的表现通常比同等大小的ResNets要差一些，因为<strong>Transformer和CNN相比缺少归纳偏置</strong>（inductive bias），即一种先验知识，提前做好的假设。</p>
+<p>CNN具有两种归纳偏置，一种是局部性（locality&#x2F;two-dimensional neighborhood structure），即图片上相邻的区域具有相似的特征；一种是平移不变形（translation equivariance）.当CNN具有以上两种归纳偏置，就有了很多先验信息，需要相对少的数据就可以学习一个比较好的模型</p>
+<p><img src="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg" alt="VIT-model"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-54f717f71079becca62a0247660a171d_720w.webp" alt="ViT-param"></p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>输入：将图像拆成N个$p*p$的小patch，然后将每个patch当成是一个token；</li>
+<li>具体到每个patch则是直接进行flatten之后直接经过线性映射得到D维Embedding表示；</li>
+<li>这里的pos-embedding按照实验是直接采用1-D位置编码,按照从左到右的块排序</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/438883618">Vision Transformer学习笔记1：ViT</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="MLP-Mixer"><a href="#MLP-Mixer" class="headerlink" title="MLP-Mixer"></a>MLP-Mixer</h1><!-- 论文名 -->
+<blockquote>
+<p>MLP-Mixer: MLP-Mixer: An all-MLP Architecture for Vision</p>
+</blockquote>
+<h2 id="研究背景-1"><a href="#研究背景-1" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT作者团队出品，在CNN和Transformer大火的背景下，舍弃了卷积和注意力机制，提出了MLP-Mixer，一个完全基于MLPs的结构，其MLPs有两种类型，分别是<strong>channel-mixing MLPs</strong>和<strong>token-mixing MLPs</strong>，前者独立作用于image patches（融合通道信息），后者跨image patches作用（融合空间信息）。<br><img src="https://pic3.zhimg.com/80/v2-ed96c7a5add85b9151c7f10fbda4943a_720w.webp" alt="mlp-mixer-model"></p>
+<h2 id="主要工作-1"><a href="#主要工作-1" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>类似于ViT的模型结构训练方式,也需要将图像信息打成多个块;</li>
+<li>提出两种MLPs结构<br><code>token-mixing MLPs</code>：允许信息在空间维度交互，独立作用于每一个channel，作用于列，融合不同token的特征<br><code>channel-mixing MLPs</code>：允许信息在通道交互，独立作用于每一个token，作用于行，融合不同channel的特征<br><img src="https://pic2.zhimg.com/80/v2-58df6c737fdea377071868f106b7c1c1_720w.webp" alt="mlp-layer"></li>
+<li>因为token-mixing MLPs对输入tokens的顺序非常敏感,Mixer不适用positional encoding</li>
+<li>每个Mixer Layer中token-mixing MLPs共享参数，channel-mixing MLPs同样共享参数</li>
+<li>当在大规模数据集上预训练（100million images），Mixer可以接近CNNs和Transformers的SOTA表现，在ImageNet上达到87.94%的top-1 accuracy；当在更小规模数据集上预训练时（10million），结合一些regularization techniques，Mixer可以接近ViT的性能，但是稍逊于CNN</li>
+</ol>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="Swin-Transformer模型"><a href="#Swin-Transformer模型" class="headerlink" title="Swin-Transformer模型"></a>Swin-Transformer模型</h1><!-- 论文名 -->
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2103.14030.pdf">Swin Transformer: Hierarchical Vision Transformer using Shifted Windows</a></p>
+</blockquote>
+<h2 id="研究背景-2"><a href="#研究背景-2" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p><img src="https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg" alt="swin-transformer-model"></p>
+<ul>
+<li>核心思路：披着CNN的Transformer。</li>
+<li>挑战：ViT性能并没有超过其他的工作；基于全局自注意力计算会导致计算量较大;强行分割patch其实破坏了原有的邻域结构，不再具有卷积的空间不变性。</li>
+<li>通过提出一种称为shifted window的方法来解决以上问题。</li>
+</ul>
+<h2 id="主要工作-2"><a href="#主要工作-2" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li><p>结构大致介绍：</p>
+<ul>
+<li>在输入开始的时候，做了一个Patch Embedding，将图片切成一个个图块，并嵌入到Embedding。</li>
+<li>在每个Stage里，由Patch Merging和多个Block组成。</li>
+<li>其中Patch Merging模块主要在每个Stage一开始降低图片分辨率。</li>
+<li>而Block具体结构如上图所示，主要是LayerNorm，MLP，Window Attention 和 Shifted Window Attention组成</li>
+</ul>
+</li>
+<li><p>Patch Embedding</p>
+<pre><code> 将图片划分为若干4*4的patch，使用线性变换来将patch变为Embedding向量，这一步和ViT是一样的。但是注意，这里的patch比ViT的14*14小了很多。
+</code></pre>
+</li>
+<li><p>Patch Merging</p>
+<pre><code> 该模块的作用是在每个Stage开始前做降采样，用于缩小分辨率，调整通道数 进而形成层次化的设计，同时也能节省一定运算量。每次降采样是两倍，因此在行方向和列方向上，间隔2选取元素。
+</code></pre>
+</li>
+<li><p>Window Attention</p>
+<pre><code> 传统的Transformer都是基于全局来计算注意力的，因此计算复杂度十分高。而Swin Transformer则将注意力的计算限制在每个窗口内，进而减少了计算量.
+ 主要计算区别在于：在原始计算Attention的公式中的Q,K时加入了相对位置编码。
+</code></pre>
+</li>
+<li><p>Shifted Window Attention</p>
+</li>
+</ol>
+<p><img src="https://pic1.zhimg.com/80/v2-07a98325a29db1da6521e4ddaaed3c88_720w.webp" alt="swa"></p>
+<pre><code>    前面的Window Attention是在每个窗口下计算注意力的，为了更好的和其他window进行信息交互，Swin Transformer还引入了shifted window操作。
+    由于这一操作会使得window变化，因此实际操作中通过对特征图移位，并给Attention设置mask来间接实现的。能在保持原有的window个数下，最后的计算结果等价。
+</code></pre>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367111046">图解Swin Transformer</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
+<h1 id="Swin-Transformer-v2模型"><a href="#Swin-Transformer-v2模型" class="headerlink" title="Swin-Transformer_v2模型"></a>Swin-Transformer_v2模型</h1><p>主要是解决模型上规模的问题，有几个主要的改动：</p>
+<ol>
+<li>把每个Block里的LN从前面换到了后面，来解决深度增加之后训练不稳定的问题</li>
+<li>把原来的scaled dot attention换成了scaled cosine attention，也是为了解决训练不稳定的问题（否则可能被某些像素对的相似度主导）。</li>
+<li>改进相对位置偏置。V1版里这个模块是用一个规模跟窗口大小M相关可学习参数矩阵来处理的，如果预训练和finetune时M大小改变，就用插值来生成原来不存在的值。V2版首先是引入了一个小网络来取代参数矩阵，其次是将相对位置从线性空间换到了对数空间，通过取对数压缩空间差距来让M变化时的过渡更加顺滑</li>
+</ol>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
 
       </section>
 
@@ -152,28 +243,14 @@
       
         <nav class="article-nav">
           
-            <div class="article-nav-item layout-padding">
-  <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
-    
-    <div class="card-text">
-      
-        <a href="/2023/12/13/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">ViT系列模型学习</h2>
-        </a>
-      
-      <div class="card-text--row">Newer</div>
-    </div>
-  </article>
-</div>
-          
           
             <div class="article-nav-item layout-padding">
   <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
     
     <div class="card-text">
       
-        <a href="/2023/12/13/hello-world/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">Hello World</h2>
+        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/CV%E5%9F%BA%E7%A1%80/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">CV基础</h2>
         </a>
       
       <div class="card-text--row">Older</div>

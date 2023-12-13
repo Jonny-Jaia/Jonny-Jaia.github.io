@@ -22,7 +22,7 @@
 
   
 
-  <title>ViT系列模型学习 | 通往成功的道路</title>
+  <title>传统NLP模型学习 | 通往成功的道路</title>
 
   
 
@@ -99,16 +99,16 @@
     <div class="header-content">
       <div class="post-text layout-block">
         <div class="layout-margin">
-          <h1 class="title-wrap">ViT系列模型学习</h1>
+          <h1 class="title-wrap">传统NLP模型学习</h1>
           <h2 class="title-sub-wrap">
             <strong>JiangYh</strong>
             <span>发布于</span>
-            <time  class="article-date" datetime="2023-12-13T03:41:38.644Z" itemprop="datePublished">2023-12-13</time>
+            <time  class="article-date" datetime="2023-12-13T04:00:43.545Z" itemprop="datePublished">2023-12-13</time>
           </h2>
           
             <h2 class="last-time">
               <span>最后更新于</span>
-              <time  class="article-updated" datetime="2023-08-15T13:45:47.154Z" itemprop="dateUpdated">2023-08-15</time>
+              <time  class="article-updated" datetime="2023-09-18T07:22:55.522Z" itemprop="dateUpdated">2023-09-18</time>
             </h2>
           
           
@@ -119,9 +119,7 @@
 </ul>
           <ul class="wrap-list dark">
   
-    <li><a href="/tags/CV%E6%A8%A1%E5%9E%8B/">🏷️ CV模型</a></li>
-  
-    <li><a href="/tags/vision-transformer%E7%B3%BB%E5%88%97/">🏷️ vision transformer系列</a></li>
+    <li><a href="/tags/Word2Vec/">🏷️ Word2Vec</a></li>
   
 </ul>
         </div>
@@ -145,96 +143,95 @@
       
       
       <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
-        <h1 id="ViT模型"><a href="#ViT模型" class="headerlink" title="ViT模型"></a>ViT模型</h1><!-- 论文名 -->
-<blockquote>
-<p>ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</p>
-</blockquote>
-<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
-<p>ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越大效果越好），成为了transformer在CV领域应用的里程碑著作，也引爆了后续相关研究.</p>
-<p>ViT原论文中最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果.</p>
-<p>但是当训练数据集不够大的时候，ViT的表现通常比同等大小的ResNets要差一些，因为<strong>Transformer和CNN相比缺少归纳偏置</strong>（inductive bias），即一种先验知识，提前做好的假设。</p>
-<p>CNN具有两种归纳偏置，一种是局部性（locality&#x2F;two-dimensional neighborhood structure），即图片上相邻的区域具有相似的特征；一种是平移不变形（translation equivariance）.当CNN具有以上两种归纳偏置，就有了很多先验信息，需要相对少的数据就可以学习一个比较好的模型</p>
-<p><img src="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg" alt="VIT-model"></p>
-<p><img src="https://pic2.zhimg.com/80/v2-54f717f71079becca62a0247660a171d_720w.webp" alt="ViT-param"></p>
-<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
-<li>输入：将图像拆成N个$p*p$的小patch，然后将每个patch当成是一个token；</li>
-<li>具体到每个patch则是直接进行flatten之后直接经过线性映射得到D维Embedding表示；</li>
-<li>这里的pos-embedding按照实验是直接采用1-D位置编码,按照从左到右的块排序</li>
-</ol>
+        <ul>
+<li><a href="#word2vec%E6%A8%A1%E5%9E%8B">Word2Vec模型</a><ul>
+<li><a href="#%E6%A8%A1%E5%9E%8B%E4%BD%9C%E7%94%A8">模型作用</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0%E4%B8%8E%E7%BB%86%E8%8A%82">实现与细节</a></li>
+<li><a href="#tricks">Tricks</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#glove%E6%A8%A1%E5%9E%8B">glove模型</a><ul>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#lstm%E6%A8%A1%E5%9E%8B">LSTM模型</a></li>
+<li><a href="#bilstm%E6%A8%A1%E5%9E%8B">BiLSTM模型</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#n-gram%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B">N-gram语言模型</a><ul>
+<li><a href="#refs">Refs</a></li>
+</ul>
+</li>
+<li><a href="#%E8%AF%8D%E8%A2%8B%E6%A8%A1%E5%9E%8B">词袋模型</a><ul>
+<li><a href="#refs-1">Refs</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="Word2Vec模型"><a href="#Word2Vec模型" class="headerlink" title="Word2Vec模型"></a>Word2Vec模型</h1><h2 id="模型作用"><a href="#模型作用" class="headerlink" title="模型作用"></a>模型作用</h2><p>对词语实现向量化表示，获得词向量。将one-hot表示转换成为稠密向量表示。</p>
+<h2 id="实现与细节"><a href="#实现与细节" class="headerlink" title="实现与细节"></a>实现与细节</h2><ul>
+<li>具体模型实现</li>
+</ul>
+<p>skip-gram:一对多映射</p>
+<p>cbow:多对一映射</p>
+<ul>
+<li>实现方式</li>
+</ul>
+<p>通过词向量的点积计算，获取词与词之间的相似性；并采用softmax映射到概率值。通过梯度下降，调整词向量的表示，进而获得良好的词向量。</p>
+<p><img src="/%E4%BC%A0%E7%BB%9F%E6%A8%A1%E5%9E%8B.assets/b213f095-4f5b-40e6-a3fa-540de9a85157.png" alt="b213f095-4f5b-40e6-a3fa-540de9a85157"></p>
+<p>两个网络权重行向量和列向量分别表示当前的词向量。</p>
+<ul>
+<li>word2vec训练加速：</li>
+</ul>
+<p>由于计算概率值时，需要对整个单词表做乘积和exp运算，因此计算量耗费较大。</p>
+<p>高频词抽样；负采样提高训练效率；层级softmax</p>
+<h2 id="Tricks"><a href="#Tricks" class="headerlink" title="Tricks"></a>Tricks</h2><ul>
+<li>负采样</li>
+</ul>
+<p><img src="/%E4%BC%A0%E7%BB%9F%E6%A8%A1%E5%9E%8B.assets/aced802f-f116-450a-8539-e53b6dde5878.png" alt="负采样损失函数"></p>
+<p>从单词表中按照一定规则随机选出一部分负样本，再进行概率计算，避免了在整个词汇表上的计算。并将原本的指数计算转换成sigmoid函数，也减小了这部分的计算量。</p>
+<p>计算公式：<br>$$<br> \frac{\partial{J_{neg-sample}(\boldsymbol v_c,o,\boldsymbol    U)}}{\partial\boldsymbol  v_c} \&#x3D; \frac{\partial (-log(\sigma (\boldsymbol u_o^T\boldsymbol v_c))-\sum_{k&#x3D;1}^{K} log(\sigma (-\boldsymbol u_k^T\boldsymbol v_c)))}{\partial \boldsymbol v_c} \&#x3D; -\frac{\sigma(\boldsymbol u_o^T\boldsymbol v_c)(1-\sigma(\boldsymbol u_o^T\boldsymbol v_c))}{\sigma(\boldsymbol u_o^T\boldsymbol v_c)}\frac{\partial \boldsymbol u_o^T\boldsymbol v_c}{\partial \boldsymbol v_c} -  \sum_{k&#x3D;1}^{K}\frac{\partial log(\sigma(-\boldsymbol u_k^T\boldsymbol v_c))}{\partial \boldsymbol v_c} \&#x3D; -(1-\sigma(\boldsymbol u_o^T\boldsymbol v_c))\boldsymbol u_o+\sum_{k&#x3D;1}^{K}(1-\sigma(-\boldsymbol u_k^T\boldsymbol v_c))\boldsymbol u_k<br>$$</p>
 <h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/438883618">Vision Transformer学习笔记1：ViT</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26306795">[NLP] 秒懂词向量Word2vec的本质</a></li>
+<li><a target="_blank" rel="noopener" href="https://xurydbthjy.feishu.cn/wiki/wikcnsCg5YPVEa4Q7mchrBk3B9f">word2vec</a></li>
 </ol>
-<hr>
-<h1 id="MLP-Mixer"><a href="#MLP-Mixer" class="headerlink" title="MLP-Mixer"></a>MLP-Mixer</h1><!-- 论文名 -->
-<blockquote>
-<p>MLP-Mixer: MLP-Mixer: An all-MLP Architecture for Vision</p>
+<h1 id="glove模型"><a href="#glove模型" class="headerlink" title="glove模型"></a>glove模型</h1><blockquote>
+<p>GloVe：Global Vectors for Word Representation</p>
 </blockquote>
-<h2 id="研究背景-1"><a href="#研究背景-1" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
-<p>ViT作者团队出品，在CNN和Transformer大火的背景下，舍弃了卷积和注意力机制，提出了MLP-Mixer，一个完全基于MLPs的结构，其MLPs有两种类型，分别是<strong>channel-mixing MLPs</strong>和<strong>token-mixing MLPs</strong>，前者独立作用于image patches（融合通道信息），后者跨image patches作用（融合空间信息）。<br><img src="https://pic3.zhimg.com/80/v2-ed96c7a5add85b9151c7f10fbda4943a_720w.webp" alt="mlp-mixer-model"></p>
-<h2 id="主要工作-1"><a href="#主要工作-1" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
-<li>类似于ViT的模型结构训练方式,也需要将图像信息打成多个块;</li>
-<li>提出两种MLPs结构<br><code>token-mixing MLPs</code>：允许信息在空间维度交互，独立作用于每一个channel，作用于列，融合不同token的特征<br><code>channel-mixing MLPs</code>：允许信息在通道交互，独立作用于每一个token，作用于行，融合不同channel的特征<br><img src="https://pic2.zhimg.com/80/v2-58df6c737fdea377071868f106b7c1c1_720w.webp" alt="mlp-layer"></li>
-<li>因为token-mixing MLPs对输入tokens的顺序非常敏感,Mixer不适用positional encoding</li>
-<li>每个Mixer Layer中token-mixing MLPs共享参数，channel-mixing MLPs同样共享参数</li>
-<li>当在大规模数据集上预训练（100million images），Mixer可以接近CNNs和Transformers的SOTA表现，在ImageNet上达到87.94%的top-1 accuracy；当在更小规模数据集上预训练时（10million），结合一些regularization techniques，Mixer可以接近ViT的性能，但是稍逊于CNN</li>
-</ol>
-<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
-</ol>
-<hr>
-<h1 id="Swin-Transformer模型"><a href="#Swin-Transformer模型" class="headerlink" title="Swin-Transformer模型"></a>Swin-Transformer模型</h1><!-- 论文名 -->
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2103.14030.pdf">Swin Transformer: Hierarchical Vision Transformer using Shifted Windows</a></p>
-</blockquote>
-<h2 id="研究背景-2"><a href="#研究背景-2" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
-<p><img src="https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg" alt="swin-transformer-model"></p>
-<ul>
-<li>核心思路：披着CNN的Transformer。</li>
-<li>挑战：ViT性能并没有超过其他的工作；基于全局自注意力计算会导致计算量较大;强行分割patch其实破坏了原有的邻域结构，不再具有卷积的空间不变性。</li>
-<li>通过提出一种称为shifted window的方法来解决以上问题。</li>
-</ul>
-<h2 id="主要工作-2"><a href="#主要工作-2" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
-<li><p>结构大致介绍：</p>
-<ul>
-<li>在输入开始的时候，做了一个Patch Embedding，将图片切成一个个图块，并嵌入到Embedding。</li>
-<li>在每个Stage里，由Patch Merging和多个Block组成。</li>
-<li>其中Patch Merging模块主要在每个Stage一开始降低图片分辨率。</li>
-<li>而Block具体结构如上图所示，主要是LayerNorm，MLP，Window Attention 和 Shifted Window Attention组成</li>
-</ul>
-</li>
-<li><p>Patch Embedding</p>
-<pre><code> 将图片划分为若干4*4的patch，使用线性变换来将patch变为Embedding向量，这一步和ViT是一样的。但是注意，这里的patch比ViT的14*14小了很多。
-</code></pre>
-</li>
-<li><p>Patch Merging</p>
-<pre><code> 该模块的作用是在每个Stage开始前做降采样，用于缩小分辨率，调整通道数 进而形成层次化的设计，同时也能节省一定运算量。每次降采样是两倍，因此在行方向和列方向上，间隔2选取元素。
-</code></pre>
-</li>
-<li><p>Window Attention</p>
-<pre><code> 传统的Transformer都是基于全局来计算注意力的，因此计算复杂度十分高。而Swin Transformer则将注意力的计算限制在每个窗口内，进而减少了计算量.
- 主要计算区别在于：在原始计算Attention的公式中的Q,K时加入了相对位置编码。
-</code></pre>
-</li>
-<li><p>Shifted Window Attention</p>
-</li>
-</ol>
-<p><img src="https://pic1.zhimg.com/80/v2-07a98325a29db1da6521e4ddaaed3c88_720w.webp" alt="swa"></p>
-<pre><code>    前面的Window Attention是在每个窗口下计算注意力的，为了更好的和其他window进行信息交互，Swin Transformer还引入了shifted window操作。
-    由于这一操作会使得window变化，因此实际操作中通过对特征图移位，并给Attention设置mask来间接实现的。能在保持原有的window个数下，最后的计算结果等价。
-</code></pre>
-<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367111046">图解Swin Transformer</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
-</ol>
-<h1 id="Swin-Transformer-v2模型"><a href="#Swin-Transformer-v2模型" class="headerlink" title="Swin-Transformer_v2模型"></a>Swin-Transformer_v2模型</h1><p>主要是解决模型上规模的问题，有几个主要的改动：</p>
+<p>两者最直观的区别在于，word2vec是“predictive”的模型，而GloVe是“count-based”的模型。</p>
+<p>相比Word2Vec，GloVe<strong>更容易并行化</strong>，所以对于较大的训练数据，GloVe更快(<strong>大数据集训练更快</strong>)。</p>
+<p>GloVe的本质是对共现矩阵进行降维。</p>
+<p>实现流程概括：</p>
 <ol>
-<li>把每个Block里的LN从前面换到了后面，来解决深度增加之后训练不稳定的问题</li>
-<li>把原来的scaled dot attention换成了scaled cosine attention，也是为了解决训练不稳定的问题（否则可能被某些像素对的相似度主导）。</li>
-<li>改进相对位置偏置。V1版里这个模块是用一个规模跟窗口大小M相关可学习参数矩阵来处理的，如果预训练和finetune时M大小改变，就用插值来生成原来不存在的值。V2版首先是引入了一个小网络来取代参数矩阵，其次是将相对位置从线性空间换到了对数空间，通过取对数压缩空间差距来让M变化时的过渡更加顺滑</li>
+<li>构建共现矩阵</li>
 </ol>
-<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+<p>根据语料库构建共现矩阵，每个元素代表当前词(行)与其他词共现的次数(在特定窗口大小内)。并且增加了衰减函数计算权重，距离越远权重越小。</p>
+<ol start="2">
+<li>词向量与共现矩阵的近似关系</li>
+</ol>
+<p>$$<br>w_{i}^{T}\tilde{w_{j}} + b_i + \tilde{b_j} &#x3D; \log(X_{ij})<br>$$</p>
+<ol start="3">
+<li>构造损失函数</li>
+</ol>
+<p>$$<br>J &#x3D; \sum_{i,j&#x3D;1}^{V} f(X_{ij})(w_{i}^{T}\tilde{w_{j}} + b_i + \tilde{b_j} – \log(X_{ij}) )^2<br>$$<br>需要在原有的基础上增加一个分段函数调节损失。</p>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.biaodianfu.com/glove.html">斯坦福大学的词向量工具：GloVe</a></li>
+</ol>
+<h1 id="LSTM模型"><a href="#LSTM模型" class="headerlink" title="LSTM模型"></a>LSTM模型</h1><h1 id="BiLSTM模型"><a href="#BiLSTM模型" class="headerlink" title="BiLSTM模型"></a>BiLSTM模型</h1><h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/47802053">详解BiLSTM及代码实现 - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="N-gram语言模型"><a href="#N-gram语言模型" class="headerlink" title="N-gram语言模型"></a>N-gram语言模型</h1><p>N-Gram是一种基于<strong>统计语言模型</strong>的算法。它的基本思想是将文本里面的内容按照字节进行大小为N的滑动窗口操作，形成了长度是N的字节片段序列。</p>
+<p>每一个字节片段称为gram，对所有gram的出现<strong>频度进行统计</strong>，并且按照事先设定好的阈值进行过滤，形成关键gram列表，也就是这个文本的向量特征空间，列表中的每一种gram就是一个特征向量维度。</p>
+<p>根据窗口大小不同,每次截取N个词构成的内容,然后依照one-hot表示得到对应的特征向量</p>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29555001">N-gram提取特征 - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="词袋模型"><a href="#词袋模型" class="headerlink" title="词袋模型"></a>词袋模型</h1><p>选定文本内一定的词放入词袋，统计词袋内所有词在文本中出现的次数（忽略语法和单词出现的顺序），将其用向量的形式表示出来。</p>
+<p>词袋选词:设置一些停用词;对相近词进行词干提取,只将词干放入词袋;词的同类变形,则通过词形还原将同一个特征加入词袋;</p>
+<p>通过TF-IDF调整词袋模型得到的词频向量矩阵</p>
+<h2 id="Refs-1"><a href="#Refs-1" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/HuZihu/p/9576794.html">文本特征提取—词袋模型，TF-IDF模型，N-gram模型（Text Feature Extraction Bag of Words TF-IDF N-gram ） - HuZihu - 博客园 (cnblogs.com)</a></li>
 </ol>
 
       </section>
@@ -248,8 +245,8 @@
     
     <div class="card-text">
       
-        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">预训练大模型学习</h2>
+        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">(no title)</h2>
         </a>
       
       <div class="card-text--row">Newer</div>
@@ -263,8 +260,8 @@
     
     <div class="card-text">
       
-        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/CV%E5%9F%BA%E7%A1%80/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">CV基础</h2>
+        <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/Prompt%E8%8C%83%E5%BC%8F%E6%A8%A1%E5%9E%8B/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">prompt类预模型学习</h2>
         </a>
       
       <div class="card-text--row">Older</div>

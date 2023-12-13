@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="BART-预训练方法 研究背景 主要工作 References   T5 BLOOM GPT References   CPT 解码算法 Refereces    BART-预训练方法 BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Compre">
+<meta property="og:type" content="article">
+<meta property="og:title" content="生成式模型学习">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="BART-预训练方法 研究背景 主要工作 References   T5 BLOOM GPT References   CPT 解码算法 Refereces    BART-预训练方法 BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Compre">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-0163d5ba0ea18faf9fb4b63b93b6c906_720w.webp">
+<meta property="article:published_time" content="2023-12-13T14:56:46.391Z">
+<meta property="article:modified_time" content="2023-12-13T15:03:35.810Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="NLP预训练模型">
+<meta property="article:tag" content="BART">
+<meta property="article:tag" content="GPT">
+<meta property="article:tag" content="解码算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-0163d5ba0ea18faf9fb4b63b93b6c906_720w.webp">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/","path":"2023/12/13/深度学习/监督学习/NLP方向/生成式模型基础/","title":"生成式模型学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>生成式模型学习 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BART-%E9%A2%84%E8%AE%AD%E7%BB%83%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">BART-预训练方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">主要工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#T5"><span class="nav-number">2.</span> <span class="nav-text">T5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BLOOM"><span class="nav-number">3.</span> <span class="nav-text">BLOOM</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPT"><span class="nav-number">4.</span> <span class="nav-text">GPT</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">4.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CPT"><span class="nav-number">5.</span> <span class="nav-text">CPT</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E7%A0%81%E7%AE%97%E6%B3%95"><span class="nav-number">6.</span> <span class="nav-text">解码算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refereces"><span class="nav-number">6.1.</span> <span class="nav-text">Refereces</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="生成式模型学习 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          生成式模型学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 22:56:46 / Modified: 23:03:35" itemprop="dateCreated datePublished" datetime="2023-12-13T22:56:46+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#bart-%E9%A2%84%E8%AE%AD%E7%BB%83%E6%96%B9%E6%B3%95">BART-预训练方法</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><strong>主要工作</strong></a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#t5">T5</a></li>
+<li><a href="#bloom">BLOOM</a></li>
+<li><a href="#gpt">GPT</a><ul>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#cpt">CPT</a></li>
+<li><a href="#%E8%A7%A3%E7%A0%81%E7%AE%97%E6%B3%95">解码算法</a><ul>
+<li><a href="#refereces">Refereces</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="BART-预训练方法"><a href="#BART-预训练方法" class="headerlink" title="BART-预训练方法"></a>BART-预训练方法</h1><blockquote>
+<p>BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><p>文本理解任务，大部分的工作范式都是采取语言模型预训练+下游任务finetune这一种方式。BART模型相当于采用了BERT+GPT的模型结构兼顾上下文语境信息的同时带有自回归特性。BART相当于是建立在seq2seq Transformer model的基础上，使其分别能够适用于文本生成和文本理解的任务，并在这些任务都实现了较好的性能。</p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>模型结构BERT+GPT，兼顾理解与生成；</li>
+<li>BART的预训练任务是恢复基于随机噪声破坏后的文本；</li>
+<li>具体的noise有5种：<ul>
+<li>token mask:单个掩码</li>
+<li>token deletion:随机删去token</li>
+<li>text infilling:随机将一段连续的token（称作span）替换成一个[MASK]，span的长度服从$$ \lambda&#x3D;3 $$的<strong>泊松分布</strong>。注意span长度为0就相当于插入一个[MASK]。</li>
+<li>Sentence Permutation: 将一个document的句子打乱</li>
+<li>Document Rotation: 从document序列中随机选择一个token，然后使得该token作为document的开头</li>
+</ul>
+</li>
+<li>适用于不同的下游任务</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/173858031">【论文精读】生成式预训练之BART</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1910.13461.pdf">BART: Denoising Sequence-to-Sequence Pre-training for Natural Language Generation, Translation, and Comprehension</a></li>
+</ol>
+<h1 id="T5"><a href="#T5" class="headerlink" title="T5"></a>T5</h1><h1 id="BLOOM"><a href="#BLOOM" class="headerlink" title="BLOOM"></a>BLOOM</h1><h1 id="GPT"><a href="#GPT" class="headerlink" title="GPT"></a>GPT</h1><h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/350017443">预训练语言模型之GPT-1，GPT-2和GPT-3</a></li>
+</ol>
+<h1 id="CPT"><a href="#CPT" class="headerlink" title="CPT"></a>CPT</h1><h1 id="解码算法"><a href="#解码算法" class="headerlink" title="解码算法"></a>解码算法</h1><ol>
+<li><p>greeedy-贪心</p>
+<p> 直接logit最大</p>
+</li>
+<li><p>beam search<br> <img src="https://pic3.zhimg.com/80/v2-0163d5ba0ea18faf9fb4b63b93b6c906_720w.webp" alt="beam-search"><br> 始终从k条最优序列中选择K个最好的</p>
+<p> beach search需要选择beam size，越小越接近greedy，beam size&#x3D;1就等价于greedy. 越大beam size 计算代价就越大，并且有些试验告诉我们太大的beam size可能会有更差的效果。一般来说beam size&#x3D;3是一个不错的trade off。</p>
+</li>
+<li><p>sampling-based</p>
+<p> 每次算出最有可能的token集合，然后按照某种概率分布从中采样n个候选答案。和beam search区别是用softmax代替argmax，通常用于开放式或者需要创造性的生成任务上，比如写故事&#x2F;写诗之类。</p>
+</li>
+<li><p>softmax temperature</p>
+<p> Softmax temperature是在softmax层上加了一个超参数，可以用来平衡diverse的。Softmax temperature是调节softmax的技巧，它不能单独使用，要配合greedy search或者beam search做decoding.</p>
+</li>
+</ol>
+<h2 id="Refereces"><a href="#Refereces" class="headerlink" title="Refereces"></a>Refereces</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/bqw18744018044/article/details/126944119">NLP综述：（三）自然语言生成-NLG</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/bqw18744018044/article/details/126944119">【自然语言处理】【文本生成】Transformers中用于语言生成的不同解码方法</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NLP%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B/" rel="tag"># NLP预训练模型</a>
+              <a href="/tags/BART/" rel="tag"># BART</a>
+              <a href="/tags/GPT/" rel="tag"># GPT</a>
+              <a href="/tags/%E8%A7%A3%E7%A0%81%E7%AE%97%E6%B3%95/" rel="tag"># 解码算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E4%BC%A0%E7%BB%9F%E6%A8%A1%E5%9E%8B/" rel="prev" title="传统NLP模型学习">
+                  <i class="fa fa-angle-left"></i> 传统NLP模型学习
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA/" rel="next" title="条件随机场">
+                  条件随机场 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

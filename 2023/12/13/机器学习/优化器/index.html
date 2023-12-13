@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="优化器 优化框架 SGD SGD with Momentum SGD with Nesterov Acceleration   AdaGrad AdaDelta&#x2F;RMSProp Adam Nadam AdamW   Ref   学习率衰减策略 Refs    优化器优化框架概述：计算梯度之后的更新，需要考虑之前更新的一些情况，比如之前更新的幅度大小以及过去的更新累积。通过一阶动量的引入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="优化器">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="优化器 优化框架 SGD SGD with Momentum SGD with Nesterov Acceleration   AdaGrad AdaDelta&#x2F;RMSProp Adam Nadam AdamW   Ref   学习率衰减策略 Refs    优化器优化框架概述：计算梯度之后的更新，需要考虑之前更新的一些情况，比如之前更新的幅度大小以及过去的更新累积。通过一阶动量的引入">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/v2-e0c69cd8f1e8af5c839f8595696c75db_720w.webp">
+<meta property="article:published_time" content="2023-12-13T15:13:20.501Z">
+<meta property="article:modified_time" content="2023-12-13T15:14:34.017Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="SGD">
+<meta property="article:tag" content="AdaGrad">
+<meta property="article:tag" content="Adam">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/v2-e0c69cd8f1e8af5c839f8595696c75db_720w.webp">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/","path":"2023/12/13/机器学习/优化器/","title":"优化器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>优化器 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">优化器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%A1%86%E6%9E%B6"><span class="nav-number">1.1.</span> <span class="nav-text">优化框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD"><span class="nav-number">1.2.</span> <span class="nav-text">SGD</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SGD-with-Momentum"><span class="nav-number">1.2.1.</span> <span class="nav-text">SGD with Momentum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SGD-with-Nesterov-Acceleration"><span class="nav-number">1.2.2.</span> <span class="nav-text">SGD with Nesterov Acceleration</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AdaGrad"><span class="nav-number">1.3.</span> <span class="nav-text">AdaGrad</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AdaDelta-RMSProp"><span class="nav-number">1.4.</span> <span class="nav-text">AdaDelta&#x2F;RMSProp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adam"><span class="nav-number">1.5.</span> <span class="nav-text">Adam</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nadam"><span class="nav-number">1.5.1.</span> <span class="nav-text">Nadam</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AdamW"><span class="nav-number">1.5.2.</span> <span class="nav-text">AdamW</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ref"><span class="nav-number">1.6.</span> <span class="nav-text">Ref</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%A1%B0%E5%87%8F%E7%AD%96%E7%95%A5"><span class="nav-number">2.</span> <span class="nav-text">学习率衰减策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs"><span class="nav-number">2.1.</span> <span class="nav-text">Refs</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="优化器 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          优化器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:13:20 / Modified: 23:14:34" itemprop="dateCreated datePublished" datetime="2023-12-13T23:13:20+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E4%BC%98%E5%8C%96%E5%99%A8">优化器</a><ul>
+<li><a href="#%E4%BC%98%E5%8C%96%E6%A1%86%E6%9E%B6">优化框架</a></li>
+<li><a href="#sgd">SGD</a><ul>
+<li><a href="#sgd-with-momentum">SGD with Momentum</a></li>
+<li><a href="#sgd-with-nesterov-acceleration">SGD with Nesterov Acceleration</a></li>
+</ul>
+</li>
+<li><a href="#adagrad">AdaGrad</a></li>
+<li><a href="#adadeltarmsprop">AdaDelta&#x2F;RMSProp</a></li>
+<li><a href="#adam">Adam</a><ul>
+<li><a href="#nadam">Nadam</a></li>
+<li><a href="#adamw">AdamW</a></li>
+</ul>
+</li>
+<li><a href="#ref">Ref</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AD%A6%E4%B9%A0%E7%8E%87%E8%A1%B0%E5%87%8F%E7%AD%96%E7%95%A5">学习率衰减策略</a><ul>
+<li><a href="#refs">Refs</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="优化器"><a href="#优化器" class="headerlink" title="优化器"></a>优化器</h1><h2 id="优化框架"><a href="#优化框架" class="headerlink" title="优化框架"></a>优化框架</h2><p>概述：计算梯度之后的更新，需要考虑之前更新的一些情况，比如之前更新的幅度大小以及过去的更新累积。通过一阶动量的引入，减少梯度的震荡；通过二阶动量的引入，调控参数的更新频率，实现自适应的效果。最后，利用优化后的梯度量去更新参数。</p>
+<ol>
+<li>计算目标函数对应的梯度:$g_t &#x3D; \nabla f(w)$</li>
+<li>根据历史梯度计算一阶动量与二阶动量 $m_t &#x3D; \phi(g_1,g_2,..),V_t &#x3D; \Phi(g_1,g_2,..)$</li>
+<li>计算当前时刻的梯度下降大小：$\eta &#x3D; \alpha \times m_t &#x2F;\sqrt{V_t}$</li>
+<li>参数更新：$w &#x3D; w-\eta$</li>
+</ol>
+<h2 id="SGD"><a href="#SGD" class="headerlink" title="SGD"></a>SGD</h2><p>$m_t &#x3D; g_t,\eta &#x3D; \alpha \times g_t$</p>
+<h3 id="SGD-with-Momentum"><a href="#SGD-with-Momentum" class="headerlink" title="SGD with Momentum"></a>SGD with Momentum</h3><p>为了抑制震荡，SGDM相当于加入了惯性，一阶动量$m_t &#x3D; \beta_1 \cdot m_{t-1} + (1-\beta_1)\cdot g_t$</p>
+<h3 id="SGD-with-Nesterov-Acceleration"><a href="#SGD-with-Nesterov-Acceleration" class="headerlink" title="SGD with Nesterov Acceleration"></a>SGD with Nesterov Acceleration</h3><p>防止提前陷入局部点，优化梯度计算，不采用当前位置的梯度方向，而是按照累积动量走了一步的下降方向进行更新。</p>
+<!-- $g_t = \nabla f(w_t-\alpha \cdot m_{t-1}/\sqrt{V_{t-1}})$参考存在问题 -->
+<p>$g_t &#x3D; \nabla f(w_t-\alpha \cdot m_{t-1})$</p>
+<h2 id="AdaGrad"><a href="#AdaGrad" class="headerlink" title="AdaGrad"></a>AdaGrad</h2><p>自适应学习率的第一次引入，借助二阶动量。由于经常更新的参数累积了大量的知识，我们不希望其会受到单个样本的影响过大，使得其学习率要小一些，而相反更新较少的参数则需要设置较大的学习率.<br>为了度量过去更新的频率，采用二阶动量-即是所有梯度值的平方和具体如下：<br>$V_t&#x3D; \sum_{\tau&#x3D;1}^{t}g_{\tau}^{2}$</p>
+<p>那么梯度大小：<br>$\eta &#x3D; \alpha \times m_t &#x2F;\sqrt{V_t}$，其中分母会加上一个小值避免为0.</p>
+<p>问题：由于二阶动量是递增的，会使得学习率单调递减至0，可能会使得训练提前结束。</p>
+<h2 id="AdaDelta-RMSProp"><a href="#AdaDelta-RMSProp" class="headerlink" title="AdaDelta&#x2F;RMSProp"></a>AdaDelta&#x2F;RMSProp</h2><p>改进二阶动量的计算策略，不累积全部历史梯度，而只关注过去一段时间窗口的下降梯度。</p>
+<p>新的二阶动量计算：<br>$V_t&#x3D; \beta_2 \cdot V_{t-1} + (1-\beta_2)\cdot g_{t}^{2}$ 避免了二阶动量持续累积、导致训练过程提前结束的问题了。</p>
+<h2 id="Adam"><a href="#Adam" class="headerlink" title="Adam"></a>Adam</h2><p>Adam——Adaptive + Momentum-将一阶动量和二阶动量结合起来</p>
+<p>SGD一阶动量$m_t &#x3D; \beta_1 \cdot m_{t-1} + (1-\beta_1)\cdot g_t$</p>
+<p>AdaDelta二阶动量$V_t&#x3D; \beta_2 \cdot V_{t-1} + (1-\beta_2)\cdot g_{t}^{2}$ </p>
+<p>缺点：</p>
+<ol>
+<li>当前这种窗口二阶动量会随着时间窗口变化，导致二阶动量时大时小，在训练后期会引起学习率的震荡导致模型无法收敛</li>
+</ol>
+<p>修正：<br>$V_t&#x3D; \max(\beta_2 \cdot V_{t-1} + (1-\beta_2)\cdot g_{t}^{2},V_{t-1})$ 保证学习率单调递减</p>
+<ol start="2">
+<li>自适应算法可能会对前期出现特征过拟合的情况，后期由于学习率太低等原因，会出现特征难以纠正前期的拟合效果，并最终影响收敛性能。</li>
+</ol>
+<p>修正：<br>Adam+SGD</p>
+<h3 id="Nadam"><a href="#Nadam" class="headerlink" title="Nadam"></a>Nadam</h3><p>Nesterov + Adam &#x3D; Nadam</p>
+<p>引入Nesterov 提前考虑下一步动作的梯度<br>$g_t &#x3D; \nabla f(w_t-\alpha \cdot m_{t-1}&#x2F;\sqrt{V_{t-1}})$</p>
+<h3 id="AdamW"><a href="#AdamW" class="headerlink" title="AdamW"></a>AdamW</h3><p>AdamW就是Adam优化器加上L2正则</p>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cvmart.net/community/detail/5247">深度学习优化算法，从 SGD 到 AdamW 原理和代码解读</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/32230623">一个框架看懂优化算法之异同 SGD&#x2F;AdaGrad&#x2F;Adam - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/32262540">Adam那么棒，为什么还对SGD念念不忘 (2)—— Adam的两宗罪 - 知乎 (zhihu.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/32338983">Adam那么棒，为什么还对SGD念念不忘 (3)—— 优化算法的选择与使用策略 - 知乎  (zhihu.com)</a></li>
+</ol>
+<h1 id="学习率衰减策略"><a href="#学习率衰减策略" class="headerlink" title="学习率衰减策略"></a>学习率衰减策略</h1><p>字面意思直接控制学习率的变化</p>
+<p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/v2-e0c69cd8f1e8af5c839f8595696c75db_720w.webp" alt="img"></p>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93624972">pytorch必须掌握的的4种学习率衰减策略 - 知乎 (zhihu.com)</a></li>
+<li></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SGD/" rel="tag"># SGD</a>
+              <a href="/tags/AdaGrad/" rel="tag"># AdaGrad</a>
+              <a href="/tags/Adam/" rel="tag"># Adam</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%97%A0%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E8%81%9A%E7%B1%BB%E7%AE%97%E6%B3%95/" rel="prev" title="常用的聚类算法">
+                  <i class="fa fa-angle-left"></i> 常用的聚类算法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" rel="next" title="机器学习基础">
+                  机器学习基础 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

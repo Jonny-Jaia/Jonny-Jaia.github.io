@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="is 与 &#x3D;&#x3D; 的区别 finally list方法的计算复杂度 装饰器 迭代器 生成器 Refs   传参 Refs   Python数组和列表有什么区别？ 为什么使用*args，**kwargs？ 如何在Python中删除文件？ 如何在Python中实现多线程？ 全局解释锁  is 与 &#x3D;&#x3D; 的区别is 用于判断两个变量引用对象是否为同一个， &amp;#x3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python面试问题">
+<meta property="og:url" content="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="is 与 &#x3D;&#x3D; 的区别 finally list方法的计算复杂度 装饰器 迭代器 生成器 Refs   传参 Refs   Python数组和列表有什么区别？ 为什么使用*args，**kwargs？ 如何在Python中删除文件？ 如何在Python中实现多线程？ 全局解释锁  is 与 &#x3D;&#x3D; 的区别is 用于判断两个变量引用对象是否为同一个， &amp;#x3">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-13T15:23:18.800Z">
+<meta property="article:modified_time" content="2023-12-13T15:24:27.503Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="装饰器">
+<meta property="article:tag" content="迭代器">
+<meta property="article:tag" content="全局解释锁">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/","path":"2023/12/13/语言底层/python基础知识/","title":"Python面试问题"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Python面试问题 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#is-%E4%B8%8E-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">is 与 &#x3D;&#x3D; 的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#finally"><span class="nav-number">2.</span> <span class="nav-text">finally</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list%E6%96%B9%E6%B3%95%E7%9A%84%E8%AE%A1%E7%AE%97%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">3.</span> <span class="nav-text">list方法的计算复杂度</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">装饰器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">迭代器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">6.</span> <span class="nav-text">生成器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs"><span class="nav-number">6.1.</span> <span class="nav-text">Refs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%A0%E5%8F%82"><span class="nav-number">7.</span> <span class="nav-text">传参</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs-1"><span class="nav-number">7.1.</span> <span class="nav-text">Refs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Python%E6%95%B0%E7%BB%84%E5%92%8C%E5%88%97%E8%A1%A8%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">8.</span> <span class="nav-text">Python数组和列表有什么区别？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8-args%EF%BC%8C-kwargs%EF%BC%9F"><span class="nav-number">9.</span> <span class="nav-text">为什么使用*args，**kwargs？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8Python%E4%B8%AD%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6%EF%BC%9F"><span class="nav-number">10.</span> <span class="nav-text">如何在Python中删除文件？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8Python%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%A4%9A%E7%BA%BF%E7%A8%8B%EF%BC%9F"><span class="nav-number">11.</span> <span class="nav-text">如何在Python中实现多线程？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E8%A7%A3%E9%87%8A%E9%94%81"><span class="nav-number">12.</span> <span class="nav-text">全局解释锁</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Python面试问题 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Python面试问题
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:23:18 / Modified: 23:24:27" itemprop="dateCreated datePublished" datetime="2023-12-13T23:23:18+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#is-%E4%B8%8E--%E7%9A%84%E5%8C%BA%E5%88%AB">is 与 &#x3D;&#x3D; 的区别</a></li>
+<li><a href="#finally">finally</a></li>
+<li><a href="#list%E6%96%B9%E6%B3%95%E7%9A%84%E8%AE%A1%E7%AE%97%E5%A4%8D%E6%9D%82%E5%BA%A6">list方法的计算复杂度</a></li>
+<li><a href="#%E8%A3%85%E9%A5%B0%E5%99%A8">装饰器</a></li>
+<li><a href="#%E8%BF%AD%E4%BB%A3%E5%99%A8">迭代器</a></li>
+<li><a href="#%E7%94%9F%E6%88%90%E5%99%A8">生成器</a><ul>
+<li><a href="#refs">Refs</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BC%A0%E5%8F%82">传参</a><ul>
+<li><a href="#refs-1">Refs</a></li>
+</ul>
+</li>
+<li><a href="#python%E6%95%B0%E7%BB%84%E5%92%8C%E5%88%97%E8%A1%A8%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB">Python数组和列表有什么区别？</a></li>
+<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8argskwargs">为什么使用*args，**kwargs？</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E5%9C%A8python%E4%B8%AD%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6">如何在Python中删除文件？</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E5%9C%A8python%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%A4%9A%E7%BA%BF%E7%A8%8B">如何在Python中实现多线程？</a></li>
+<li><a href="#%E5%85%A8%E5%B1%80%E8%A7%A3%E9%87%8A%E9%94%81">全局解释锁</a></li>
+</ul>
+<h1 id="is-与-的区别"><a href="#is-与-的区别" class="headerlink" title="is 与 &#x3D;&#x3D; 的区别"></a>is 与 &#x3D;&#x3D; 的区别</h1><p>is 用于判断两个变量<strong>引用对象</strong>是否为同一个， &#x3D;&#x3D; 用于判断<strong>引用变量的值</strong>是否相等。 </p>
+<p>a is b 相当于id(a)&#x3D;&#x3D;id(b)，id() 能够获取对象的内存地址。 如果a&#x3D;10;b&#x3D;a; 则此时a 和b 的内存地址一样的; 但当a&#x3D;[1,2,3]; 另b&#x3D;a[:] 时，虽然a 和b 的值一样，但内存地址不一样。</p>
+<h1 id="finally"><a href="#finally" class="headerlink" title="finally"></a>finally</h1><p>无论try语句中是否抛出异常，finally中的语句一定会被执行。</p>
+<h1 id="list方法的计算复杂度"><a href="#list方法的计算复杂度" class="headerlink" title="list方法的计算复杂度"></a>list方法的计算复杂度</h1><table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Big-O Efficiency</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>index []</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>index assignment</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>append</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>pop()</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>pop(i)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>insert(i,item)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>del operator</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>iteration</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>contains (in)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>get slice [x:y]</td>
+<td>O(k)</td>
+</tr>
+<tr>
+<td>del slice</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>set slice</td>
+<td>O(n+k)</td>
+</tr>
+<tr>
+<td>reverse</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>concatenate</td>
+<td>O(k)</td>
+</tr>
+<tr>
+<td>sort</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>multiply</td>
+<td>O(nk)</td>
+</tr>
+</tbody></table>
+<h1 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h1><p>装饰器定义：装饰器<strong>便于代码复用</strong>, 将函数作为参数传给装饰器函数, 拓展原来函数功能的一种函数。</p>
+<p>装饰器作用：装饰器就是在不修改被装饰器对象源代码以及调用方式的前提下为被装饰对象<strong>添加新功能</strong>(增强函数功能但是又不修改原函数, 抽离函数中与函数本身无关的功能进行复用)。</p>
+<p>Python的装饰器本质上是一个<strong>嵌套函数</strong>，它接受被装饰的函数(func)作为参数，并返回一个包装过的函数。<br>这样我们可以在<strong>不改变被装饰函数的代码</strong>的情况下给被装饰函数或程序添加新的功能。<br>Python的装饰器广泛应用于<strong>缓存、权限校验、性能测试</strong>(比如统计一段程序的运行时间)和<strong>插入日志</strong>等应用场景。<br>有了装饰器，我们就可以<strong>抽离出大量与函数功能本身无关的代码</strong>，增加一个函数的重用性。</p>
+<blockquote>
+<p>用装饰器实现程序的计时</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">time_it</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">inner</span>():</span><br><span class="line">        start = time.time()</span><br><span class="line">        func()</span><br><span class="line">        end = time.time()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;用时:&#123;&#125;秒&#x27;</span>.<span class="built_in">format</span>(end-start))</span><br><span class="line">    <span class="keyword">return</span> inner</span><br><span class="line"></span><br><span class="line"><span class="meta">@time_it</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">func1</span>():</span><br><span class="line">    time.sleep(<span class="number">2</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Func1 is running.&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    func1()</span><br></pre></td></tr></table></figure>
+<h1 id="迭代器"><a href="#迭代器" class="headerlink" title="迭代器"></a>迭代器</h1><p>迭代器定义：迭代器(Iterator)是<strong>访问集合内元素</strong>的一种方式，提供了<strong>一种遍历序列对象的方法</strong>。一个类（对象）只要含有__iter__、__next__两个方法，就将其称为迭代器。</p>
+<p>迭代器作用：迭代器最核心的功能就是可以通过__next__方法的调用来返回下一个值。而这个值不是从已有的数据中读取的，而是通过程序按照一定的规则生成的。这也就意味着我们可以不再依赖一个现存的数据集合来存放数据，而是边用边生成，这样的好处就是可以节省大量的内存空间。</p>
+<h1 id="生成器"><a href="#生成器" class="headerlink" title="生成器"></a>生成器</h1><p>生成器定义：<strong>一边循环一边计算</strong>的机制，称为生成器（generator）。生成器（generator）也是一种迭代器，在每次迭代时返回一个值，直到抛出 StopIteration 异常。</p>
+<p>生成器作用：列表所有数据都在内存中，如果有海量数据的话将会非常耗内存。如：仅仅需要访问前面几个元素，那后面绝大多数元素占用的空间都白白浪费了。如果列表元素按照某种算法推算出来，那我们就可以在循环的过程中不断推算出后续的元素，这样就不必创建完整的list，从而节省大量的空间。</p>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2071974">【Python系列】为啥老问装饰器、迭代器、生成器？-腾讯云开发者社区-腾讯云 (tencent.com)</a></li>
+</ol>
+<h1 id="传参"><a href="#传参" class="headerlink" title="传参"></a>传参</h1><p>不可变对象 ：int，string，float，tuple   – 可理解为C中，该参数为值传递<br>可变对象   ：list，dictionary           – 可理解为C中，该参数为指针传递</p>
+<p>对于不可变对象作为函数参数，相当于C系语言的值传递；<br>对于可变对象作为函数参数，相当于C系语言的引用传递,但其实不完全是引用传递，会先构造一个新的引用，更像是赋值引用。</p>
+<h2 id="Refs-1"><a href="#Refs-1" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/20591688">(1 封私信 &#x2F; 59 条消息) Python 的函数是怎么传递参数的？ - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="Python数组和列表有什么区别？"><a href="#Python数组和列表有什么区别？" class="headerlink" title="Python数组和列表有什么区别？"></a>Python数组和列表有什么区别？</h1><p>Python中的数组和列表具有相同的存储数据方式。但是，数组只能包含单个数据类型元素，而列表可以包含任何数据类型元素。</p>
+<h1 id="为什么使用-args，-kwargs？"><a href="#为什么使用-args，-kwargs？" class="headerlink" title="为什么使用*args，**kwargs？"></a>为什么使用*args，**kwargs？</h1><p>当我们不确定将多少个参数传递给函数，或者我们想要将存储的列表或参数元组传递给函数时，我们使用*args。当我们不知道将多少关键字参数传递给函数时使用**kwargs，或者它可以用于将字典的值作为关键字参数传递。标识符args和kwargs是一个约定。</p>
+<h1 id="如何在Python中删除文件？"><a href="#如何在Python中删除文件？" class="headerlink" title="如何在Python中删除文件？"></a>如何在Python中删除文件？</h1><p>要在Python中删除文件，您需要导入OS模块。之后，您需要使用os.remove()函数。</p>
+<h1 id="如何在Python中实现多线程？"><a href="#如何在Python中实现多线程？" class="headerlink" title="如何在Python中实现多线程？"></a>如何在Python中实现多线程？</h1><p>Python有一个多线程库，但是用多线程来加速代码的效果并不是那么的好，</p>
+<p>Python有一个名为Global Interpreter Lock（GIL）的结构。GIL确保每次只能执行一个“线程”。一个线程获取GIL执行相关操作，然后将GIL传递到下一个线程。</p>
+<p>虽然看起来程序被多线程并行执行，但它们实际上只是轮流使用相同的CPU核心。</p>
+<p>所有这些GIL传递都增加了执行的开销。这意味着多线程并不能让程序运行的更快。</p>
+<h1 id="全局解释锁"><a href="#全局解释锁" class="headerlink" title="全局解释锁"></a>全局解释锁</h1><p>适当的多线程能够提高运行效率，但在python中并不如此。</p>
+<p>GIL功能：在 CPython 解释器中执行的每一个 Python线程，都会先锁住自己，以阻止别的线程执行。</p>
+<p>存在原因：古老单核的调度机制</p>
+<p>因此并行的过程在python中是通过线程交替执行模拟并行的线程。</p>
+<p>CPython 中还有另一个机制，叫做<strong>间隔式检查</strong>（check_interval），意思是 CPython 解释器会去轮询检查线程 GIL 的锁住情况，每隔一段时间，Python 解释器就会强制当前线程去释放 GIL，这样别的线程才能有执行的机会。</p>
+<p>GIL不意味着线程安全：<br>因为间隔式检查这种抢占机制，线程有可能也会被打断</p>
+<p>避免GIL影响：</p>
+<ol>
+<li>在以IO操作为主的IO密集型应用中，相比进程操作，线程操作更加轻量级，线程之间的通讯复杂度更低，建议使用多线程。</li>
+<li>如果是计算密集型的应用，尽量使用多进程或者协程来代替多线程。</li>
+</ol>
+<p>参考：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://c.biancheng.net/view/5537.html">Python GIL全局解释器锁详解（深度剖析） (biancheng.net)</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/75780308">深入理解Python中的GIL（全局解释器锁）。 - 知乎 (zhihu.com)</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%A3%85%E9%A5%B0%E5%99%A8/" rel="tag"># 装饰器</a>
+              <a href="/tags/%E8%BF%AD%E4%BB%A3%E5%99%A8/" rel="tag"># 迭代器</a>
+              <a href="/tags/%E5%85%A8%E5%B1%80%E8%A7%A3%E9%87%8A%E9%94%81/" rel="tag"># 全局解释锁</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/C++%E5%B0%8F%E9%97%AE%E9%A2%98/" rel="prev" title="C++面试问题">
+                  <i class="fa fa-angle-left"></i> C++面试问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80/" rel="next" title="数据结构原理">
+                  数据结构原理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="CoT CoT的局限性 References    本文主要介绍CoT相关的一些方法和技术 CoT Chain-of-Thought Prompting Elicits Reasoning in Large Language Models  简单来说就是将原本的问题，经过多个中间步骤最终获取答案，实现更好的推理。 具体实现效果：常识推理能力赶超人类；数学逻辑推理能力大幅度提升；LLM可解释性更强">
+<meta property="og:type" content="article">
+<meta property="og:title" content="思维链">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="CoT CoT的局限性 References    本文主要介绍CoT相关的一些方法和技术 CoT Chain-of-Thought Prompting Elicits Reasoning in Large Language Models  简单来说就是将原本的问题，经过多个中间步骤最终获取答案，实现更好的推理。 具体实现效果：常识推理能力赶超人类；数学逻辑推理能力大幅度提升；LLM可解释性更强">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/v2-fb5a82b4689c8cfa03379636a07f7798_1440w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640.jpeg">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640-16913117241443.jpeg">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640-16913117416225.jpeg">
+<meta property="article:published_time" content="2023-12-13T15:16:45.846Z">
+<meta property="article:modified_time" content="2023-12-13T15:19:07.868Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="思维链">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/v2-fb5a82b4689c8cfa03379636a07f7798_1440w.webp">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/","path":"2023/12/13/深度学习/监督学习/大模型方向/CoT/","title":"思维链"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>思维链 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CoT"><span class="nav-number">1.</span> <span class="nav-text">CoT</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CoT%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">CoT的局限性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.2.</span> <span class="nav-text">References</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="思维链 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          思维链
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:16:45 / Modified: 23:19:07" itemprop="dateCreated datePublished" datetime="2023-12-13T23:16:45+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#cot">CoT</a><ul>
+<li><a href="#cot%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7">CoT的局限性</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+<p>本文主要介绍CoT相关的一些方法和技术</p>
+<h1 id="CoT"><a href="#CoT" class="headerlink" title="CoT"></a>CoT</h1><blockquote>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2005.14165">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a></p>
+</blockquote>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/v2-fb5a82b4689c8cfa03379636a07f7798_1440w.webp" alt="CoT"><br>简单来说就是将原本的问题，经过多个中间步骤最终获取答案，实现更好的推理。</p>
+<p>具体实现效果：常识推理能力赶超人类；数学逻辑推理能力大幅度提升；LLM可解释性更强。</p>
+<ul>
+<li>Zero-shot-CoT</li>
+</ul>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640.jpeg" alt="zsCoT"></p>
+<p>零样本思维链通过引入与样本无关指示，来实现自我增强</p>
+<ul>
+<li>多数投票提高CoT性能——自洽性（Self-consistency）</li>
+</ul>
+<p>其实核心就是对生成的多个结果选择取多数的答案，这一个可以直接通过控制temprature和Top-K来实现，很显然这会使得时间会变长。</p>
+<ul>
+<li>LtM(Least to Most prompting)</li>
+</ul>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640-16913117241443.jpeg" alt="LtM"></p>
+<p>将问题按步骤拆分成多个子问题，解决完多个子问题后回答最终问题。具体训练就是分为多个CoT阶段实现。</p>
+<ul>
+<li>Flan-PaLM&#x2F;T5：CoT + Finetuning</li>
+</ul>
+<p>Flan-T5：在超大规模的任务上对模型进行<strong>微调</strong>，使得单个模型在1800多个NLP任务上都能够有很好的表现。</p>
+<p>微调方法就是在加入CoT数据。其核心是对多任务数据的统一。</p>
+<p>实现流程：</p>
+<ol>
+<li>收集带有标签的数据，将每个任务定义为&lt;数据，任务类型&gt;</li>
+<li>对数据的形式进行改写，比如改写成CoT的形式；并对是否需要CoT和few-shot，进行组合构造</li>
+<li>训练过程：恒定的学习率以及 Adafactor 优化器；同时将多个训练样本打包成一个训练样本，通过特殊结束token进行分割。</li>
+</ol>
+<p>结论：</p>
+<ol>
+<li>微调有效果，模型越大越好，任务越多越好</li>
+<li>混杂CoT很重要</li>
+</ol>
+<ul>
+<li>提升小模型的推理能力：Fine-tune-CoT</li>
+</ul>
+<p>旨在利用大模型思维链推理能力指导小模型解决复杂问题。</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/640-16913117416225.jpeg" alt="FuCoT"></p>
+<p>简单的说就是用ChatGPT这类大模型生成CoT数据，然后再喂给小模型进行微调。同时该方法需要生成尽可能多的数据。</p>
+<h2 id="CoT的局限性"><a href="#CoT的局限性" class="headerlink" title="CoT的局限性"></a>CoT的局限性</h2><ol>
+<li>思维链只有在<strong>模型规模足够大</strong>的时候才适用，如何实现小模型的思维链应用是值得探索的方向</li>
+<li>应用领域有限，当前的实验结果只是在部分领域有所评估。另外，<strong>思维链只是提高模型的推理能力，但不代表模型真正理解内在的逻辑</strong>。</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/BMv_FVJ3j6q71LqA4fUYUA">【他山之石】大模型思维链（Chain-of-Thought）技术原理</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%80%9D%E7%BB%B4%E9%93%BE/" rel="tag"># 思维链</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/" rel="prev" title="集成学习">
+                  <i class="fa fa-angle-left"></i> 集成学习
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/" rel="next" title="大模型加速相关内容">
+                  大模型加速相关内容 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

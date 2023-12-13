@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Value-based与Policy-based 重要度采样 References   策略梯度方法 References   MC、TD与DP References   贝尔曼方程 References  Value-based与Policy-based 目标不同  vb：最大化动作价值函数pb：最大化每个epi的总回报 基于价值与基于策略的强化学习区别：  价值：通过学习价值函数指导策略 策">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RL面经">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="Value-based与Policy-based 重要度采样 References   策略梯度方法 References   MC、TD与DP References   贝尔曼方程 References  Value-based与Policy-based 目标不同  vb：最大化动作价值函数pb：最大化每个epi的总回报 基于价值与基于策略的强化学习区别：  价值：通过学习价值函数指导策略 策">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:720/format:webp/1*Xliy4GF9yNVNDcVa6KLLtw.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230604225752515.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230810125638794.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230712163055793.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/Center.png">
+<meta property="article:published_time" content="2023-12-13T15:10:38.343Z">
+<meta property="article:modified_time" content="2023-12-13T15:11:02.236Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="RL基础知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miro.medium.com/v2/resize:fit:720/format:webp/1*Xliy4GF9yNVNDcVa6KLLtw.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/","path":"2023/12/13/深度学习/强化学习/RL面试问题/","title":"RL面经"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>RL面经 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Value-based%E4%B8%8EPolicy-based"><span class="nav-number">1.</span> <span class="nav-text">Value-based与Policy-based</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%87%8D%E8%A6%81%E5%BA%A6%E9%87%87%E6%A0%B7"><span class="nav-number">2.</span> <span class="nav-text">重要度采样</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">2.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">策略梯度方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MC%E3%80%81TD%E4%B8%8EDP"><span class="nav-number">4.</span> <span class="nav-text">MC、TD与DP</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">4.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%9D%E5%B0%94%E6%9B%BC%E6%96%B9%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">贝尔曼方程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References-3"><span class="nav-number">6.</span> <span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="RL面经 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          RL面经
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:10:38 / Modified: 23:11:02" itemprop="dateCreated datePublished" datetime="2023-12-13T23:10:38+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#value-based%E4%B8%8Epolicy-based">Value-based与Policy-based</a></li>
+<li><a href="#%E9%87%8D%E8%A6%81%E5%BA%A6%E9%87%87%E6%A0%B7">重要度采样</a><ul>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E6%96%B9%E6%B3%95">策略梯度方法</a><ul>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#mctd%E4%B8%8Edp">MC、TD与DP</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#%E8%B4%9D%E5%B0%94%E6%9B%BC%E6%96%B9%E7%A8%8B">贝尔曼方程</a></li>
+<li><a href="#references-3">References</a></li>
+</ul>
+<h1 id="Value-based与Policy-based"><a href="#Value-based与Policy-based" class="headerlink" title="Value-based与Policy-based"></a>Value-based与Policy-based</h1><ol>
+<li>目标不同</li>
+</ol>
+<p>vb：最大化动作价值函数<br>pb：最大化每个epi的总回报</p>
+<p>基于价值与基于策略的强化学习区别：</p>
+<ol>
+<li>价值：通过学习价值函数指导策略</li>
+<li>策略：直接学习对应的策略</li>
+<li>ac：价值+策略</li>
+</ol>
+<h1 id="重要度采样"><a href="#重要度采样" class="headerlink" title="重要度采样"></a>重要度采样</h1><p>首先需要明确，该方法是一种普世的方法，不仅用于RL。</p>
+<p>核心思想是通过一个已知策略的分布情况，根据采样比，进而修正得到当前未知的策略分布情况。<br><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*Xliy4GF9yNVNDcVa6KLLtw.png" alt="IS"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://sandralin-21001.medium.com/%E8%AE%80%E4%BA%9B%E6%9D%B1%E8%A5%BF-%E5%81%9A%E9%BB%9E%E7%AD%86%E8%A8%98-ppo-trpo-c8afa7c176e9">[讀些東西，做點筆記] PPO &amp; TRPO</a></li>
+</ol>
+<h1 id="策略梯度方法"><a href="#策略梯度方法" class="headerlink" title="策略梯度方法"></a>策略梯度方法</h1><ol>
+<li>基本思想</li>
+</ol>
+<p>最大化<strong>状态价值</strong>来更新<strong>策略函数</strong>参数，即最大化目标函数<br>$J(\theta) &#x3D; \mathbb{E}_S[V_\pi(s)]$,其中$\theta$为策略函数的参数.具体优化过程：</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230604225752515.png" alt="image-20230604225752515"></p>
+<ol start="2">
+<li>优缺点</li>
+</ol>
+<p><strong>优点：</strong></p>
+<p>相对于Value Based的方法，基于策略梯度的强化学习方法的很明显的优势是它<strong>可以直接去学习Policy</strong>本身，这样学习速度会更快，并且更关键的是它<strong>可以用于连续动作空间</strong>的情况。</p>
+<ul>
+<li>更好的收敛性</li>
+<li>高维空间场景下，基于策略的方法要更高效</li>
+<li>能够学习到一些随机策略</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<p>RL环境变化往往较大，导致Value的方差要比一般的DL数据大得多，学习率的选择会直接影响到策略的好坏(学习率需要针对调整)，且差异会很大。</p>
+<ul>
+<li>方差大，受初始策略选择波动大</li>
+<li>策略评估效率低</li>
+<li>一般收敛到局部最优</li>
+</ul>
+<p>解决办法：</p>
+<p>  TRPO与PPO，通过调整新旧策略，为新旧策略增加约束，保证策略的更新是在可控范围之内的。</p>
+<ol start="3">
+<li>策略梯度</li>
+</ol>
+<p>选定合适的策略目标函数，对策略目标函数求梯度上升至局部最大值即可；</p>
+<p>目标函数：<br>$$<br>J(\theta)<br>&#x3D; \sum_{s \in \mathcal{S}} d^\pi(s) V^\pi(s)<br>&#x3D; \sum_{s \in \mathcal{S}} d^\pi(s) \sum_{a \in \mathcal{A}} \pi_\theta(a \vert s) Q^\pi(s, a)<br>$$</p>
+<p>其中$d^{\pi}(s)&#x3D;\lim _{t\to \infty} P(s_t&#x3D;s|s_0,\pi_\theta)$是平稳分布。</p>
+<p>在具体更新过程中，</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230810125638794.png" alt="image-20230810125638794"></p>
+<p>前一项控制更新方向，后一项控制更新幅度，因此就会朝着高回报的轨迹更新。</p>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/bc47747334cf">深入理解TRPO和PPO算法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/28348110">《强化学习》第七讲 策略梯度</a></li>
+<li><a target="_blank" rel="noopener" href="https://paperexplained.cn/articles/article/detail/31/#dde1663a-6482-413e-b146-68fdda286195">For: 策略梯度算法专题</a></li>
+</ol>
+<h1 id="MC、TD与DP"><a href="#MC、TD与DP" class="headerlink" title="MC、TD与DP"></a>MC、TD与DP</h1><p>Same：</p>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/52143798">强化学习之遇到的一些面试问题</a></li>
+</ol>
+<h1 id="贝尔曼方程"><a href="#贝尔曼方程" class="headerlink" title="贝尔曼方程"></a>贝尔曼方程</h1><p>最优贝尔曼方程</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/image-20230712163055793.png" alt="image-20230712163055793"></p>
+<p>贝尔曼期望方程</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/Center.png" alt="img"></p>
+<h1 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h1><p>1.<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg4NzAwNTcyOQ==&mid=2247484466&idx=1&sn=e1ea1b725678ab544fabf75128475d7c&chksm=cf91b37cf8e63a6aa17d9d81aa45dda3e2d7302c672b2877c7e9b40a3dc21a3a778243663496&scene=178&cur_album_id=1668845404009889793#rd">面试篇——强化学习高频面试题整理</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RL%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"># RL基础知识</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%90%AF%E5%8F%91%E6%80%A7%E9%97%AE%E9%A2%98/%E5%A4%9A%E4%BB%BB%E5%8A%A1%E7%9B%B8%E5%85%B3/" rel="prev" title="多任务问题研究">
+                  <i class="fa fa-angle-left"></i> 多任务问题研究
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/" rel="next" title="主流RL模型学习">
+                  主流RL模型学习 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="TRPO 与 PPO 研究背景 TRPO相关内容 TRPO研究思路 TRPO更新与实现   PPO相关内容 PPO研究思路 GAE：PPO的实现   References   DPG、DDPG与TD3 DPG DDPG TD3 References   AC、A2C与A3C References   SAC 背景 工作 Soft Value Function and Energy Based P">
+<meta property="og:type" content="article">
+<meta property="og:title" content="主流RL模型学习">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="TRPO 与 PPO 研究背景 TRPO相关内容 TRPO研究思路 TRPO更新与实现   PPO相关内容 PPO研究思路 GAE：PPO的实现   References   DPG、DDPG与TD3 DPG DDPG TD3 References   AC、A2C与A3C References   SAC 背景 工作 Soft Value Function and Energy Based P">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://miro.medium.com/v2/resize:fit:720/format:webp/1*6-Vccsyc0NcPgsC1d88AWw.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230605150906170.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810000932103.png">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-6f4c4825b8887c5b7d03b3c0735fd92d_720w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810130747866.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810182145467.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/v2-122aa3a25ff8ca8629e7a4e4e9302bba_1440w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/v2-828a3d80c2b6134c0b3aa77ad775cd1a_1440w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230814151301079-1691997184557-1.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230814152114142.png">
+<meta property="article:published_time" content="2023-12-13T15:10:38.345Z">
+<meta property="article:modified_time" content="2023-12-13T15:11:27.618Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="RL模型">
+<meta property="article:tag" content="PPO、TRPO">
+<meta property="article:tag" content="DPG、DDPG、TD3">
+<meta property="article:tag" content="A2C、A3C">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://miro.medium.com/v2/resize:fit:720/format:webp/1*6-Vccsyc0NcPgsC1d88AWw.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/","path":"2023/12/13/深度学习/强化学习/主流模型/","title":"主流RL模型学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>主流RL模型学习 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TRPO-%E4%B8%8E-PPO"><span class="nav-number">1.</span> <span class="nav-text">TRPO 与 PPO</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TRPO%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">TRPO相关内容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TRPO%E7%A0%94%E7%A9%B6%E6%80%9D%E8%B7%AF"><span class="nav-number">1.2.1.</span> <span class="nav-text">TRPO研究思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TRPO%E6%9B%B4%E6%96%B0%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.2.</span> <span class="nav-text">TRPO更新与实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PPO%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9"><span class="nav-number">1.3.</span> <span class="nav-text">PPO相关内容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PPO%E7%A0%94%E7%A9%B6%E6%80%9D%E8%B7%AF"><span class="nav-number">1.3.1.</span> <span class="nav-text">PPO研究思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GAE%EF%BC%9APPO%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.3.2.</span> <span class="nav-text">GAE：PPO的实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DPG%E3%80%81DDPG%E4%B8%8ETD3"><span class="nav-number">2.</span> <span class="nav-text">DPG、DDPG与TD3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DPG"><span class="nav-number">2.1.</span> <span class="nav-text">DPG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DDPG"><span class="nav-number">2.2.</span> <span class="nav-text">DDPG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TD3"><span class="nav-number">2.3.</span> <span class="nav-text">TD3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">2.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AC%E3%80%81A2C%E4%B8%8EA3C"><span class="nav-number">3.</span> <span class="nav-text">AC、A2C与A3C</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SAC"><span class="nav-number">4.</span> <span class="nav-text">SAC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C"><span class="nav-number">4.2.</span> <span class="nav-text">工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Soft-Value-Function-and-Energy-Based-Policy"><span class="nav-number">4.3.</span> <span class="nav-text">Soft Value Function and Energy Based Policy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-3"><span class="nav-number">4.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CQL"><span class="nav-number">5.</span> <span class="nav-text">CQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-4"><span class="nav-number">5.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#REM"><span class="nav-number">6.</span> <span class="nav-text">REM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-5"><span class="nav-number">6.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BCQ"><span class="nav-number">7.</span> <span class="nav-text">BCQ</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-6"><span class="nav-number">7.1.</span> <span class="nav-text">References</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="主流RL模型学习 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          主流RL模型学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:10:38 / Modified: 23:11:27" itemprop="dateCreated datePublished" datetime="2023-12-13T23:10:38+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#trpo-%E4%B8%8E-ppo">TRPO 与 PPO</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#trpo%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9">TRPO相关内容</a><ul>
+<li><a href="#trpo%E7%A0%94%E7%A9%B6%E6%80%9D%E8%B7%AF">TRPO研究思路</a></li>
+<li><a href="#trpo%E6%9B%B4%E6%96%B0%E4%B8%8E%E5%AE%9E%E7%8E%B0">TRPO更新与实现</a></li>
+</ul>
+</li>
+<li><a href="#ppo%E7%9B%B8%E5%85%B3%E5%86%85%E5%AE%B9">PPO相关内容</a><ul>
+<li><a href="#ppo%E7%A0%94%E7%A9%B6%E6%80%9D%E8%B7%AF">PPO研究思路</a></li>
+<li><a href="#gaeppo%E7%9A%84%E5%AE%9E%E7%8E%B0">GAE：PPO的实现</a></li>
+</ul>
+</li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#dpgddpg%E4%B8%8Etd3">DPG、DDPG与TD3</a><ul>
+<li><a href="#dpg">DPG</a></li>
+<li><a href="#ddpg">DDPG</a></li>
+<li><a href="#td3">TD3</a></li>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#aca2c%E4%B8%8Ea3c">AC、A2C与A3C</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#sac">SAC</a><ul>
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
+<li><a href="#%E5%B7%A5%E4%BD%9C">工作</a></li>
+<li><a href="#soft-value-function-and-energy-based-policy">Soft Value Function and Energy Based Policy</a></li>
+<li><a href="#references-3">References</a></li>
+</ul>
+</li>
+<li><a href="#cql">CQL</a><ul>
+<li><a href="#references-4">References</a></li>
+</ul>
+</li>
+<li><a href="#rem">REM</a><ul>
+<li><a href="#references-5">References</a></li>
+</ul>
+</li>
+<li><a href="#bcq">BCQ</a><ul>
+<li><a href="#references-6">References</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="TRPO-与-PPO"><a href="#TRPO-与-PPO" class="headerlink" title="TRPO 与 PPO"></a>TRPO 与 PPO</h1><!-- 论文名 -->
+<blockquote>
+<p>TRPO:Trust Region Policy Optimization </p>
+<p>PPO:Proximal Policy Optimization</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>策略梯度方法以及存在的缺点：<a target="_blank" rel="noopener" href="https://gitee.com/Jonny-Jaia/ready-blog/blob/master/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98.md#%E7%AD%96%E7%95%A5%E6%A2%AF%E5%BA%A6%E6%96%B9%E6%B3%95">策略梯度方法</a></p>
+<h2 id="TRPO相关内容"><a href="#TRPO相关内容" class="headerlink" title="TRPO相关内容"></a>TRPO相关内容</h2><h3 id="TRPO研究思路"><a href="#TRPO研究思路" class="headerlink" title="TRPO研究思路"></a>TRPO研究思路</h3><p>TRPO算法尽量通过能提高状态价值的方式来更新策略。它通过<strong>在新旧策略之间增加约束</strong>，将整个参数空间的变化限制在一个小范围之内，从而避免了错误决策导致Value的崩塌，<strong>尽可能的保持快速而单调的提升。</strong></p>
+<h3 id="TRPO更新与实现"><a href="#TRPO更新与实现" class="headerlink" title="TRPO更新与实现"></a>TRPO更新与实现</h3><ol>
+<li>在原有问题上增加约束项，两个策略的KL散度计算</li>
+<li>引入 trust region方法去优化找到最优解</li>
+<li>对当前优化问题做了一定的简化，减小计算量。具体有：<code>平均KL散度代替最大KL散度</code>，<code>对约束问题二次近似</code>，<code>非约束问题一次近似</code></li>
+</ol>
+<p><img src="https://miro.medium.com/v2/resize:fit:720/format:webp/1*6-Vccsyc0NcPgsC1d88AWw.png" alt="更新流程"></p>
+<h2 id="PPO相关内容"><a href="#PPO相关内容" class="headerlink" title="PPO相关内容"></a>PPO相关内容</h2><h3 id="PPO研究思路"><a href="#PPO研究思路" class="headerlink" title="PPO研究思路"></a>PPO研究思路</h3><p>TRPO中的二阶计算量还是非常大，因此基于此有了PPO算法。为了让当前策略上进行有效更新时不至于导致Value的崩溃，PPO可以看成是TRPO的一阶近似方案，其试用范围更广、计算效率更高、更容易实现。</p>
+<p>v1:修改了KL散度的约束方式，它不再添加硬约束，而是通过在目标函数中加入KL散度的正则项的方式来处理约束问题。</p>
+<p>v2:则删除了约束，直接使用强制剪裁的暴力方式来让$\theta$的更新保持在一定范围之内。</p>
+<p>v2-目标函数实现：<br>$$<br>\mathcal{L}(s, a,\theta_k, \theta) &#x3D; min(\frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)} A_{\pi_{\theta_k}}(s,a) , clip( \frac{\pi_\theta(a|s)}{\pi_{\theta_k}(a|s)}, 1-\epsilon, 1+ \epsilon) A_{\pi_{\theta_k}}(s,a))<br>$$</p>
+<p>拆分讲解：</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230605150906170.png" alt="image-20230605150906170"></p>
+<h3 id="GAE：PPO的实现"><a href="#GAE：PPO的实现" class="headerlink" title="GAE：PPO的实现"></a>GAE：PPO的实现</h3><blockquote>
+<p>GAE:generalized advantage estimator</p>
+</blockquote>
+<p>核心思路：优势函数用类似于multi-step td去实现，获得优势函数的指数加权移动平均，这可以让优势估计更加平滑和稳定。</p>
+<p>具体实现：</p>
+<p>n步的Adventage的$\hat{A}<em>t^{(n)}$估计<br>$$<br>\begin{align} \hat{A}<em>t^{(1)} &amp;&#x3D; \delta_t^V &#x3D; -V(s_t)+r_t+\gamma V(s</em>{t+1}) \ \hat{A}<em>t^{(2)} &amp;&#x3D; \delta_t^V + \gamma \delta</em>{t+1}^V &#x3D; -V(s_t)+r_t+ \gamma r</em>{t+1} +\gamma^2 V(s_{t+2}) \ \hat{A}<em>t^{(3)} &amp;&#x3D; \delta_t^V + \gamma \delta</em>{t+1}^V + \gamma^2 \delta_{t+2}^V &#x3D; -V(s_t)+r_t+ \gamma r_{t+1} + \gamma^2 r_{t+2} +\gamma^3 V(s_{t+3}) \ … \ \hat{A}<em>t^{(k)} &amp;&#x3D; \sum^{k-1}</em>{l&#x3D;0}\gamma^l\delta_{t+l}^V &#x3D; -V(s_t)+r_t+\gamma r_{t+1} + … + \gamma^{k-1}r_{t+k-1}+ \gamma^kV(s_{t+k})\ \end{align}<br>$$</p>
+<p>在并不知道取哪几步优势最好的情况下，并不能确定一个最好的n，GAE则是取附近值的指数加权移动平均，加权系数$\lambda$:<br>$$<br>\hat{A}_t^{GAE(\gamma, \lambda)} &#x3D; (1-\lambda)(\hat{A}_t^{(1)}+ \lambda \hat{A}_t^{(2)} + \lambda^2\hat{A}_t^{(3)}+…)<br>$$<br>当$\lambda &#x3D; 0$ 时， $\hat{A}_t &#x3D; \delta_t$ ， 相当于one-step的TD。</p>
+<p>当$\lambda &#x3D; 1$ 时， $\hat{A}<em>t &#x3D; \sum^{\inf}</em>{l&#x3D;0}\gamma^l\delta_{t+l}$ ， 相当于玩完整局才更新。</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/bc47747334cf">深入理解TRPO和PPO算法</a></li>
+</ol>
+<h1 id="DPG、DDPG与TD3"><a href="#DPG、DDPG与TD3" class="headerlink" title="DPG、DDPG与TD3"></a>DPG、DDPG与TD3</h1><h2 id="DPG"><a href="#DPG" class="headerlink" title="DPG"></a>DPG</h2><p>DPG是确定性的策略输出，也就是说相对于随机策略输出，DPG算法面对同一个状态时将输出同一个动作，而随机策略比如说PPO，它在面对连续的动作空间时，将输出一个高斯分布的均值mu和方差sigma，并利用这个高斯分布进行采样，每一次输出的动作将不同。</p>
+<p>在随机策略的更新中(PPO等)，loss&#x3D;neg_log_prob(a)*A(s,a),其中就需要得到动作a的选择概率。因此，随机策略更新可以直接采用策略梯度的目标函数进行梯度更新。</p>
+<p>确定性策略中的动作输出代表当前的概率始终为1，所以确定性策略最大的问题在于如何去更新：</p>
+<p>actor的目标就是采取动作a之后获取更高的后续价值，因此通过TD-target实现这一更新梯度</p>
+<p>$loss &#x3D; -Q(s,\mu_{\theta}(s))$</p>
+<h2 id="DDPG"><a href="#DDPG" class="headerlink" title="DDPG"></a>DDPG</h2><p>DDPG主要是做了两方面改进，主要是源自于DQN的trick，Replay Buffer 和 target network</p>
+<p>target network则是在计算loss的target部分时，为了避免<strong>Q值更新波动</strong>，采用另外的网络来计算更新的方法;其中，target网络是采用滑动更新的</p>
+<h2 id="TD3"><a href="#TD3" class="headerlink" title="TD3"></a>TD3</h2><p>TD3基于DDPG的改进主要有3方面，分别是 double Q、 Delayed update、<br>target policy smoothing regularization</p>
+<ul>
+<li>double Q：</li>
+</ul>
+<p>在DQN中，因为DQN也有target网络，所以DQN干脆直接让target网络作为第二个Q的计算网络。可以看到这个target的Q是用目标网络来算的。</p>
+<p>在TD3中，作者没有延续DQN使用target网络作为第二个Q的方案，<strong>而是又弄了两个网络</strong>，直接用最小的Q来作为target Q了，然后每一次更新当然也把两个Q都更新一遍。因此，相当于有6个Q网络。</p>
+<ul>
+<li>Delayed update：</li>
+</ul>
+<p>延迟更新是指在更新actor网络的时候，延迟几次</p>
+<ul>
+<li>target policy smoothing regularization</li>
+</ul>
+<p>作者认为相似的动作应该会有相似的值，由此提出了在目标动作的小范围拟合值的方法</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810000932103.png" alt="image-20230810000932103"></p>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/480234705">强化学习基础7：从DPG、DDPG到TD3</a></li>
+</ol>
+<h1 id="AC、A2C与A3C"><a href="#AC、A2C与A3C" class="headerlink" title="AC、A2C与A3C"></a>AC、A2C与A3C</h1><p><img src="https://pic2.zhimg.com/80/v2-6f4c4825b8887c5b7d03b3c0735fd92d_720w.webp" alt="AC框架"><br>策略梯度一般可以写为：</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810130747866.png" alt="image-20230810130747866"></p>
+<p>其中的$\phi_t$可以分别采用累计回报(总回报、动作开始后回报、带基线回报-回报的累计会导致方差大)，值函数估计(动作值函数、优势函数、TD偏差-近似代替累计回报会导致偏差较大)</p>
+<p>经典AC方法：actor-策略梯度，critic-值函数</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230810182145467.png" alt="image-20230810182145467"></p>
+<ul>
+<li>A2C</li>
+</ul>
+<p>常常通过增加基线，降低模型的方差使得输出值能够标准化限制在一定范围；<br>值函数转换成用优势函数代替：$Q^\pi(s_t^{n},a_t^{n})-V^\pi(s_t^{n})$。评估网络只能实现一个值的评估，因此Critic变为估计状态价值V的网络，具体的更新loss：</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/v2-122aa3a25ff8ca8629e7a4e4e9302bba_1440w.webp" alt="img"></p>
+<ul>
+<li>A3C</li>
+</ul>
+<p>核心思路就是异步结构，通过多个不同状态的a2c网络更新，结合多个进程实现整体的更新<br><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/v2-828a3d80c2b6134c0b3aa77ad775cd1a_1440w.webp" alt="img"></p>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/62100741">强化学习（十三 ）–AC、A2C、A3C算法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29486661">Actor-Critic算法小结</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/51645768">强化学习AC、A2C、A3C算法原理与实现！ - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="SAC"><a href="#SAC" class="headerlink" title="SAC"></a>SAC</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><ul>
+<li>随机策略PPO：重要度采样方法在应用于训练与交互policy差异过大的情况无法处理。</li>
+<li>确定性策略DDPG：超参数敏感</li>
+</ul>
+<h2 id="工作"><a href="#工作" class="headerlink" title="工作"></a>工作</h2><p>核心：最大熵算法，也采用随机分布式策略，并且是off-policy,ac算法。</p>
+<p>实现不同：优化策略获得更高累计收益的同时也会最大化策略的熵</p>
+<p>表现：稳定，有较强的抗干扰能力</p>
+<p>最大熵作用：可以让策略尽可能随机，实现更充分的探索，避免策略过早落入局部最优点</p>
+<p>熵公式：$H(P)&#x3D;\underset{x \sim P}{\mathrm{E}}[-\log P(x)]$,其中x服从分布P</p>
+<p>最大化熵强化学习：</p>
+<ol>
+<li>目标函数：$\pi_{\text {MaxEnt }}^{*}&#x3D;\arg \max <em>{\pi} \sum</em>{t} \mathbb{E}<em>{\left(s</em>{t}, a_{t}\right) \sim \rho_{\pi}}\left[r\left(s_{t}, a_{t}\right)+\alpha H\left(\pi\left(\cdot \mid s_{t}\right)\right)\right]$<blockquote>
+<p> $\rho_{\pi}$ 表示在策略$\pi$ 控制下，智能体（agent）会遇到的状态动作对（state-action pair）所服从的分布。 $\alpha$ 是名为温度系数的超参数，用于调整对熵值的重视程度。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="Soft-Value-Function-and-Energy-Based-Policy"><a href="#Soft-Value-Function-and-Energy-Based-Policy" class="headerlink" title="Soft Value Function and Energy Based Policy"></a>Soft Value Function and Energy Based Policy</h2><p>SVF:</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230814151301079-1691997184557-1.png" alt="image-20230814151301079"></p>
+<p>EBP:</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E4%B8%BB%E6%B5%81%E6%A8%A1%E5%9E%8B/image-20230814152114142.png" alt="image-20230814152114142"></p>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/85003758">SAC(Soft Actor-Critic)阅读笔记 - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="CQL"><a href="#CQL" class="headerlink" title="CQL"></a>CQL</h1><p>主要思想是在Q值基础上增加一个regularizer，学习一个保守的Q函数，作者从理论上证明了CQL可以产生一个当前策略的真实值下界，并且是可以进行策略评估和策略提升的过程。</p>
+<h2 id="References-4"><a href="#References-4" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/gsww404/article/details/124079395">离线强化学习(Offline RL)系列3: (算法篇) CQL(Conservative Q-Learning)算法详解与实现_cql算法_@RichardWang的博客-CSDN博客</a></li>
+<li></li>
+</ol>
+<h1 id="REM"><a href="#REM" class="headerlink" title="REM"></a>REM</h1><h2 id="References-5"><a href="#References-5" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/gsww404/article/details/124029113">离线强化学习(Offline RL)系列3: (算法篇) REM(Random Ensemble Mixture)算法详解与实现_offline强化学习方法有哪些_@RichardWang的博客-CSDN博客</a></li>
+</ol>
+<h1 id="BCQ"><a href="#BCQ" class="headerlink" title="BCQ"></a>BCQ</h1><h2 id="References-6"><a href="#References-6" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/gsww404/article/details/123926753">离线强化学习(Offline RL)系列3: (算法篇)策略约束-BCQ算法详解与实现_连续状态下的基于策略的算法_@RichardWang的博客-CSDN博客</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/RL%E6%A8%A1%E5%9E%8B/" rel="tag"># RL模型</a>
+              <a href="/tags/PPO%E3%80%81TRPO/" rel="tag"># PPO、TRPO</a>
+              <a href="/tags/DPG%E3%80%81DDPG%E3%80%81TD3/" rel="tag"># DPG、DDPG、TD3</a>
+              <a href="/tags/A2C%E3%80%81A3C/" rel="tag"># A2C、A3C</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/RL%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98/" rel="prev" title="RL面经">
+                  <i class="fa fa-angle-left"></i> RL面经
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%97%A0%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%AF%B9%E6%AF%94%E5%AD%A6%E4%B9%A0%E7%9B%B8%E5%85%B3%E6%A8%A1%E5%9E%8B/" rel="next" title="对比学习相关模型">
+                  对比学习相关模型 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

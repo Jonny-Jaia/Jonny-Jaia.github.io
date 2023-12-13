@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="大规模训练技术挑战 显存挑战 通信挑战 计算挑战 References   微调经验与技术说明 经验方法 技术分类说明 References   LoRA技术介绍 研究背景 技术细节 References   Chain of Thought 研究背景 相关工作 CoT的局限性 References   LLM-Tricks 数据相关 self-instruct     In-Context l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型相关技术">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="大规模训练技术挑战 显存挑战 通信挑战 计算挑战 References   微调经验与技术说明 经验方法 技术分类说明 References   LoRA技术介绍 研究背景 技术细节 References   Chain of Thought 研究背景 相关工作 CoT的局限性 References   LLM-Tricks 数据相关 self-instruct     In-Context l">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/image.png">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-e9965e231005d772d5ea5a6d2351fe60_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-a77957296da331dd9fcbdc9cf6efedda_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/v2-c489f2b00e65c0a039fadbc2eaa27a9b_r.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-472ef7673e47745a75d4cd994e39e883_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-2fd28b31d2a3261fa17c50cdaee19a05_720w.webp">
+<meta property="og:image" content="https://img2023.cnblogs.com/blog/532548/202304/532548-20230417092405594-869232115.png">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-fb5a82b4689c8cfa03379636a07f7798_1440w.webp">
+<meta property="og:image" content="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7ZhIQ7BQZySSOQQPXsDSzI5SFBqtzJy1qWg8oKbiamVe4gYnWUGb0KEw/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7az1RYAvicTudsqYfa5lmNg5nXZTIYqmCibrcLe101pazQVMMerEXtc4Q/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7a9toDzxA7MFzQA2ZZCSBTKIwjoicz5lmnXg0us7P206gvOdehxyoZeQ/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1">
+<meta property="article:published_time" content="2023-12-13T15:03:48.439Z">
+<meta property="article:modified_time" content="2023-12-13T15:09:11.712Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="ChatGPT模型">
+<meta property="article:tag" content="BLOOM模型">
+<meta property="article:tag" content="LoRA">
+<meta property="article:tag" content="RLHF">
+<meta property="article:tag" content="CoT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/image.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/","path":"2023/12/13/深度学习/监督学习/大模型方向/LLMs/","title":"大模型相关技术"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大模型相关技术 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%A7%E8%A7%84%E6%A8%A1%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF%E6%8C%91%E6%88%98"><span class="nav-number">1.</span> <span class="nav-text">大规模训练技术挑战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%98%BE%E5%AD%98%E6%8C%91%E6%88%98"><span class="nav-number">1.1.</span> <span class="nav-text">显存挑战</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1%E6%8C%91%E6%88%98"><span class="nav-number">1.2.</span> <span class="nav-text">通信挑战</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E7%AE%97%E6%8C%91%E6%88%98"><span class="nav-number">1.3.</span> <span class="nav-text">计算挑战</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BE%AE%E8%B0%83%E7%BB%8F%E9%AA%8C%E4%B8%8E%E6%8A%80%E6%9C%AF%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">微调经验与技术说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">经验方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%88%86%E7%B1%BB%E8%AF%B4%E6%98%8E"><span class="nav-number">2.2.</span> <span class="nav-text">技术分类说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">2.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LoRA%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.</span> <span class="nav-text">LoRA技术介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">3.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E7%BB%86%E8%8A%82"><span class="nav-number">3.2.</span> <span class="nav-text">技术细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">3.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Chain-of-Thought"><span class="nav-number">4.</span> <span class="nav-text">Chain of Thought</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF-1"><span class="nav-number">4.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-number">4.2.</span> <span class="nav-text">相关工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CoT%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">4.3.</span> <span class="nav-text">CoT的局限性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-3"><span class="nav-number">4.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LLM-Tricks"><span class="nav-number">5.</span> <span class="nav-text">LLM-Tricks</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%9B%B8%E5%85%B3"><span class="nav-number">5.1.</span> <span class="nav-text">数据相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#self-instruct"><span class="nav-number">5.1.1.</span> <span class="nav-text">self-instruct</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#In-Context-learning"><span class="nav-number">6.</span> <span class="nav-text">In-Context learning</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-4"><span class="nav-number">6.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E5%86%85%E5%AE%B9"><span class="nav-number">7.</span> <span class="nav-text">大模型相关基础内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E5%8A%9B%E5%8C%BA%E5%88%86"><span class="nav-number">7.1.</span> <span class="nav-text">算力区分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.1.1.</span> <span class="nav-text">参考</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%A2%E7%BB%8F"><span class="nav-number">8.</span> <span class="nav-text">面经</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大模型相关技术 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大模型相关技术
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:03:48 / Modified: 23:09:11" itemprop="dateCreated datePublished" datetime="2023-12-13T23:03:48+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E5%A4%A7%E8%A7%84%E6%A8%A1%E8%AE%AD%E7%BB%83%E6%8A%80%E6%9C%AF%E6%8C%91%E6%88%98">大规模训练技术挑战</a><ul>
+<li><a href="#%E6%98%BE%E5%AD%98%E6%8C%91%E6%88%98">显存挑战</a></li>
+<li><a href="#%E9%80%9A%E4%BF%A1%E6%8C%91%E6%88%98">通信挑战</a></li>
+<li><a href="#%E8%AE%A1%E7%AE%97%E6%8C%91%E6%88%98">计算挑战</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BE%AE%E8%B0%83%E7%BB%8F%E9%AA%8C%E4%B8%8E%E6%8A%80%E6%9C%AF%E8%AF%B4%E6%98%8E">微调经验与技术说明</a><ul>
+<li><a href="#%E7%BB%8F%E9%AA%8C%E6%96%B9%E6%B3%95">经验方法</a></li>
+<li><a href="#%E6%8A%80%E6%9C%AF%E5%88%86%E7%B1%BB%E8%AF%B4%E6%98%8E">技术分类说明</a></li>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#lora%E6%8A%80%E6%9C%AF%E4%BB%8B%E7%BB%8D">LoRA技术介绍</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#%E6%8A%80%E6%9C%AF%E7%BB%86%E8%8A%82">技术细节</a></li>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#chain-of-thought">Chain of Thought</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF-1"><strong>研究背景</strong></a></li>
+<li><a href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C">相关工作</a></li>
+<li><a href="#cot%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7">CoT的局限性</a></li>
+<li><a href="#references-3">References</a></li>
+</ul>
+</li>
+<li><a href="#llm-tricks">LLM-Tricks</a><ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E7%9B%B8%E5%85%B3">数据相关</a><ul>
+<li><a href="#self-instruct">self-instruct</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#in-context-learning">In-Context learning</a><ul>
+<li><a href="#references-4">References</a></li>
+</ul>
+</li>
+<li><a href="#%E5%A4%A7%E6%A8%A1%E5%9E%8B%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E5%86%85%E5%AE%B9">大模型相关基础内容</a><ul>
+<li><a href="#%E7%AE%97%E5%8A%9B%E5%8C%BA%E5%88%86">算力区分</a><ul>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%9D%A2%E7%BB%8F">面经</a></li>
+</ul>
+<hr>
+<h1 id="大规模训练技术挑战"><a href="#大规模训练技术挑战" class="headerlink" title="大规模训练技术挑战"></a>大规模训练技术挑战</h1><ul>
+<li>分布式训练：</li>
+</ul>
+<p>数据并行：每张卡部分数据</p>
+<p>模型并行：将模型每一层是现成可以并行到多卡实现的形式，进而将单层的计算可以切分到多卡上</p>
+<p>流水并行：对模型块切分，将不同的层放到不同的卡上</p>
+<p>挑战：</p>
+<ul>
+<li>显存墙</li>
+</ul>
+<p>模型比较大，单卡无法承载模型，需要用模型并行以及流水并行才能训练模型，但是<strong>会降低CPU的运算强度</strong></p>
+<ul>
+<li>计算墙</li>
+</ul>
+<p>大数据+大模型-&gt;巨大计算量。但由于显存墙的缘故，单卡运算强度低，多卡加速比较差-&gt;再多资源也可能无法训练完</p>
+<h2 id="显存挑战"><a href="#显存挑战" class="headerlink" title="显存挑战"></a>显存挑战</h2><p>模型训练对显存的占用可以分为两部分：一部分是模型 forward 时保存下来的临时变量，这部分显存会在反向传播时会逐渐释放掉，这部分一般被称为 Activations。另一部分则是参数、梯度等状态信息占用的显存，这部分一般被称为 Model States。</p>
+<ol>
+<li>前向计算的过程是最占用显存的，降低这部分的峰值就能够给不超过显存墙</li>
+<li><strong>短板效应</strong>-Model states 和 Activations 都有可能造成显存墙问题。它们相互独立但又相互制约。任意一侧的增大都会导致留给另一侧的显存空间变小，所以单单对一侧做优化是不够的，必须同时优化 Model states 和 Activations。</li>
+<li>Transformer的大矩阵乘法能够拆分做模型并行，可以降低Activations的占用。</li>
+</ol>
+<h2 id="通信挑战"><a href="#通信挑战" class="headerlink" title="通信挑战"></a>通信挑战</h2><p>需要将切分的训练信息做聚合，问题：</p>
+<ul>
+<li>更新频繁，但传输速率远比不上加速芯片的运算速率；</li>
+<li>机器规模较大的时候，基于 Ring-AllReduce 的通信聚合方式所构造的 Ring 将越来越大(节点越多通信量越大、延迟越高)，延迟将不可接受。</li>
+<li>需要通信的梯度较多，带宽扛不住；多种并行也增加了通信的压力</li>
+<li>大部分采用同步的通信步调，导致短板效应明显，单卡波动以及通信延迟导致问题变得更加严重</li>
+</ul>
+<ol>
+<li>直接增大宽带-无法解决</li>
+</ol>
+<p>受限于网络协议，宽带的利用率不够高；</p>
+<h2 id="计算挑战"><a href="#计算挑战" class="headerlink" title="计算挑战"></a>计算挑战</h2><p>需要较大的算力，但各种技术也会降低计算资源的利用率，需要考虑怎样提高计算效率</p>
+<ul>
+<li>Operator-level</li>
+</ul>
+<p>算子级别优化，需要解决的问题：</p>
+<p><code>小算子过多</code>，<code>Kernel实现不够高效</code>，<code>内存局部性差</code></p>
+<ul>
+<li>Graph-level</li>
+</ul>
+<p>计算图优化，加速大规模训练，需要解决：</p>
+<p>如何搜索出计算效率更高的计算图，如何用计算编译技术解决小算子问题，如何进行通信和计算的overlap 等</p>
+<ul>
+<li>Task-level</li>
+</ul>
+<p>训练阶段系统设计-实现一个计算效率最高的系统设计</p>
+<ol>
+<li>优秀分布式训练架构-扩展性强、节点很多也能保持较高加速比</li>
+<li>平衡显存优化和速度优化</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/350707888">大规模训练系列之技术挑战</a></li>
+</ol>
+<hr>
+<h1 id="微调经验与技术说明"><a href="#微调经验与技术说明" class="headerlink" title="微调经验与技术说明"></a>微调经验与技术说明</h1><h2 id="经验方法"><a href="#经验方法" class="headerlink" title="经验方法"></a>经验方法</h2><ol>
+<li>Freeze方法</li>
+</ol>
+<p>Freeze方法，即参数冻结，对原始模型部分参数进行冻结操作，仅训练部分参数，以达到在单卡或不进行TP或PP操作，就可以对大模型进行训练。</p>
+<ol start="2">
+<li>P-Tuning方法</li>
+</ol>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLMs/image.png" alt="Alt text"></p>
+<p>一种针对于大模型的soft-prompt方法。</p>
+<p><code>P-Tuning</code>，仅对大模型的Embedding加入新的参数。</p>
+<p><code>P-Tuning-V2</code>，将大模型的Embedding和每一层前都加上新的参数。</p>
+<ol start="3">
+<li>lora方法</li>
+</ol>
+<p><img src="https://pic1.zhimg.com/80/v2-e9965e231005d772d5ea5a6d2351fe60_720w.webp" alt="LORA"></p>
+<p>在大型语言模型上对指定参数增加额外的低秩矩阵,并在模型训练过程中，仅训练额外增加的参数。当“秩值”远小于原始参数维度时，新增的低秩矩阵参数量很小，达到仅训练很小的参数，就能获取较好的结果。</p>
+<h2 id="技术分类说明"><a href="#技术分类说明" class="headerlink" title="技术分类说明"></a>技术分类说明</h2><p><img src="https://pic3.zhimg.com/80/v2-a77957296da331dd9fcbdc9cf6efedda_720w.webp" alt="ft技术概括"></p>
+<ol>
+<li><p>fine-tuning技术</p>
+<ul>
+<li><p>(无监督)预训练+finetune的方式，实现对不同任务的适应，这是比较common的方法；</p>
+</li>
+<li><p>另一种则是采用迁移学习，对网络实现冻结，仅更新全连接层，其他层权重不变；</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://pic4.zhimg.com/v2-c489f2b00e65c0a039fadbc2eaa27a9b_r.jpg" alt="当前FT方式"></p>
+<ol start="2">
+<li>parameter-efficient fine-tuning技术(PEFT)</li>
+</ol>
+<p>旨在在尽可能减少所需的参数和计算资源的情况下，实现对预训练语言模型的有效微调。</p>
+<ul>
+<li>蒸馏：学生模型(小模型)模仿教师模型(大模型)</li>
+<li>适配器训练(adapter training)：适配器是添加到预训练模型中的小型神经网络，用于特定任务的微调。这些适配器只占原始模型大小的一小部分，这使得训练更快，内存需求更低。适配器可以针对多种任务进行训练，然后插入到预训练模型中以执行新任务。eg:lora</li>
+<li>渐进收缩(progressive shrinking)：FT期间逐渐减小预训练模型，减少模型参数量的同时保证模型的性能。</li>
+</ul>
+<ol start="3">
+<li>prompt-tuning技术</li>
+</ol>
+<p>重点是调整输入提示（input prompt）而非修改模型参数，即不会对原有的参数做任何修改，只有输入提示被修改以适应下游的任务。</p>
+<p>相比于FT优势：</p>
+<ol>
+<li>计算成本和资源、时间等更少</li>
+<li>更加灵活</li>
+</ol>
+<p>相关技术：</p>
+<ol>
+<li><p>Prefix tuning（前缀调整）</p>
+<p>对特定任务学习连续提示，通过优化这个提示表示特征，模型能够在不修改底层模型的前提下实现不同的任务。</p>
+</li>
+<li><p>P-Tuning</p>
+<blockquote>
+<p>不同在于这个对位置没有特定的要求</p>
+</blockquote>
+<p>P-Tuning涉及训练可学习的称为“提示记号”的参数，这些参数与输入序列连接。这些提示记号是特定于任务的，在精调过程中进行优化，使得模型可以在保持原始模型参数不变的情况下在新任务上表现良好。</p>
+</li>
+</ol>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/620885226">大模型LLM-微调经验分享&amp;总结</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/620618701">预训练大语言模型的三种微调技术总结：fine-tuning、parameter-efficient fine-tuning和prompt-tuning的介绍和对比</a></li>
+</ol>
+<hr>
+<h1 id="LoRA技术介绍"><a href="#LoRA技术介绍" class="headerlink" title="LoRA技术介绍"></a>LoRA技术介绍</h1><h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+
+<p>在LoRA方法提出之前，也有很多方法尝试解决大模型微调困境的方法。其中有两个主要的方向：</p>
+<p>(1) 添加adapter层；</p>
+<p>(2) 由某种形式的输入层激活。</p>
+<p>但是这两种方法都有局限性：</p>
+<ol>
+<li><p>Adapter层会引入推理时延<br><img src="https://pic4.zhimg.com/80/v2-472ef7673e47745a75d4cd994e39e883_720w.webp" alt="adapter"></p>
+</li>
+<li><p>prefix-tuning难以优化<br><img src="https://pic2.zhimg.com/80/v2-2fd28b31d2a3261fa17c50cdaee19a05_720w.webp" alt="prefix-tuning"></p>
+</li>
+</ol>
+<p>prefix-tuning方法是受语言模型in-context learning能力的启发，只要有合适的上下文则语言模型可以很好的解决自然语言任务。但是，针对特定的任务找到离散token的前缀需要花费很长时间，prefix-tuning提出使用连续的virtual token embedding来替换离散token。</p>
+<h2 id="技术细节"><a href="#技术细节" class="headerlink" title="技术细节"></a>技术细节</h2><p><img src="https://img2023.cnblogs.com/blog/532548/202304/532548-20230417092405594-869232115.png" alt="LoRA实现"></p>
+<p>总体概括：LoRA的基本原理是冻结预训练好的模型权重参数，在冻结原模型参数的情况下，通过往模型中加入额外的网络层，并只训练这些新增的网络层参数。由于这些新增参数数量较少，这样不仅 finetune 的成本显著下降，还能获得和全模型微调类似的效果。</p>
+<p>其中，增加的是低秩分解矩阵，参数量小，也不会增加推理延迟。在实现过程中，会将该矩阵注入到transformer的每一层。</p>
+<p>实现说明：<br>通常，神经网络中会包含许多进行矩阵乘法的稠密层，这些层通常是满秩的。相关研究表示其实预训练语言模型具有低的“内在维度”，受该工作的启发，在模型适配下游任务的过程中，权重更新也应该具有低的“内在秩”。</p>
+<p>优点：显存和存储空间的减少。可以在部署时以更低的成本切换任务，仅需要交换LoRA权重即可。</p>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/618073170">【自然语言处理】【大模型】极低资源微调大模型方法LoRA以及BLOOM-LORA实现代码</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/LittleHann/p/17318509.html#_label0">LoRA（Low-Rank Adaptation of Large Language Models）– 一种大模型prompt-tuning调优方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/620552131">LoRA：大语言模型参数高效性微调方法</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/650197598">深入浅出 LoRA - 知乎 (zhihu.com)</a></li>
+</ol>
+<hr>
+<h1 id="Chain-of-Thought"><a href="#Chain-of-Thought" class="headerlink" title="Chain of Thought"></a>Chain of Thought</h1><p>思维链主要用于提升模型的逻辑推理能力，使得AI能够有类似于人一样的推理能力。</p>
+<h2 id="研究背景-1"><a href="#研究背景-1" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>最早的相关工作是few-shot,one-shot,zero-shot等在推理时能够提供不同量的样本，使得模型的推理能力能够有进一步的提升。但这种方法依旧存在较大的问题，如果你的问题相对简单，不需要什么逻辑推理，可能靠大模型背答案就能做得不错，但是对于一些需要推理的问题，都不用太难，就一些简单的算术应用题，大模型就大概率不太 work。</p>
+<h2 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h2><ul>
+<li>CoT<blockquote>
+<p><a href="https://link.zhihu.com/?target=https://arxiv.org/abs/2005.14165">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a></p>
+</blockquote>
+</li>
+</ul>
+<p><img src="https://pic1.zhimg.com/80/v2-fb5a82b4689c8cfa03379636a07f7798_1440w.webp" alt="CoT"><br>简单来说就是将原本的问题，经过多个中间步骤最终获取答案，实现更好的推理。</p>
+<p>具体实现效果：常识推理能力赶超人类；数学逻辑推理能力大幅度提升；LLM可解释性更强。</p>
+<ul>
+<li>Zero-shot-CoT</li>
+</ul>
+<p><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7ZhIQ7BQZySSOQQPXsDSzI5SFBqtzJy1qWg8oKbiamVe4gYnWUGb0KEw/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1" alt="zsCoT"></p>
+<p>零样本思维链通过引入与样本无关指示，来实现自我增强</p>
+<ul>
+<li>多数投票提高CoT性能——自洽性（Self-consistency）</li>
+</ul>
+<p>其实核心就是对生成的多个结果选择取多数的答案，这一个可以直接通过控制temprature和Top-K来实现，很显然这会使得时间会变长。</p>
+<ul>
+<li>LtM(Least to Most prompting)</li>
+</ul>
+<p><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7az1RYAvicTudsqYfa5lmNg5nXZTIYqmCibrcLe101pazQVMMerEXtc4Q/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1" alt="LtM"></p>
+<p>将问题按步骤拆分成多个子问题，解决完多个子问题后回答最终问题。具体训练就是分为多个CoT阶段实现。</p>
+<ul>
+<li>Flan-PaLM&#x2F;T5：CoT + Finetuning</li>
+</ul>
+<p>Flan-T5：在超大规模的任务上对模型进行<strong>微调</strong>，使得单个模型在1800多个NLP任务上都能够有很好的表现。</p>
+<p>微调方法就是在加入CoT数据。其核心是对多任务数据的统一。</p>
+<p>实现流程：</p>
+<ol>
+<li>收集带有标签的数据，将每个任务定义为&lt;数据，任务类型&gt;</li>
+<li>对数据的形式进行改写，比如改写成CoT的形式；并对是否需要CoT和few-shot，进行组合构造</li>
+<li>训练过程：恒定的学习率以及 Adafactor 优化器；同时将多个训练样本打包成一个训练样本，通过特殊结束token进行分割。</li>
+</ol>
+<p>结论：</p>
+<ol>
+<li>微调有效果，模型越大越好，任务越多越好</li>
+<li>混杂CoT很重要</li>
+</ol>
+<ul>
+<li>提升小模型的推理能力：Fine-tune-CoT</li>
+</ul>
+<p>旨在利用大模型思维链推理能力指导小模型解决复杂问题。</p>
+<p><img src="https://mmbiz.qpic.cn/sz_mmbiz_jpg/AIR6eRePgjMhNjfkrLWwVVG5VcrEBicc7a9toDzxA7MFzQA2ZZCSBTKIwjoicz5lmnXg0us7P206gvOdehxyoZeQ/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1" alt="FuCoT"></p>
+<p>简单的说就是用ChatGPT这类大模型生成CoT数据，然后再喂给小模型进行微调。同时该方法需要生成尽可能多的数据。</p>
+<h2 id="CoT的局限性"><a href="#CoT的局限性" class="headerlink" title="CoT的局限性"></a>CoT的局限性</h2><ol>
+<li>思维链只有在模型规模足够大的时候才适用，如何实现小模型的思维链应用是值得探索的方向</li>
+<li>应用领域有限，当前的实验结果只是在部分领域有所评估。另外，思维链只是提高模型的推理能力，但不代表模型真正理解内在的逻辑。</li>
+</ol>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/BMv_FVJ3j6q71LqA4fUYUA">【他山之石】大模型思维链（Chain-of-Thought）技术原理</a></li>
+</ol>
+<h1 id="LLM-Tricks"><a href="#LLM-Tricks" class="headerlink" title="LLM-Tricks"></a>LLM-Tricks</h1><h2 id="数据相关"><a href="#数据相关" class="headerlink" title="数据相关"></a>数据相关</h2><h3 id="self-instruct"><a href="#self-instruct" class="headerlink" title="self-instruct"></a>self-instruct</h3><blockquote>
+<p>Self-Instruct: Aligning Language Model with Self Generated Instructions</p>
+</blockquote>
+<p>基于指令框架降低人工标注指令数据的成本。</p>
+<p>相关工作-人工标注：</p>
+<ul>
+<li>人工设计相关指令任务</li>
+<li>对当前指令任务进行标注(编写正确答案)</li>
+</ul>
+<p>当前工作self-instruct：</p>
+<ul>
+<li>人工设计175个表示不同任务的指令(完整输入输出)，将这部分数据作为种子池</li>
+<li>使用模型生成新的指令：6个人工指令+2个生成指令-》生成新的指令</li>
+<li>对该模型生成的指令判断是否分类任务：prompt模板会根据是否是分类任务有所不同。</li>
+<li>使用模型生成实例：输入优先以及输出优先(分类)两种输出策略。</li>
+<li>对上述模型生成的数据进行过滤和后处理：ROUGE-L&lt;0.7才加入-保证多样性，减少重复内容；排除一些无法处理的指令；过滤输入相同但输出不同的实例。</li>
+<li>将经过过滤和后处理的数据添加到种子池中；<br>一直重复上述2到6步直到种子池有足够多的数据；</li>
+</ul>
+<p>对于分类任务，如果先生成文本，后生成标签，<strong>模型会偏向于生成比较单一的结果</strong>。所以对于分类任务，是先生成随机的标签，然后再生成该标签对应的文本。</p>
+<p>指标ROUGE-L:最长连续公共子串占比对两个字符串的比值，再通过F1计算</p>
+<p>结论：GPT3+self-instruct性能与text-davinci-001接近；self-instruct是有一定性能提升的；数据集不大-252条指令</p>
+<blockquote>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/614916562">Self-Instruct: Aligning Language Model with Self Generated Instructions</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/504279252">NLP评估指标之ROUGE</a></li>
+</ol>
+</blockquote>
+<h1 id="In-Context-learning"><a href="#In-Context-learning" class="headerlink" title="In-Context learning"></a>In-Context learning</h1><h2 id="References-4"><a href="#References-4" class="headerlink" title="References"></a>References</h2><p>1.<a target="_blank" rel="noopener" href="https://www.cnblogs.com/LittleHann/p/17318509.html#_label0"></a></p>
+<h1 id="大模型相关基础内容"><a href="#大模型相关基础内容" class="headerlink" title="大模型相关基础内容"></a>大模型相关基础内容</h1><h2 id="算力区分"><a href="#算力区分" class="headerlink" title="算力区分"></a>算力区分</h2><p>FLOPS（Floating-Point Operations Per Second） - 这是衡量计算机或其他设备执行浮点运算速度的基本单位，表示每秒钟可以执行多少次浮点运算（加、减、乘和除等运算）。FLOPS 以前通常用于衡量大规模科学计算和数值模拟等需要双精度浮点数计算的应用程序，现在也被用于描述AI高精度训练算力。</p>
+<p>FP64：双精度浮点数，占用64位存储空间，通常用于大规模科学计算、工程计算等需要高精度计算的算法。</p>
+<p>FP32：单精度浮点数，占用32位存储空间。与双精度浮点数相比，存储空间较小但精度较低，部分科学计算和工程计算也可以使用FP32，但通常也用于神经网络的前向推理和反向传播计算。</p>
+<p>FP16：半精度浮点数，占用16位存储空间。存储空间更小但精度进一步降低，通常用于模型训练过程中参数和梯度的计算。</p>
+<p>BF16: 用于<strong>半精度矩阵乘法计算</strong>（GEMM）的浮点数格式，占用16位存储空间。相对于FP16，在保持存储空间相同的情况下能够提高运算精度和效率。</p>
+<p>TF32：TensorFLoat-32，是NVIDIA定义的使用TensorCore的中间计算格式。</p>
+<p>INT8：8位整数，用于量化神经网络的计算，由于存储和计算都相对于浮点数更加高效，在低功耗、嵌入式系统和边缘设备等领域有着广泛的应用。用TOPS（Tera Operations Per Second，每秒处理的万亿级别的操作数）作为计算性能的单位。</p>
+<p>INT4：4位整数，只能表示-8到7的16个整数。因为新的量化技术出现，追求更低的存储空间，减少计算量和更高的算力密度，而产生的新格式。</p>
+<p>量化：本质上只是对数值范围的重新调整，可以「粗略」理解为是一种线性映射。</p>
+<p>CUDA内核对INT8处理不是十分高效，INT8计算难以使得GPU核心饱和，且由于需要额外的量化开销，因此会减慢整体的推理速度。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/604338403">【自然语言处理】【大模型】用于大型Transformer的8-bit矩阵乘法介绍</a>-<a target="_blank" rel="noopener" href="https://huggingface.co/blog/zh/hf-bitsandbytes-integration">原博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/TimDettmers/bitsandbytes/issues/6#issuecomment-1211345635">int8速度慢原理分析</a></li>
+</ol>
+<h1 id="面经"><a href="#面经" class="headerlink" title="面经"></a>面经</h1><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643829565">https://zhuanlan.zhihu.com/p/643829565</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643836163">https://zhuanlan.zhihu.com/p/643836163</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643560888">https://zhuanlan.zhihu.com/p/643560888</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ChatGPT%E6%A8%A1%E5%9E%8B/" rel="tag"># ChatGPT模型</a>
+              <a href="/tags/BLOOM%E6%A8%A1%E5%9E%8B/" rel="tag"># BLOOM模型</a>
+              <a href="/tags/LoRA/" rel="tag"># LoRA</a>
+              <a href="/tags/RLHF/" rel="tag"># RLHF</a>
+              <a href="/tags/CoT/" rel="tag"># CoT</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/" rel="prev" title="注意力机制笔记">
+                  <i class="fa fa-angle-left"></i> 注意力机制笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="next" title="大模型基础模型">
+                  大模型基础模型 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

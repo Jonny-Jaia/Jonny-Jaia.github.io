@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="集成学习概念 模型 Adaboost GBDT XGBoost LightGBM   References    集成学习概念 bagging与boosting  Bagging和Boosting都是将已有的分类或回归算法通过一定方式组合起来，形成一个性能更加强大的分类器，即将弱分类器组装成强分类器的方法。  boosting  串行的方式训练基分类器，各分类器之间有依赖。每次训练时，对前一层基">
+<meta property="og:type" content="article">
+<meta property="og:title" content="集成学习">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="集成学习概念 模型 Adaboost GBDT XGBoost LightGBM   References    集成学习概念 bagging与boosting  Bagging和Boosting都是将已有的分类或回归算法通过一定方式组合起来，形成一个性能更加强大的分类器，即将弱分类器组装成强分类器的方法。  boosting  串行的方式训练基分类器，各分类器之间有依赖。每次训练时，对前一层基">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-13T15:13:20.504Z">
+<meta property="article:modified_time" content="2023-08-07T05:53:26.252Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="集成学习">
+<meta property="article:tag" content="GBDT">
+<meta property="article:tag" content="AdaBoost">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/","path":"2023/12/13/机器学习/集成学习/","title":"集成学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>集成学习 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">集成学习概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Adaboost"><span class="nav-number">2.1.</span> <span class="nav-text">Adaboost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GBDT"><span class="nav-number">2.2.</span> <span class="nav-text">GBDT</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XGBoost"><span class="nav-number">2.2.1.</span> <span class="nav-text">XGBoost</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LightGBM"><span class="nav-number">2.2.2.</span> <span class="nav-text">LightGBM</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">2.3.</span> <span class="nav-text">References</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="集成学习 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          集成学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-12-13 23:13:20" itemprop="dateCreated datePublished" datetime="2023-12-13T23:13:20+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-08-07 13:53:26" itemprop="dateModified" datetime="2023-08-07T13:53:26+08:00">2023-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0%E6%A6%82%E5%BF%B5">集成学习概念</a></li>
+<li><a href="#%E6%A8%A1%E5%9E%8B">模型</a><ul>
+<li><a href="#adaboost">Adaboost</a></li>
+<li><a href="#gbdt">GBDT</a><ul>
+<li><a href="#xgboost">XGBoost</a></li>
+<li><a href="#lightgbm">LightGBM</a></li>
+</ul>
+</li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="集成学习概念"><a href="#集成学习概念" class="headerlink" title="集成学习概念"></a>集成学习概念</h1><ol>
+<li>bagging与boosting</li>
+</ol>
+<p>Bagging和Boosting都是将已有的分类或回归算法通过一定方式组合起来，形成一个性能更加强大的分类器，即将弱分类器组装成强分类器的方法。</p>
+<ul>
+<li>boosting</li>
+</ul>
+<p>串行的方式训练基分类器，各分类器之间有依赖。每次训练时，对前一层基分类器分错的样本给与更高的权重</p>
+<ul>
+<li>bagging</li>
+</ul>
+<p>bagging是Bootstrap aggregating的意思，各分类器之间无强依赖(有放回随机采样训练)，可以并行。</p>
+<ol start="2">
+<li><p>方差与偏差</p>
+<ul>
+<li><p>偏差:描述模型输出结果的期望与样本真实结果的差距</p>
+</li>
+<li><p>方差:描述模型对于给定值的输出稳定性</p>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><p>基分类器的错误，是偏差和方差之和；</p>
+</li>
+<li><p>boosting方法通过逐步聚焦分类器分错的样本，减少集成分类器的偏差</p>
+</li>
+<li><p>Bagging采用分而治之的策略，通过对样本多次采样，分别训练多个模型，减少方差</p>
+</li>
+<li><p>为什么决策树是常用的基分类器</p>
+</li>
+</ul>
+<p>可以方便地将样本权重整合到训练过程中，不需要使用过采样的方法来调整样本权重-<strong>自带样本权重</strong>；</p>
+<p>决策树的表达能力和泛化能力，可以通过调节树的层数来做折中-<strong>易调节</strong>；</p>
+<p>数据样本扰动对决策树影响较大，因此不同子样本集生成的基分类器<strong>随机性就较大</strong>。这样的不稳定学习器更适合作为基分类器。</p>
+<p>神经网络也适合做基分类器</p>
+<h1 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h1><h2 id="Adaboost"><a href="#Adaboost" class="headerlink" title="Adaboost"></a>Adaboost</h2><p>核心点：</p>
+<ol>
+<li>对分类正确的样本降低权重</li>
+<li>对错误分类的样本升高或者保持全都不变</li>
+<li>在模型融合过程中，根据错误率对基分类器器进行加权融合，错误率低的分类器拥有更大的“话语权”</li>
+</ol>
+<h2 id="GBDT"><a href="#GBDT" class="headerlink" title="GBDT"></a>GBDT</h2><p><strong>优点：</strong></p>
+<ol>
+<li>预测阶段的计算速度快，<strong>树与树之间可并行化计算</strong>。</li>
+<li>在<strong>分布稠密</strong>的数据集上，泛化能力和表达能力都很好。</li>
+<li>采用决策树作为弱分类器使得GBDT模型具<strong>有较好的解释性和鲁棒性</strong>，能够<strong>自动发现特征间的高阶关系</strong>，并且也<strong>不需要对数据进行特殊的预处理</strong>如归一化等。</li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>GBDT在<strong>高维稀疏</strong>的数据集上，表现不如支持向量机或者神经网络。</li>
+<li>GBDT在处理<strong>文本分类</strong>特征问题上，相对其他模型的优势不如它在<strong>处理数值特征</strong>时明显。</li>
+<li>训练过程需要串行训练，只能在决策树内部采用一些<strong>局部并行</strong>的手段提高训练速度</li>
+</ol>
+<h3 id="XGBoost"><a href="#XGBoost" class="headerlink" title="XGBoost"></a>XGBoost</h3><ol>
+<li>GBDT是机器学习算法，XGBoost是该算法的工程实现。</li>
+<li>在使用CART作为基分类器时，<strong>XGBoost显式地加入了正则项来控制模型的复杂度</strong>，有利于防止过拟合，从而提高模型的泛化能力。</li>
+<li>GBDT在模型训练时只使用了代价函数的一阶导数信息，<strong>XGBoost对代价函数进行二阶泰勒展开</strong>，可以同时使用一阶和二阶导数。</li>
+<li>传统的GBDT采用CART作为基分类器，<strong>XGBoost支持多种类型的基分类器</strong>，比如线性分类器。</li>
+<li>传统的GBDT在每轮迭代时使用全部的数据，XGBoost则采用了与随机森林相似的策略，<strong>支持对数据进行采样</strong>，支持列抽样，不仅能降低过拟合，还能减少计算，这也是xgboost异于传统gbdt的一个特性。</li>
+<li>传统的GBDT没有设计<strong>对缺失值</strong>进行处理，XGBoost可以<strong>自动学习出它的分裂方向</strong>。XGBoost对于确实值能预先学习一个默认的分裂方向。</li>
+<li>Shrinkage（缩减），相当于学习速率（xgboost中的eta）。xgboost在进行完一次迭代后，会将叶子节点的权重乘上该系数，主要是为了<strong>削弱每棵树的影响</strong>，让后面有更大的学习空间。实际应用中，一般把eta设置得小一点，然后迭代次数设置得大一点。（补充：传统GBDT的实现也有学习速率）</li>
+</ol>
+<h3 id="LightGBM"><a href="#LightGBM" class="headerlink" title="LightGBM"></a>LightGBM</h3><p><strong>比较：</strong></p>
+<ol>
+<li>XGBoost使用基于预排序的决策树算法，每遍历一个特征就需要计算一次特征的增益，时间复杂度为O(datafeature)。<br>而LightGBM使用<strong>基于直方图的决策树算法</strong>，直方图的优化算法只需要计算K次，时间复杂度为O(Kfeature)</li>
+<li>XGBoost使用按层生长(level-wise)的决策树生长策略，LightGBM则<strong>采用带有深度限制的按叶子节点</strong>(leaf-wise)算法。在分裂次数相同的情况下，leaf-wise可以降低更多的误差，得到更好的精度。leaf-wise的缺点在于会产生较深的决策树，产生过拟合。</li>
+<li><strong>支持类别特征</strong>，不需要进行独热编码处理</li>
+<li><strong>优化了特征并行和数据并行算法</strong>，除此之外还添加了<strong>投票并行</strong>方案</li>
+<li>采用<strong>基于梯度的单边采样</strong>来保持数据分布，减少模型因数据分布发生变化而造成的模型精度下降</li>
+<li>特征捆绑转化为图着色问题，<strong>减少特征数量</strong></li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ol>
+<li>处理缺失值，会先计算分割点，然后将缺失值样本分配给增益高的一侧<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/264387547">ref</a></li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/148050748">一篇文章搞定GBDT、Xgboost和LightGBM的面试</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/765efe2b951a">GBDT、XGBoost、LightGBM的区别和联系</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0/" rel="tag"># 集成学习</a>
+              <a href="/tags/GBDT/" rel="tag"># GBDT</a>
+              <a href="/tags/AdaBoost/" rel="tag"># AdaBoost</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="prev" title="机器学习课程笔记">
+                  <i class="fa fa-angle-left"></i> 机器学习课程笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/" rel="next" title="思维链">
+                  思维链 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

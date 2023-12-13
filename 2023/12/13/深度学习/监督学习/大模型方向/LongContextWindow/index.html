@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="基于RoPE的Position Interpolation RoPE 具体方法 线性场景应用 References   PI方法   Extending Context is Hard…but not Impossible References   NTK References   NBCE  本文主要围绕扩充上下文窗口相关工作尽心介绍。 随着大规模模型的不断提出，怎么高效扩充上下文窗口是一个关">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型外推窗口扩充技术">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="基于RoPE的Position Interpolation RoPE 具体方法 线性场景应用 References   PI方法   Extending Context is Hard…but not Impossible References   NTK References   NBCE  本文主要围绕扩充上下文窗口相关工作尽心介绍。 随着大规模模型的不断提出，怎么高效扩充上下文窗口是一个关">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719233344737.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719233432878.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719234011066.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/61ba766de33f4fb3966bf360774a3b5e.png">
+<meta property="article:published_time" content="2023-12-13T15:16:45.849Z">
+<meta property="article:modified_time" content="2023-12-13T15:19:33.915Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="位置插值">
+<meta property="article:tag" content="NTK">
+<meta property="article:tag" content="NBCE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719233344737.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/","path":"2023/12/13/深度学习/监督学习/大模型方向/LongContextWindow/","title":"大模型外推窗口扩充技术"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大模型外推窗口扩充技术 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8ERoPE%E7%9A%84Position-Interpolation"><span class="nav-number">1.</span> <span class="nav-text">基于RoPE的Position Interpolation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RoPE"><span class="nav-number">1.1.</span> <span class="nav-text">RoPE</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.1.</span> <span class="nav-text">具体方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%9C%BA%E6%99%AF%E5%BA%94%E7%94%A8"><span class="nav-number">1.1.2.</span> <span class="nav-text">线性场景应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#References"><span class="nav-number">1.1.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PI%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.</span> <span class="nav-text">PI方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Extending-Context-is-Hard%E2%80%A6but-not-Impossible"><span class="nav-number">2.</span> <span class="nav-text">Extending Context is Hard…but not Impossible</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">2.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NTK"><span class="nav-number">3.</span> <span class="nav-text">NTK</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NBCE"><span class="nav-number">4.</span> <span class="nav-text">NBCE</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大模型外推窗口扩充技术 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大模型外推窗口扩充技术
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:16:45 / Modified: 23:19:33" itemprop="dateCreated datePublished" datetime="2023-12-13T23:16:45+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E5%9F%BA%E4%BA%8Erope%E7%9A%84position-interpolation">基于RoPE的Position Interpolation</a><ul>
+<li><a href="#rope">RoPE</a><ul>
+<li><a href="#%E5%85%B7%E4%BD%93%E6%96%B9%E6%B3%95">具体方法</a></li>
+<li><a href="#%E7%BA%BF%E6%80%A7%E5%9C%BA%E6%99%AF%E5%BA%94%E7%94%A8">线性场景应用</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#pi%E6%96%B9%E6%B3%95">PI方法</a></li>
+</ul>
+</li>
+<li><a href="#extending-context-is-hardbut-not-impossible">Extending Context is Hard…but not Impossible</a><ul>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#ntk">NTK</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#nbce">NBCE</a></li>
+</ul>
+<p>本文主要围绕扩充上下文窗口相关工作尽心介绍。</p>
+<p>随着大规模模型的不断提出，怎么高效扩充上下文窗口是一个关键的问题，如果能够基于前者的一些工作再微调，不用再从头训练扩充LLM的本身的参数是一个比较需要的一个方案。</p>
+<h1 id="基于RoPE的Position-Interpolation"><a href="#基于RoPE的Position-Interpolation" class="headerlink" title="基于RoPE的Position Interpolation"></a>基于RoPE的Position Interpolation</h1><blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2306.15595">https://arxiv.org/abs/2306.15595</a></p>
+</blockquote>
+<ul>
+<li>代码实现：<a target="_blank" rel="noopener" href="https://github.com/ymcui/Chinese-LLaMA-Alpaca/pull/705">https://github.com/ymcui/Chinese-LLaMA-Alpaca/pull/705</a><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> transformers</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi_forward</span>(<span class="params">self, x, seq_len=<span class="literal">None</span></span>):</span><br><span class="line">    <span class="keyword">if</span> seq_len &gt; self.max_seq_len_cached: <span class="comment"># seq_len &gt; 2048</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Perform position interpolation for length <span class="subst">&#123;seq_len&#125;</span>&quot;</span>)</span><br><span class="line">        t = torch.arange(seq_len, device=x.device, dtype=self.inv_freq.dtype)</span><br><span class="line">        scale = self.max_seq_len_cached / seq_len</span><br><span class="line">        t *= scale</span><br><span class="line">        freqs = torch.einsum(<span class="string">&quot;i,j-&gt;ij&quot;</span>, t, self.inv_freq)</span><br><span class="line">        emb = torch.cat((freqs, freqs), dim=-<span class="number">1</span>).to(x.device)</span><br><span class="line">        cos_cached = emb.cos()[<span class="literal">None</span>, <span class="literal">None</span>, :, :]</span><br><span class="line">        sin_cached = emb.sin()[<span class="literal">None</span>, <span class="literal">None</span>, :, :]</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            cos_cached[:, :, :seq_len, ...].to(dtype=x.dtype),</span><br><span class="line">            sin_cached[:, :, :seq_len, ...].to(dtype=x.dtype)</span><br><span class="line">        )</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        self.cos_cached[:, :, :seq_len, ...].to(dtype=x.dtype),</span><br><span class="line">        self.sin_cached[:, :, :seq_len, ...].to(dtype=x.dtype)</span><br><span class="line">    )</span><br><span class="line">transformers.models.llama.modeling_llama.LlamaRotaryEmbedding.forward = pi_forward</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="RoPE"><a href="#RoPE" class="headerlink" title="RoPE"></a>RoPE</h2><p>绝对位置编码优点：实现简单、可提前计算好，速度快。外推性相对较差。</p>
+<p>相对位置编码优点：相对位置信息对模型要更加有效，外推性更好，处理长文本能力更强。</p>
+<p>RoPE通过绝对位置编码的方式实现相对位置编码，综合两者的优点。公式化就是：$\langle\boldsymbol{f}(\boldsymbol{q}, m), \boldsymbol{f}(\boldsymbol{k}, n)\rangle &#x3D; g(\boldsymbol{q},\boldsymbol{k},m-n)$</p>
+<h3 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h3><p>借助复数实现将绝对位置编码和相对位置编码结合，通过复数的指数形式就可以实现如上的效果。由于复数乘法的几何意义对应着向量的旋转，因此才成为旋转式位置编码<br>$$<br>\begin{equation}<br>\boldsymbol{f}(\boldsymbol{q}, m) &#x3D;\begin{pmatrix}\cos m\theta &amp; -\sin m\theta\ \sin m\theta &amp; \cos m\theta\end{pmatrix} \begin{pmatrix}q_0 \ q_1\end{pmatrix}\end{equation}<br>$$</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719233344737.png" alt="image-20230719233344737"></p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719233432878.png" alt="image-20230719233432878"></p>
+<p>通过这种编码方式就能够在计算注意力的同时自动获得相对位置信息，且为了避免算力浪费可以直接采用矩阵乘法实现RoPE的计算。另外，这边的$\theta_i&#x3D;10000^{-\frac{2i}{d}}$,是类似于transformer三角式的带远程衰减的。带了衰减之后的两两注意力得分计算就带设定了界限。</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/image-20230719234011066.png" alt="image-20230719234011066"></p>
+<h3 id="线性场景应用"><a href="#线性场景应用" class="headerlink" title="线性场景应用"></a>线性场景应用</h3><p>为了降低Transformer的计算量，线性attention的方案是通过只保留线性计算的部分,不再计算Softmax以此降低需要的计算量。</p>
+<p>Scaled-Dot Attention：<br>$$<br>\begin{equation}<br>  Attention(\boldsymbol{Q},\boldsymbol{K},\boldsymbol{V})<em>i &#x3D; \frac{\sum\limits</em>{j&#x3D;1}^n e^{\boldsymbol{q}_i^{\top}\boldsymbol{k}_j}\boldsymbol{v}<em>j}{\sum\limits</em>{j&#x3D;1}^n e^{\boldsymbol{q}_i^{\top}\boldsymbol{k}_j}}<br>\end{equation}<br>$$<br>其中的主体计算就是一般函数$sim({q}_i,{k}_j)$,为了保持其非负，直接将原有的softmax去掉是不可行的，需要换用其他的函数计算进行替代。</p>
+<p>由于RoPE没有对Attention矩阵本身做任何处理，因此可以直接应用到线性Attention中。</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://spaces.ac.cn/archives/8265">Transformer升级之路：2、博采众长的旋转式位置编码</a></li>
+</ol>
+<h2 id="PI方法"><a href="#PI方法" class="headerlink" title="PI方法"></a>PI方法</h2><p>直接压缩绝对位置m，将原有的m变成cur_len&#x2F;max_len*m</p>
+<h1 id="Extending-Context-is-Hard…but-not-Impossible"><a href="#Extending-Context-is-Hard…but-not-Impossible" class="headerlink" title="Extending Context is Hard…but not Impossible"></a>Extending Context is Hard…but not Impossible</h1><h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://kaiokendev.github.io/context#iterative-vs-1-shot-feedback">Extending Context is Hard…but not Impossible</a></li>
+<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/7947">层次分解位置编码，让BERT可以处理超长文本</a></li>
+</ol>
+<h1 id="NTK"><a href="#NTK" class="headerlink" title="NTK"></a>NTK</h1><p>神经正切核Neural Tangent Kernel是一种核方法<br>直接作用于衰减$\theta$值</p>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.reddit.com/r/LocalLLaMA/comments/14lz7j5/ntkaware_scaled_rope_allows_llama_models_to_have/">NTK-Aware Scaled RoPE allows LLaMA models to have extended (8k+) context size without any fine-tuning and minimal perplexity degradation.</a></li>
+</ol>
+<h1 id="NBCE"><a href="#NBCE" class="headerlink" title="NBCE"></a>NBCE</h1><p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/61ba766de33f4fb3966bf360774a3b5e.png" alt="在这里插入图片描述"></p>
+<p>在输出生成结果部分，改善Random Sample的效果，将Pooling方式改为直接输出不确定性最低的那个分布</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%80%BC/" rel="tag"># 位置插值</a>
+              <a href="/tags/NTK/" rel="tag"># NTK</a>
+              <a href="/tags/NBCE/" rel="tag"># NBCE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/" rel="prev" title="大模型加速相关内容">
+                  <i class="fa fa-angle-left"></i> 大模型加速相关内容
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/%E5%9F%BA%E4%BA%8ERL%E7%9A%84%E6%8C%87%E4%BB%A4%E5%BE%AE%E8%B0%83%E8%8C%83%E5%BC%8F/" rel="next" title="LLM-RL对齐">
+                  LLM-RL对齐 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

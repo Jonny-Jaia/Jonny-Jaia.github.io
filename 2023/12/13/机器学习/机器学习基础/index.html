@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="梯度下降算法(优化器) BGD&amp;SGD Sharpness-Aware Minimization (SAM) 研究背景 主要工作 References     机器学习模型 线性函数与非线性函数的区别 逻辑回归 优点 代价函数 References   朴素贝叶斯分类器 References   LSTM&amp;GRU References     正则化 L1、L2正则化 数值理解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习基础">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="梯度下降算法(优化器) BGD&amp;SGD Sharpness-Aware Minimization (SAM) 研究背景 主要工作 References     机器学习模型 线性函数与非线性函数的区别 逻辑回归 优点 代价函数 References   朴素贝叶斯分类器 References   LSTM&amp;GRU References     正则化 L1、L2正则化 数值理解">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230528230020032.png">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-592216faffaa338fc792430a538afefc_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-7431d8a79deec5d0ab3193b6a3611b95_720w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230527150851699.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230527151058196.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230828224830807.png">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-e4018eb4ee1ccb10a942525e36aa407a_720w.webp">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230606081022890.png">
+<meta property="article:published_time" content="2023-12-13T15:13:20.502Z">
+<meta property="article:modified_time" content="2023-12-13T15:14:48.113Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="梯度下降算法">
+<meta property="article:tag" content="机器学习基础">
+<meta property="article:tag" content="逻辑回归">
+<meta property="article:tag" content="正则化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230528230020032.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/","path":"2023/12/13/机器学习/机器学习基础/","title":"机器学习基础"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>机器学习基础 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E7%AE%97%E6%B3%95-%E4%BC%98%E5%8C%96%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">梯度下降算法(优化器)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BGD-SGD"><span class="nav-number">1.1.</span> <span class="nav-text">BGD&amp;SGD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sharpness-Aware-Minimization-SAM"><span class="nav-number">1.2.</span> <span class="nav-text">Sharpness-Aware Minimization (SAM)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.2.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.2.</span> <span class="nav-text">主要工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#References"><span class="nav-number">1.2.3.</span> <span class="nav-text">References</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">机器学习模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0%E4%B8%8E%E9%9D%9E%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.1.</span> <span class="nav-text">线性函数与非线性函数的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92"><span class="nav-number">2.2.</span> <span class="nav-text">逻辑回归</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">2.2.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E4%BB%B7%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.2.</span> <span class="nav-text">代价函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#References-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="nav-number">2.3.</span> <span class="nav-text">朴素贝叶斯分类器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#References-2"><span class="nav-number">2.3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LSTM-GRU"><span class="nav-number">2.4.</span> <span class="nav-text">LSTM&amp;GRU</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#References-3"><span class="nav-number">2.4.1.</span> <span class="nav-text">References</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A3%E5%88%99%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">正则化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#L1%E3%80%81L2%E6%AD%A3%E5%88%99%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">L1、L2正则化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%80%BC%E7%90%86%E8%A7%A3"><span class="nav-number">3.1.1.</span> <span class="nav-text">数值理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E7%90%86%E8%A7%A3"><span class="nav-number">3.1.2.</span> <span class="nav-text">分布理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E8%A7%82%E8%A7%86%E8%A7%89"><span class="nav-number">3.1.3.</span> <span class="nav-text">直观视觉</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-4"><span class="nav-number">3.2.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">损失函数</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E7%86%B5"><span class="nav-number">4.1.</span> <span class="nav-text">交叉熵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%87%E6%96%B9%E5%B7%AE%E6%8D%9F%E5%A4%B1-MSE"><span class="nav-number">4.2.</span> <span class="nav-text">均方差损失(MSE)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KL%E6%95%A3%E5%BA%A6"><span class="nav-number">4.3.</span> <span class="nav-text">KL散度</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#References-5"><span class="nav-number">4.3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Focal-loss"><span class="nav-number">4.4.</span> <span class="nav-text">Focal loss</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GHM"><span class="nav-number">4.4.1.</span> <span class="nav-text">GHM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Refs"><span class="nav-number">4.4.2.</span> <span class="nav-text">Refs</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HMM%E4%B8%8ECRF"><span class="nav-number">5.</span> <span class="nav-text">HMM与CRF</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E5%88%AB"><span class="nav-number">5.1.</span> <span class="nav-text">区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A4%E5%88%AB%E5%BC%8F%E6%A8%A1%E5%9E%8B%E4%B8%8E%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B"><span class="nav-number">5.2.</span> <span class="nav-text">判别式模型与生成式模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BiLSTM-CRF"><span class="nav-number">5.3.</span> <span class="nav-text">BiLSTM-CRF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CRF%E7%9A%84%E5%BC%95%E5%85%A5"><span class="nav-number">5.3.1.</span> <span class="nav-text">CRF的引入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CRF%E7%9F%A9%E9%98%B5%E7%9A%84%E5%8F%82%E6%95%B0%E9%87%8F"><span class="nav-number">5.3.2.</span> <span class="nav-text">CRF矩阵的参数量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CRF%E7%9A%84%E6%9B%B4%E6%96%B0"><span class="nav-number">5.3.3.</span> <span class="nav-text">CRF的更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-6"><span class="nav-number">5.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E7%9A%84%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="nav-number">6.</span> <span class="nav-text">常用的评价指标</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs-1"><span class="nav-number">6.1.</span> <span class="nav-text">Refs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%92%E4%B8%80%E5%8C%96%E6%96%B9%E6%B3%95"><span class="nav-number">7.</span> <span class="nav-text">归一化方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">7.1.</span> <span class="nav-text">参考</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98"><span class="nav-number">8.</span> <span class="nav-text">多分类问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E6%96%AF%E6%B7%B7%E5%90%88%E6%A8%A1%E5%9E%8B"><span class="nav-number">9.</span> <span class="nav-text">高斯混合模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs-2"><span class="nav-number">9.1.</span> <span class="nav-text">Refs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%99%8D%E7%BB%B4%E6%96%B9%E6%B3%95"><span class="nav-number">10.</span> <span class="nav-text">降维方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%8D%E7%BB%B4%E5%8A%A8%E6%9C%BA"><span class="nav-number">10.0.1.</span> <span class="nav-text">降维动机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95"><span class="nav-number">10.0.2.</span> <span class="nav-text">方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Refs-3"><span class="nav-number">10.0.3.</span> <span class="nav-text">Refs</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A2%AF%E5%BA%A6%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98%E7%BC%93%E8%A7%A3"><span class="nav-number">11.</span> <span class="nav-text">梯度消失问题缓解</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="机器学习基础 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          机器学习基础
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:13:20 / Modified: 23:14:48" itemprop="dateCreated datePublished" datetime="2023-12-13T23:13:20+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96%E5%99%A8">梯度下降算法(优化器)</a><ul>
+<li><a href="#bgdsgd">BGD&amp;SGD</a></li>
+<li><a href="#sharpness-aware-minimization-sam">Sharpness-Aware Minimization (SAM)</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><strong>主要工作</strong></a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%A8%A1%E5%9E%8B">机器学习模型</a><ul>
+<li><a href="#%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0%E4%B8%8E%E9%9D%9E%E7%BA%BF%E6%80%A7%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB">线性函数与非线性函数的区别</a></li>
+<li><a href="#%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92">逻辑回归</a><ul>
+<li><a href="#%E4%BC%98%E7%82%B9">优点</a></li>
+<li><a href="#%E4%BB%A3%E4%BB%B7%E5%87%BD%E6%95%B0">代价函数</a></li>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8">朴素贝叶斯分类器</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#lstmgru">LSTM&amp;GRU</a><ul>
+<li><a href="#references-3">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%AD%A3%E5%88%99%E5%8C%96">正则化</a><ul>
+<li><a href="#l1l2%E6%AD%A3%E5%88%99%E5%8C%96">L1、L2正则化</a><ul>
+<li><a href="#%E6%95%B0%E5%80%BC%E7%90%86%E8%A7%A3">数值理解</a></li>
+<li><a href="#%E5%88%86%E5%B8%83%E7%90%86%E8%A7%A3">分布理解</a></li>
+<li><a href="#%E7%9B%B4%E8%A7%82%E8%A7%86%E8%A7%89">直观视觉</a></li>
+</ul>
+</li>
+<li><a href="#references-4">References</a></li>
+</ul>
+</li>
+<li><a href="#%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0">损失函数</a><ul>
+<li><a href="#%E4%BA%A4%E5%8F%89%E7%86%B5">交叉熵</a></li>
+<li><a href="#%E5%9D%87%E6%96%B9%E5%B7%AE%E6%8D%9F%E5%A4%B1mse">均方差损失(MSE)</a></li>
+<li><a href="#kl%E6%95%A3%E5%BA%A6">KL散度</a><ul>
+<li><a href="#references-5">References</a></li>
+</ul>
+</li>
+<li><a href="#focal-loss">Focal loss</a><ul>
+<li><a href="#ghm">GHM</a></li>
+<li><a href="#refs">Refs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#hmm%E4%B8%8Ecrf">HMM与CRF</a><ul>
+<li><a href="#%E5%8C%BA%E5%88%AB">区别</a></li>
+<li><a href="#%E5%88%A4%E5%88%AB%E5%BC%8F%E6%A8%A1%E5%9E%8B%E4%B8%8E%E7%94%9F%E6%88%90%E5%BC%8F%E6%A8%A1%E5%9E%8B">判别式模型与生成式模型</a></li>
+<li><a href="#bilstm-crf">BiLSTM-CRF</a><ul>
+<li><a href="#crf%E7%9A%84%E5%BC%95%E5%85%A5">CRF的引入</a></li>
+<li><a href="#crf%E7%9F%A9%E9%98%B5%E7%9A%84%E5%8F%82%E6%95%B0%E9%87%8F">CRF矩阵的参数量</a></li>
+<li><a href="#crf%E7%9A%84%E6%9B%B4%E6%96%B0">CRF的更新</a></li>
+</ul>
+</li>
+<li><a href="#references-6">References</a></li>
+</ul>
+</li>
+<li><a href="#%E5%B8%B8%E7%94%A8%E7%9A%84%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87">常用的评价指标</a><ul>
+<li><a href="#refs-1">Refs</a></li>
+</ul>
+</li>
+<li><a href="#%E5%BD%92%E4%B8%80%E5%8C%96%E6%96%B9%E6%B3%95">归一化方法</a><ul>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
+<li><a href="#%E5%A4%9A%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98">多分类问题</a></li>
+<li><a href="#%E9%AB%98%E6%96%AF%E6%B7%B7%E5%90%88%E6%A8%A1%E5%9E%8B">高斯混合模型</a><ul>
+<li><a href="#refs-2">Refs</a></li>
+</ul>
+</li>
+<li><a href="#%E9%99%8D%E7%BB%B4%E6%96%B9%E6%B3%95">降维方法</a><ul>
+<li><a href="#%E9%99%8D%E7%BB%B4%E5%8A%A8%E6%9C%BA">降维动机</a></li>
+<li><a href="#%E6%96%B9%E6%B3%95">方法</a></li>
+<li><a href="#refs-3">Refs</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A2%AF%E5%BA%A6%E6%B6%88%E5%A4%B1%E9%97%AE%E9%A2%98%E7%BC%93%E8%A7%A3">梯度消失问题缓解</a></li>
+</ul>
+<h1 id="梯度下降算法-优化器"><a href="#梯度下降算法-优化器" class="headerlink" title="梯度下降算法(优化器)"></a>梯度下降算法(优化器)</h1><h2 id="BGD-SGD"><a href="#BGD-SGD" class="headerlink" title="BGD&amp;SGD"></a>BGD&amp;SGD</h2><p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230528230020032.png" alt="image-20230528230020032"></p>
+<blockquote>
+<p>实现：<a target="_blank" rel="noopener" href="https://gitee.com/Jonny-Jaia/ready-blog/blob/master/3-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/GradientDescent.py">https://gitee.com/Jonny-Jaia/ready-blog/blob/master/3-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/GradientDescent.py</a></p>
+</blockquote>
+<p>批量梯度下降相当于直接对所有数据一次性梯度下降；</p>
+<p>随机梯度下降则是在BGD的基础上增加随机打乱输入的数据；</p>
+<h2 id="Sharpness-Aware-Minimization-SAM"><a href="#Sharpness-Aware-Minimization-SAM" class="headerlink" title="Sharpness-Aware Minimization (SAM)"></a>Sharpness-Aware Minimization (SAM)</h2><!-- 论文名 -->
+<blockquote>
+<p>SAM:Sharpness-Aware Minimization for Efficiently Improving Generalization  </p>
+</blockquote>
+<h3 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h3><!-- 研究点与创新点 -->
+
+<h3 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h3><p>1. </p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/77380412">不同梯度下降算法的比较及Python实现</a></li>
+<li><a target="_blank" rel="noopener" href="https://medium.com/ai-blog-tw/sharpness-aware-minimization-sam-%E7%B0%A1%E5%96%AE%E6%9C%89%E6%95%88%E5%9C%B0%E8%BF%BD%E6%B1%82%E6%A8%A1%E5%9E%8B%E6%B3%9B%E5%8C%96%E8%83%BD%E5%8A%9B-257613bb365">Sharpness-Aware Minimization (SAM): 簡單有效地追求模型泛化能力</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/davda54/sam">davda54&#x2F;sam - Sharpness-Aware Minimization (PyTorch)</a></li>
+</ol>
+<hr>
+<h1 id="机器学习模型"><a href="#机器学习模型" class="headerlink" title="机器学习模型"></a>机器学习模型</h1><h2 id="线性函数与非线性函数的区别"><a href="#线性函数与非线性函数的区别" class="headerlink" title="线性函数与非线性函数的区别"></a>线性函数与非线性函数的区别</h2><p>通过增加非线性去拟合线性不可分的数据。如果不增加非线性操作，多层线性的操作链接等价于一层线性操作。</p>
+<p>非线性函数使得映射更加复杂进而更容易拟合到对应的空间中去。</p>
+<h2 id="逻辑回归"><a href="#逻辑回归" class="headerlink" title="逻辑回归"></a>逻辑回归</h2><p>Logistic Regression 虽然被称为回归，但其实际上是<strong>分类模型</strong>，并常用于二分类。</p>
+<p><code>Logistic 回归的本质是</code>：假设数据服从这个分布，然后使用<code>极大似然估计</code>做参数的估计。</p>
+<p>逻辑回归是在线性回归的基础上加了一个 Sigmoid 函数（非线性）映射。</p>
+<p>逻辑回归的思路是，<strong>先拟合决策边界</strong>(不局限于线性，还可以是多项式)，再<strong>建立这个边界与分类的概率联系</strong>，从而得到了二分类情况下的概率。</p>
+<p>本质上来说，两者都属于广义线性模型，但他们两个要解决的问题不一样，逻辑回归解决的是分类问题，输出的是离散值，线性回归解决的是回归问题，输出的连续值。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>直接对<strong>分类的概率</strong>建模，无需实现假设数据分布，从而避免了假设分布不准确带来的问题（区别于生成式模型）；</li>
+<li>不仅可预测出类别，还能得到该<strong>预测的概率</strong>，这对一些利用概率辅助决策的任务很有用；</li>
+<li>对数几率函数（ Sigmoid 函数）是<strong>任意阶可导的凸函数</strong>，有许多数值优化算法都可以求出最优解。</li>
+</ul>
+<h3 id="代价函数"><a href="#代价函数" class="headerlink" title="代价函数"></a>代价函数</h3><p>极大似然估计求解。在逻辑回归模型中，我们最大化似然函数和最小化损失函数实际上是等价的。</p>
+<h3 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/74874291">【机器学习】逻辑回归（非常详细）</a></li>
+</ol>
+<h2 id="朴素贝叶斯分类器"><a href="#朴素贝叶斯分类器" class="headerlink" title="朴素贝叶斯分类器"></a>朴素贝叶斯分类器</h2><h3 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/HuZihu/p/9549479.html">机器学习—朴素贝叶斯分类器（Machine Learning Naive Bayes Classifier） - HuZihu - 博客园 (cnblogs.com)</a></li>
+</ol>
+<h2 id="LSTM-GRU"><a href="#LSTM-GRU" class="headerlink" title="LSTM&amp;GRU"></a>LSTM&amp;GRU</h2><p>LSTM:记忆单元+门控单元（遗忘门-sigmoid，会与旧的记忆相乘；输入门-分别用sigmoid和tanh调节输入-上一时刻隐特征+输入，加上上面的记忆单元；输出门-经过sigmoid，然后把记忆单元经过tanh在与其乘积得到输出）</p>
+<p>LSTM避免梯度消失和梯度爆炸</p>
+<p>一般梯度爆炸可以通过裁剪解决优化，针对梯度消失由于当前的状态是通过累加形式实现，不再是复合形式，使得梯度也不再是乘积的形式。进而解决梯度消失情况</p>
+<p>GRU：</p>
+<p>重置门&amp;更新门</p>
+<h3 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://medium.com/programming-with-data/25-%E7%B0%A1%E4%BB%8Blstm-%E8%88%87gru-3e0eaa100d29">25. 簡介LSTM 與GRU - Programming with Data - Medium</a></li>
+</ol>
+<h1 id="正则化"><a href="#正则化" class="headerlink" title="正则化"></a>正则化</h1><h2 id="L1、L2正则化"><a href="#L1、L2正则化" class="headerlink" title="L1、L2正则化"></a>L1、L2正则化</h2><p>L1范数：曼哈顿距离<br>L2范数：欧氏距离</p>
+<h3 id="数值理解"><a href="#数值理解" class="headerlink" title="数值理解"></a>数值理解</h3><p>L1正则化是指权重矩阵中各个元素的绝对值之和，为了优化正则项，会减少参数的绝对值总和，所以L1正则化倾向于<strong>选择稀疏(sparse)权重矩阵</strong>（稀疏矩阵指的是很多元素都为0，只有少数元素为非零值的矩阵）。L1正则化主要用于挑选出重要的特征，并舍弃不重要的特征。</p>
+<p>L2正则化是指权重矩阵中各个元素的平方和，为了优化正则项，会减少参数平方的总和，所以L2正则化倾向于<strong>选择值很小的权重参数</strong>（即权重衰减），主要用于防止模型过拟合。是最常用的正则化方法。一定程度上，L1也可以防止过拟合。</p>
+<h3 id="分布理解"><a href="#分布理解" class="headerlink" title="分布理解"></a>分布理解</h3><p>我们可以分别假设权重的先验分布，进而得到当前的正则化效果，具体来说：</p>
+<ul>
+<li>L1正则化：先验分布-拉普拉斯分布</li>
+<li>L2正则化：先验分布-高斯分布</li>
+</ul>
+<h3 id="直观视觉"><a href="#直观视觉" class="headerlink" title="直观视觉"></a>直观视觉</h3><p>两种正则化就是在不同的范数球上更新权重</p>
+<p><img src="https://pic1.zhimg.com/80/v2-592216faffaa338fc792430a538afefc_720w.webp" alt="L1"><br><img src="https://pic2.zhimg.com/80/v2-7431d8a79deec5d0ab3193b6a3611b95_720w.webp" alt="L2"></p>
+<h2 id="References-4"><a href="#References-4" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/68488202">L1、L2正则化和过拟合</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/29360425">深入理解L1、L2正则化</a></li>
+</ol>
+<h1 id="损失函数"><a href="#损失函数" class="headerlink" title="损失函数"></a>损失函数</h1><p>分类问题用 Cross-entropy，回归问题用 mean squared error。</p>
+<ul>
+<li>问题1：</li>
+</ul>
+<p>均方差损失计算</p>
+<p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230527150851699.png" alt="image-20230527150851699"></p>
+<p><code>对于当前是逻辑回归算法的计算，当结果为0，1梯度都为0</code></p>
+<p>当输入较大或者较少的时候会使得训练出现梯度消失的情况</p>
+<p>交叉熵损失计算</p>
+<p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230527151058196.png" alt="image-20230527151058196"></p>
+<p><code>与均方差损失计算不同，就不会出现以上的情况</code></p>
+<p>只取决于输出结果的偏差大小，梯度越大，训练速度越快</p>
+<h2 id="交叉熵"><a href="#交叉熵" class="headerlink" title="交叉熵"></a>交叉熵</h2><ol>
+<li><p>二分类：<br>$$ loss&#x3D;-\frac{1}{N} \sum_{i&#x3D;1}^{N} [y_i log(f(x_i)) + (1-y_i)log(1-f(x_i))] $$</p>
+</li>
+<li><p>多分类：<br>$$ loss&#x3D;-\frac{1}{N} \sum_{k&#x3D;1}^{N} \sum_{i&#x3D;0}^{C-1}y_ilog(p_i) $$</p>
+</li>
+</ol>
+<p>交叉熵是用来评估当前训练得到的<strong>概率分布与真实分布</strong>的差异情况。 它刻画的是实际输出（概率）与期望输出（概率）的距离，也就是交叉熵的值越小，两个概率分布就越接近。</p>
+<p>用交叉熵计算损失，当前问题依旧是<strong>凸优化问题</strong>。</p>
+<p>优点：</p>
+<ul>
+<li>loss结果直接由误差控制优化</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li><p>采用了类内竞争机制</p>
+<p>只关心对于正确标签预测概率的准确性，忽略了其他非正确标签的差异，导致学习到的特征比较散。<br>基于这个问题的优化有很多，比如对softmax进行改进，如L-Softmax、SM-Softmax、AM-Softmax等。</p>
+</li>
+</ul>
+<h2 id="均方差损失-MSE"><a href="#均方差损失-MSE" class="headerlink" title="均方差损失(MSE)"></a>均方差损失(MSE)</h2><p>$$ loss&#x3D;\frac{1}{2}(y-\hat{y})^{2} $$</p>
+<p>一个batch中n个样本的n个输出与期望输出的差的平方的平均值.</p>
+<p>缺点：</p>
+<ul>
+<li>当梯度比较小的时候，没办法判断当前是否在目标附近(很远的时候梯度也比较小)-<strong>梯度消失</strong></li>
+</ul>
+<h2 id="KL散度"><a href="#KL散度" class="headerlink" title="KL散度"></a>KL散度</h2><h3 id="References-5"><a href="#References-5" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/418345156">【超详细公式推导】关于交叉熵损失函数（Cross-entropy）和 平方损失（MSE）的区别</a></li>
+</ol>
+<h2 id="Focal-loss"><a href="#Focal-loss" class="headerlink" title="Focal loss"></a>Focal loss</h2><p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230828224830807.png" alt="image-20230828224830807"><br>相当于当$\gamma&#x3D;0$时，loss就是交叉熵带正负样本比例调节的版本。</p>
+<h3 id="GHM"><a href="#GHM" class="headerlink" title="GHM"></a>GHM</h3><p>Focal loss过于关注那些难分的样本也是有问题的，样本中存在离群点，过分关注反倒会使得性能下降。并且这一损失的计算由两个超参数同时调控，靠经验调优，是比较难实验得到好的效果的。</p>
+<h3 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/80594704">5分钟理解Focal Loss与GHM——解决样本不平衡利器 - 知乎 (zhihu.com)</a></li>
+<li></li>
+</ol>
+<h1 id="HMM与CRF"><a href="#HMM与CRF" class="headerlink" title="HMM与CRF"></a>HMM与CRF</h1><h2 id="区别"><a href="#区别" class="headerlink" title="区别"></a>区别</h2><ul>
+<li>类型：</li>
+</ul>
+<p>CRF：判别模型，对问题的条件概率分布建模；</p>
+<p>HMM：生成模型，对联合概率分布建模；</p>
+<p>HMM可以看成是CRF的特殊情况。</p>
+<ul>
+<li>特征选择：</li>
+</ul>
+<p>CRF:可以用<strong>前一时刻和当前时刻</strong>的标签构成的特征函数，加上对应的权重来表示</p>
+<p>HMM中的转移概率：可以用<strong>当前时刻的标签和当前时刻对应的词</strong>构成的特征函数，加上权重来表示 HMM 中的发射概率</p>
+<ul>
+<li>CRF的优势：</li>
+</ul>
+<p>CRF 相比 HMM 能够利用更加丰富的标签分布信息</p>
+<ol>
+<li>HMM只能使用局部特征，转移概率只依赖前一时刻和当前时刻，发射概率只依赖当前时刻，CRF 能使用更加全局的特征</li>
+<li>HMM 中的概率具有一定的限制条件，如0到1之间、概率和为1等，而 CRF 中特征函数对应的权重大小没有限制，可以为任意值</li>
+</ol>
+<h2 id="判别式模型与生成式模型"><a href="#判别式模型与生成式模型" class="headerlink" title="判别式模型与生成式模型"></a>判别式模型与生成式模型</h2><ol>
+<li>判别式</li>
+</ol>
+<p>直接对$P(Y|X)$建模；对所有样本只构建一个模型，确认总体判别边界；对于输入的特征预测最有可能的label(在已知label里面挑选)；</p>
+<p><strong>优点</strong>：对数据量没有生成式严格，速度快，小数据量下准确率也会好些</p>
+<ol start="2">
+<li>生成式</li>
+</ol>
+<p>直接对$P(X,Y)$建模;要对每一个label都建模，选择最优概率label为结果；中间生成联合分布，可生成采样数据；包含信息十分齐全，因此需要比较充足的数据量，但速度相对更慢。</p>
+<h2 id="BiLSTM-CRF"><a href="#BiLSTM-CRF" class="headerlink" title="BiLSTM-CRF"></a>BiLSTM-CRF</h2><h3 id="CRF的引入"><a href="#CRF的引入" class="headerlink" title="CRF的引入"></a>CRF的引入</h3><ul>
+<li>定义</li>
+</ul>
+<p><img src="https://pic3.zhimg.com/80/v2-e4018eb4ee1ccb10a942525e36aa407a_720w.webp" alt="线性条件随机场"></p>
+<p>在序列标注中，分别计算发射概率(x-yi)和转移概率(yi-1-yi),具体来说需要维护转移矩阵；</p>
+<p>计算完得分之后，需要进行Normalizer计算-需要对当前x所有可能的输出序列得分计算求和，因此采用DP复用计算结果，提高效率。</p>
+<p>解码过程，采用序列最优路径Viterbi算法。</p>
+<p>beam search 的操作属于贪心算法思想，不一定reach到全局最优解。因为考虑到seq2seq的inference阶段的搜索空间过大而导致的搜索效率降低，所以即使是一个相对的局部优解在工程上也是可接受的。</p>
+<p>viterbi属于动态规划思想，保证有最优解。viterbi应用到宽度较小的graph最优寻径是非常favorable的，毕竟，能reach到全局最优为何不用！</p>
+<p><img src="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/image-20230606081022890.png" alt="image-20230606081022890"></p>
+<h3 id="CRF矩阵的参数量"><a href="#CRF矩阵的参数量" class="headerlink" title="CRF矩阵的参数量"></a>CRF矩阵的参数量</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">self.start_transitions = nn.Parameter(torch.empty(num_tags))</span><br><span class="line">self.end_transitions = nn.Parameter(torch.empty(num_tags))</span><br><span class="line">self.transitions = nn.Parameter(torch.empty(num_tags, num_tags))</span><br></pre></td></tr></table></figure>
+<h3 id="CRF的更新"><a href="#CRF的更新" class="headerlink" title="CRF的更新"></a>CRF的更新</h3><h2 id="References-6"><a href="#References-6" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/33397147">概率图模型体系：HMM、MEMM、CRF</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/88690315">CRF 和 HMM 的区别与联系</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/148813079">CRF条件随机场的原理、例子、公式推导和应用</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/479082910">LSTM+CRF实现序列标注</a></li>
+</ol>
+<h1 id="常用的评价指标"><a href="#常用的评价指标" class="headerlink" title="常用的评价指标"></a>常用的评价指标</h1><p>分类任务：</p>
+<ol>
+<li>准确率：预测正确样本占样本的个数</li>
+<li>精确率：分类正确正样本占预测正样本个数</li>
+<li>召回率：分类正确正样本占真实正样本个数</li>
+<li>P-R曲线：横轴召回、纵轴精确</li>
+<li>F1：精确率与召回率的调和平均值</li>
+<li>ROC曲线：横轴假阳性、纵轴真阳性</li>
+<li>AUC：ROC曲线下的面积大小</li>
+</ol>
+<p>回归任务：</p>
+<ol>
+<li>均方根误差</li>
+</ol>
+<h2 id="Refs-1"><a href="#Refs-1" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1694552">AUC、ROC详解：原理、特点&amp;算法-腾讯云开发者社区-腾讯云 (tencent.com)</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1508882">模型评估指标AUC和ROC，这是我看到的最透彻的讲解-腾讯云开发者社区-腾讯云 (tencent.com)</a></li>
+</ol>
+<h1 id="归一化方法"><a href="#归一化方法" class="headerlink" title="归一化方法"></a>归一化方法</h1><blockquote>
+<p>将特征都归一化到大致相同的数值区间<br>使得算法更加稳定，加快算法的收敛速度<br>增加计算量、可能会导致信息丢失</p>
+</blockquote>
+<p>机器学习：</p>
+<ol>
+<li>最大最小归一化</li>
+<li>线性归一化-直接除以最大值</li>
+<li>零均值归一化-减去均值除以方差:消除量纲的同时也消除各变量的差异(方差一致)</li>
+</ol>
+<blockquote>
+<p>机器学习中的应用</p>
+<p>需要归一化：KNN(需要计算距离)；线性回归、逻辑回归、SVM，NN(梯度下降求解，防止奇异值带来的影响)</p>
+<p>不需要归一化：决策树、随机森林(树模型)-数值大小不影响条件概率以及对应的模型分裂点</p>
+</blockquote>
+<p>深度学习：<br>尽可能保证输入的特征是独立同分布的，另外通过这种方式也能够降低结果在激活函数的非饱和区域出现梯度消失抑或是梯度爆炸等情况的出现。</p>
+<ol>
+<li>batchnorm</li>
+</ol>
+<p>对batch数据计算均值和方差。</p>
+<p>问题：</p>
+<ul>
+<li>一个batch里面的数据不能差异太大</li>
+<li>由于batch的并行计算，不适用于动态网络结构和RNN网络(序列化数据网络) </li>
+<li>适用于batch比较大，数据分布比较接近，且训练前经过充分的打乱</li>
+<li>只用于训练不用于推理</li>
+</ul>
+<ol start="2">
+<li>layernorm</li>
+</ol>
+<p>对样本单层输入做归一化处理，计算对应的均值和方差</p>
+<ul>
+<li>避免受batch大小的影响</li>
+<li>也可用于不同的场景</li>
+<li>也不需要保存每个batch的均值和方差，节省存储</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6968038729625632799">归一化方法总结 | 又名”BN和它的后浪们”</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMTU5Njg4NQ==&mid=2247488677&idx=1&sn=e49b8c462ccd56fd91b0b65e7db1bfac&scene=21#wechat_redirect">【关于 归一化】那些你不知道的事</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMTU5Njg4NQ==&mid=2247488675&idx=1&sn=5564c698c3f36bc504d687128d3c6b1a&scene=21#wechat_redirect">【关于 BatchNorm vs LayerNorm】那些你不知道的事</a></li>
+</ol>
+<h1 id="多分类问题"><a href="#多分类问题" class="headerlink" title="多分类问题"></a>多分类问题</h1><p>机器学习中针对多分类问题，常用的解决办法就是训练多个分类器针对不同类别去分类。</p>
+<p>可以直接是每个分类器针对单独类别进行识别；也可以是多个二分类器实现多分类的预测；</p>
+<p>在深度学习中，其实可以直接设计多标签的形式进行模型训练，就不再采用softmax，采用binary_crossentropy损失函数函数。</p>
+<h1 id="高斯混合模型"><a href="#高斯混合模型" class="headerlink" title="高斯混合模型"></a>高斯混合模型</h1><h2 id="Refs-2"><a href="#Refs-2" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/graph/technologies/ae777f78-1151-462d-ba6b-07478bca4e6b#:~:text=%E9%AB%98%E6%96%AF%E6%B7%B7%E5%90%88%E6%A8%A1%E5%9E%8B%EF%BC%88GMM%EF%BC%89%E6%98%AF,Maximization%EF%BC%8CEM%EF%BC%89%E8%BF%9B%E8%A1%8C%E4%BC%B0%E8%AE%A1%E3%80%82">高斯混合模型 | 机器之心 (jiqizhixin.com)</a></li>
+</ol>
+<h1 id="降维方法"><a href="#降维方法" class="headerlink" title="降维方法"></a>降维方法</h1><h3 id="降维动机"><a href="#降维动机" class="headerlink" title="降维动机"></a>降维动机</h3><ol>
+<li>减少空间与训练用时，提高一些算法的可用性</li>
+<li>删除冗余特征，有助于可视化分析</li>
+</ol>
+<h3 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h3><ol>
+<li>删除</li>
+</ol>
+<ul>
+<li>缺失值比率较高的</li>
+<li>将低方差数据删除(说明数据基本一致，携带信息不足)</li>
+<li>将相关度较高的变量删除（说明数据携带相似的信息）</li>
+<li>采用随机森林选择小的特征子集</li>
+<li>比较删除某变量之后的模型性能-反向特征消除</li>
+<li>每次训练多个模型，将有性能提升的特征筛选出来</li>
+</ul>
+<ol start="2">
+<li>新变量</li>
+</ol>
+<ul>
+<li>因子分析-从多个变量中提取共性因子，将变量按照相关性分组，特定组内所有变量相关性较高，组间相关性低</li>
+<li>PCA</li>
+<li>独立分量分析ICA-PCA寻找不相关的因素，而ICA寻找独立因素。</li>
+<li>流形学习-解决非线性：UMAP、ISOMAP、t-SNE</li>
+</ul>
+<h3 id="Refs-3"><a href="#Refs-3" class="headerlink" title="Refs"></a>Refs</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/43225794">12种降维方法终极指南（含Python代码） - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="梯度消失问题缓解"><a href="#梯度消失问题缓解" class="headerlink" title="梯度消失问题缓解"></a>梯度消失问题缓解</h1><blockquote>
+<p>GPT4</p>
+</blockquote>
+<ol>
+<li><p>使用ReLU激活函数：ReLU（Rectified Linear Unit）及其变种（如Leaky ReLU、Parametric ReLU和Exponential Linear Unit）是非饱和激活函数，它们在正区间内的梯度为1，因此不容易遭受梯度消失问题。</p>
+</li>
+<li><p>使用更好的权重初始化方法：例如，使用He初始化或Glorot初始化可以帮助减少梯度消失或梯度爆炸问题。</p>
+</li>
+<li><p>批量归一化（Batch Normalization）：批量归一化可以使每一层的输入都保持相同的尺度，从而减少梯度消失问题。</p>
+</li>
+<li><p>使用残差网络（Residual Networks，ResNet）：ResNet通过引入跳跃连接（或称为残差连接）来避免梯度消失。这些连接允许梯度直接反向传播到较早的层。</p>
+</li>
+<li><p>使用门控单元：在递归神经网络（RNN）中，使用长短时记忆网络（LSTM）或门控循环单元（GRU）可以帮助减少梯度消失问题。</p>
+</li>
+<li><p>梯度剪裁（Gradient Clipping）：虽然这主要是为了避免梯度爆炸问题，但在某些情况下，它也可以帮助减少梯度消失。</p>
+</li>
+<li><p>使用更浅的网络：减少网络的深度可以直接减少梯度消失问题，但这可能会牺牲模型的表示能力。</p>
+</li>
+<li><p>使用其他优化器：某些优化器，如Adam、RMSprop等，已经内置了梯度的缩放机制，这可以在某种程度上减少梯度消失问题。</p>
+</li>
+<li><p>正则化技术：如Dropout，虽然其主要目的是防止过拟合，但在某些情况下，它也可以帮助减少梯度消失。</p>
+</li>
+<li><p>使用注意力机制：在序列到序列的模型中，使用注意力机制可以帮助模型关注输入序列的重要部分，从而减少梯度消失问题。</p>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E7%AE%97%E6%B3%95/" rel="tag"># 梯度下降算法</a>
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%9F%BA%E7%A1%80/" rel="tag"># 机器学习基础</a>
+              <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" rel="tag"># 逻辑回归</a>
+              <a href="/tags/%E6%AD%A3%E5%88%99%E5%8C%96/" rel="tag"># 正则化</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E4%BC%98%E5%8C%96%E5%99%A8/" rel="prev" title="优化器">
+                  <i class="fa fa-angle-left"></i> 优化器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/" rel="next" title="机器学习课程笔记">
+                  机器学习课程笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

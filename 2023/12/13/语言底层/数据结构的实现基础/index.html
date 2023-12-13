@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="二叉树 相关概念 性质   哈希表 定义 本质 哈希内核 哈希函数&#x2F;散列函数 哈希冲突   LSH References   最小堆与最大堆 堆树的定义 堆树操作 堆排序 References   集合  二叉树相关概念 满二叉树：所有的度（就是节点）都是 2，就称为满二叉树。  完全二叉树：从左向右边，的节点没有间断，即为完全二叉树。（有右节点，肯定有左节点，有左节点，不一定有右节点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构原理">
+<meta property="og:url" content="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="二叉树 相关概念 性质   哈希表 定义 本质 哈希内核 哈希函数&#x2F;散列函数 哈希冲突   LSH References   最小堆与最大堆 堆树的定义 堆树操作 堆排序 References   集合  二叉树相关概念 满二叉树：所有的度（就是节点）都是 2，就称为满二叉树。  完全二叉树：从左向右边，的节点没有间断，即为完全二叉树。（有右节点，肯定有左节点，有左节点，不一定有右节点">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img-blog.csdn.net/20160317150649506">
+<meta property="og:image" content="https://img-blog.csdn.net/20160317150655703">
+<meta property="article:published_time" content="2023-12-13T15:23:18.803Z">
+<meta property="article:modified_time" content="2023-08-07T05:53:26.308Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="哈希表">
+<meta property="article:tag" content="最小堆">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdn.net/20160317150649506">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80/","path":"2023/12/13/语言底层/数据结构的实现基础/","title":"数据结构原理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>数据结构原理 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">二叉树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">相关概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%B4%A8"><span class="nav-number">1.2.</span> <span class="nav-text">性质</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="nav-number">2.</span> <span class="nav-text">哈希表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.2.</span> <span class="nav-text">本质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%86%85%E6%A0%B8"><span class="nav-number">2.3.</span> <span class="nav-text">哈希内核</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0-%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0"><span class="nav-number">2.3.1.</span> <span class="nav-text">哈希函数&#x2F;散列函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81"><span class="nav-number">2.3.2.</span> <span class="nav-text">哈希冲突</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LSH"><span class="nav-number">2.4.</span> <span class="nav-text">LSH</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">2.5.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%80%E5%B0%8F%E5%A0%86%E4%B8%8E%E6%9C%80%E5%A4%A7%E5%A0%86"><span class="nav-number">3.</span> <span class="nav-text">最小堆与最大堆</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E6%A0%91%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">堆树的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E6%A0%91%E6%93%8D%E4%BD%9C"><span class="nav-number">3.2.</span> <span class="nav-text">堆树操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="nav-number">3.3.</span> <span class="nav-text">堆排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">3.4.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9B%86%E5%90%88"><span class="nav-number">4.</span> <span class="nav-text">集合</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="数据结构原理 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据结构原理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-12-13 23:23:18" itemprop="dateCreated datePublished" datetime="2023-12-13T23:23:18+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-08-07 13:53:26" itemprop="dateModified" datetime="2023-08-07T13:53:26+08:00">2023-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E4%BA%8C%E5%8F%89%E6%A0%91">二叉树</a><ul>
+<li><a href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5">相关概念</a></li>
+<li><a href="#%E6%80%A7%E8%B4%A8">性质</a></li>
+</ul>
+</li>
+<li><a href="#%E5%93%88%E5%B8%8C%E8%A1%A8">哈希表</a><ul>
+<li><a href="#%E5%AE%9A%E4%B9%89">定义</a></li>
+<li><a href="#%E6%9C%AC%E8%B4%A8">本质</a></li>
+<li><a href="#%E5%93%88%E5%B8%8C%E5%86%85%E6%A0%B8">哈希内核</a><ul>
+<li><a href="#%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B0">哈希函数&#x2F;散列函数</a></li>
+<li><a href="#%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81">哈希冲突</a></li>
+</ul>
+</li>
+<li><a href="#lsh">LSH</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9C%80%E5%B0%8F%E5%A0%86%E4%B8%8E%E6%9C%80%E5%A4%A7%E5%A0%86">最小堆与最大堆</a><ul>
+<li><a href="#%E5%A0%86%E6%A0%91%E7%9A%84%E5%AE%9A%E4%B9%89">堆树的定义</a></li>
+<li><a href="#%E5%A0%86%E6%A0%91%E6%93%8D%E4%BD%9C">堆树操作</a></li>
+<li><a href="#%E5%A0%86%E6%8E%92%E5%BA%8F">堆排序</a></li>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#%E9%9B%86%E5%90%88">集合</a></li>
+</ul>
+<h1 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h1><h2 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h2><ul>
+<li><p>满二叉树：所有的度（就是节点）都是 2，就称为满二叉树。</p>
+</li>
+<li><p>完全二叉树：从左向右边，的节点没有间断，即为完全二叉树。（有右节点，肯定有左节点，有左节点，不一定有右节点）</p>
+</li>
+<li><p>非完全二叉树：有间断了，就是非完全二叉树。</p>
+</li>
+</ul>
+<h2 id="性质"><a href="#性质" class="headerlink" title="性质"></a>性质</h2><p>第i层节点：<code>2(i-1)</code></p>
+<p>层次为k的二叉树，最多有 $2^{k-1}$个节点</p>
+<p>对任何一颗二叉树，如果其叶子节点数为 n0，度为 2 的节点数为 n2, 则有 n0 &#x3D; n2 + 1</p>
+<h1 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>散列表（Hash table，也叫哈希表），是根据键（Key）而直接访问在内存存储位置的数据结构。也就是说，它通过计算一个关于键值的函数，将所需查询的数据映射到表中一个位置来访问记录，这加快了查找速度。这个映射函数称做散列函数，存放记录的数组称做散列表。</p>
+<h2 id="本质"><a href="#本质" class="headerlink" title="本质"></a>本质</h2><p>本质就是数组，具体实现中，分别可以采用：</p>
+<ol>
+<li>数组+链表</li>
+<li>数组+二叉树</li>
+</ol>
+<p>后一种结构主要用于解决哈希冲突</p>
+<h2 id="哈希内核"><a href="#哈希内核" class="headerlink" title="哈希内核"></a>哈希内核</h2><h3 id="哈希函数-散列函数"><a href="#哈希函数-散列函数" class="headerlink" title="哈希函数&#x2F;散列函数"></a>哈希函数&#x2F;散列函数</h3><p>大白话散列函数：</p>
+<p>例如，查找人名比较快的方法是按照首字母排序，再查找。</p>
+<p>对应到哈希表中，直接拿到当前首字母(值地址)的方法就是散列函数。</p>
+<ul>
+<li>常见的哈希函数</li>
+</ul>
+<p>一个哈希函数的好不好，取决于以下三点</p>
+<ol>
+<li>哈希函数的定义域必须包括需要存储的全部关键码，而如果哈希表允许有m个地址时，其值域必须在0 到m-1之间</li>
+<li>哈希函数计算出来的地址能均匀分布在整个空间中</li>
+<li>哈希函数应该比较简单</li>
+</ol>
+<p><strong>eg：除留余数法、直接定制法、平方取中法</strong></p>
+<h3 id="哈希冲突"><a href="#哈希冲突" class="headerlink" title="哈希冲突"></a>哈希冲突</h3><p>解决哈希冲突主要有两个方案：<strong>闭散列</strong> 和 <strong>开散列</strong></p>
+<ul>
+<li><p>闭散列</p>
+<p>  也叫开放定址法，当发生哈希冲突时，如果哈希表未被装满，说明在哈希表中必然还有空位置，那 么可以把key存放到冲突位置中的“下一个” 空位置中去</p>
+<p>  闭散列中主要处理方法有 <code>线性探测</code> 和 <code>二次探测</code></p>
+<p>  线性探测：下一个空的位置；伪删除；当前数据达到负载因子这个阈值时，就需要将当前表进行扩容；</p>
+<p>  二次探测：通过当前位置的哈希冲突次数的平方查找新的位置；</p>
+</li>
+<li><p>开散列</p>
+<blockquote>
+<p>链地址法</p>
+</blockquote>
+</li>
+</ul>
+<p>哈希表中存储的是链表的头结点。具有相同的哈希地址会存放在同一链表中，每个链表中的元素都具有相同的哈希地址。</p>
+<h2 id="LSH"><a href="#LSH" class="headerlink" title="LSH"></a>LSH</h2><h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/95156642">来吧！一文彻底搞定哈希表！</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44443986/article/details/117195803">数据结构 5分钟带你搞定哈希表(建议收藏)!!!</a></li>
+</ol>
+<h1 id="最小堆与最大堆"><a href="#最小堆与最大堆" class="headerlink" title="最小堆与最大堆"></a>最小堆与最大堆</h1><h2 id="堆树的定义"><a href="#堆树的定义" class="headerlink" title="堆树的定义"></a>堆树的定义</h2><p>堆树的定义如下：</p>
+<p>（1）堆树是一颗<code>完全二叉树</code>；</p>
+<p>（2）堆树中某个节点的值<strong>总是不大于或不小于其孩子节点的值</strong>；</p>
+<p>（3）堆树中每个节点的<strong>子树都是堆树</strong>。</p>
+<p>当父节点的键值总是大于或等于任何一个子节点的键值时为最大堆。 当父节点的键值总是小于或等于任何一个子节点的键值时为最小堆。</p>
+<p><img src="https://img-blog.csdn.net/20160317150649506" alt="最大堆"></p>
+<p><img src="https://img-blog.csdn.net/20160317150655703" alt="最小堆"></p>
+<h2 id="堆树操作"><a href="#堆树操作" class="headerlink" title="堆树操作"></a>堆树操作</h2><ol>
+<li><p>构造最大堆<br>思路：将每个叶子节点视为一个堆，再将每个叶子节点与其父节点一起构造成包含一个更多节点的堆<br>实现：首先需要找到最后一个节点的父节点，从这个节点开始构造最大堆；直到该节点前面所有分支节点都处理完毕</p>
+</li>
+<li><p>插入节点<br>思路：在堆的最后添加一个节点，然后沿着堆树上升。</p>
+</li>
+<li><p>删除节点<br>思路：将堆树的最后的节点提到根结点，然后删除最大值，然后再把新的根节点放到合适的位置。</p>
+</li>
+</ol>
+<h2 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2><blockquote>
+<p>相当于是堆树操作中的删除节点的操作。</p>
+</blockquote>
+<p>1、创建一个最大（小）堆H；</p>
+<p>2、把堆首和堆尾元素互换；</p>
+<p>3、把堆的大小减1，重新构造一个最大（小）堆；</p>
+<p>4、重复步骤2、3，直到堆的大小减少为1。</p>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/guoweimelon/article/details/50904346">堆树（最大堆、最小堆）详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/guoweimelon/article/details/50904231">经典排序算法（7）——堆排序算法详解</a></li>
+</ol>
+<h1 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h1>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/" rel="tag"># 哈希表</a>
+              <a href="/tags/%E6%9C%80%E5%B0%8F%E5%A0%86/" rel="tag"># 最小堆</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/python%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="prev" title="Python面试问题">
+                  <i class="fa fa-angle-left"></i> Python面试问题
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E8%AF%AD%E8%A8%80%E5%BA%95%E5%B1%82/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="next" title="计算机网络基础">
+                  计算机网络基础 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

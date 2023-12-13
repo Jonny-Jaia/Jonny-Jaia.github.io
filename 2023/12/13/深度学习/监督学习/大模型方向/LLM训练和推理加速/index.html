@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="模型训练以及推理中的显存占用计算与混精优劣 References   FlashAttention 相关简述 代码实现 References   Multi-Query Attention References   vLLM:PagedAttention References   xformer References   DeepSpeed ZeRO-零冗余优化器 使用说明 应用实例 推理加速">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型加速相关内容">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="模型训练以及推理中的显存占用计算与混精优劣 References   FlashAttention 相关简述 代码实现 References   Multi-Query Attention References   vLLM:PagedAttention References   xformer References   DeepSpeed ZeRO-零冗余优化器 使用说明 应用实例 推理加速">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/775103900.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/4107095412.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/713126535.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/1199615308.png">
+<meta property="og:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/image-20230813143710826.png">
+<meta property="article:published_time" content="2023-12-13T15:16:45.848Z">
+<meta property="article:modified_time" content="2023-12-13T15:18:07.773Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="推理加速">
+<meta property="article:tag" content="vLLM">
+<meta property="article:tag" content="FlashAttention">
+<meta property="article:tag" content="Multi-Query Attention">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/775103900.png">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/","path":"2023/12/13/深度学习/监督学习/大模型方向/LLM训练和推理加速/","title":"大模型加速相关内容"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>大模型加速相关内容 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%BB%A5%E5%8F%8A%E6%8E%A8%E7%90%86%E4%B8%AD%E7%9A%84%E6%98%BE%E5%AD%98%E5%8D%A0%E7%94%A8%E8%AE%A1%E7%AE%97%E4%B8%8E%E6%B7%B7%E7%B2%BE%E4%BC%98%E5%8A%A3"><span class="nav-number">1.</span> <span class="nav-text">模型训练以及推理中的显存占用计算与混精优劣</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FlashAttention"><span class="nav-number">2.</span> <span class="nav-text">FlashAttention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%AE%80%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">相关简述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">2.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Query-Attention"><span class="nav-number">3.</span> <span class="nav-text">Multi-Query Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">3.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vLLM-PagedAttention"><span class="nav-number">4.</span> <span class="nav-text">vLLM:PagedAttention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-3"><span class="nav-number">4.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#xformer"><span class="nav-number">5.</span> <span class="nav-text">xformer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-4"><span class="nav-number">5.1.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#DeepSpeed"><span class="nav-number">6.</span> <span class="nav-text">DeepSpeed</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ZeRO-%E9%9B%B6%E5%86%97%E4%BD%99%E4%BC%98%E5%8C%96%E5%99%A8"><span class="nav-number">6.1.</span> <span class="nav-text">ZeRO-零冗余优化器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="nav-number">6.2.</span> <span class="nav-text">使用说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">6.3.</span> <span class="nav-text">应用实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F"><span class="nav-number">6.4.</span> <span class="nav-text">推理加速</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Refs"><span class="nav-number">6.4.1.</span> <span class="nav-text">Refs</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Sparse-Attention"><span class="nav-number">7.</span> <span class="nav-text">Sparse Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Atrous-self-attention"><span class="nav-number">7.1.</span> <span class="nav-text">Atrous self attention</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Local-self-attention"><span class="nav-number">7.2.</span> <span class="nav-text">Local self attention</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sparse-self-attention"><span class="nav-number">7.3.</span> <span class="nav-text">sparse self attention</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#deepspeed-sparse-attention"><span class="nav-number">7.4.</span> <span class="nav-text">deepspeed-sparse attention</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Refs-1"><span class="nav-number">7.5.</span> <span class="nav-text">Refs</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="大模型加速相关内容 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          大模型加速相关内容
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 23:16:45 / Modified: 23:18:07" itemprop="dateCreated datePublished" datetime="2023-12-13T23:16:45+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><ul>
+<li><a href="#%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%BB%A5%E5%8F%8A%E6%8E%A8%E7%90%86%E4%B8%AD%E7%9A%84%E6%98%BE%E5%AD%98%E5%8D%A0%E7%94%A8%E8%AE%A1%E7%AE%97%E4%B8%8E%E6%B7%B7%E7%B2%BE%E4%BC%98%E5%8A%A3">模型训练以及推理中的显存占用计算与混精优劣</a><ul>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#flashattention">FlashAttention</a><ul>
+<li><a href="#%E7%9B%B8%E5%85%B3%E7%AE%80%E8%BF%B0">相关简述</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0">代码实现</a></li>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+<li><a href="#multi-query-attention">Multi-Query Attention</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#vllmpagedattention">vLLM:PagedAttention</a><ul>
+<li><a href="#references-3">References</a></li>
+</ul>
+</li>
+<li><a href="#xformer">xformer</a><ul>
+<li><a href="#references-4">References</a></li>
+</ul>
+</li>
+<li><a href="#deepspeed">DeepSpeed</a><ul>
+<li><a href="#zero-%E9%9B%B6%E5%86%97%E4%BD%99%E4%BC%98%E5%8C%96%E5%99%A8">ZeRO-零冗余优化器</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E">使用说明</a></li>
+<li><a href="#%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B">应用实例</a></li>
+<li><a href="#%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F">推理加速</a><ul>
+<li><a href="#refs">Refs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#sparse-attention">Sparse Attention</a><ul>
+<li><a href="#atrous-self-attention">Atrous self attention</a></li>
+<li><a href="#local-self-attention">Local self attention</a></li>
+<li><a href="#sparse-self-attention">sparse self attention</a></li>
+<li><a href="#deepspeed-sparse-attention">deepspeed-sparse attention</a></li>
+<li><a href="#refs-1">Refs</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="模型训练以及推理中的显存占用计算与混精优劣"><a href="#模型训练以及推理中的显存占用计算与混精优劣" class="headerlink" title="模型训练以及推理中的显存占用计算与混精优劣"></a>模型训练以及推理中的显存占用计算与混精优劣</h1><p>按照参数量来计算<br>当采用fp16训练得到的模型：<br>1个字节8bit，fp16&#x3D;2个字节，10B的模型&#x3D;20GB<br>n B模型 推理需要2n GB显存才能将模型加载；训练采用Adam优化器，则下限内存：2+2+12(4+4+4-模型参数<br>梯度、优化器状态)-16n GB</p>
+<p>混精优劣：速度快，但容易溢出(fp16),并且计算softmax需要切回fp32；bf16 损失的精度被证明不怎么影响收敛-A100及以后的显卡</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643836163">大模型面试八股答案（二）——训练框架</a></li>
+</ol>
+<h1 id="FlashAttention"><a href="#FlashAttention" class="headerlink" title="FlashAttention"></a>FlashAttention</h1><h2 id="相关简述"><a href="#相关简述" class="headerlink" title="相关简述"></a>相关简述</h2><p>直接结论：速度更快，内存消耗更小</p>
+<p>FlashAttention的<strong>运行速度</strong>比PyTorch标准注意力快 2-4 倍，所需<strong>内存减少</strong>5-20倍。</p>
+<p>为了避免从HBM(High Bandwidth Memory)中读取和写入注意力矩阵，flashattention希望实现在不访问整个输入的情况下计算softmax的缩减，并且反向传播中不能存储中间注意力矩阵。</p>
+<p>具体实现：</p>
+<ol>
+<li>将输入分割成块，并在输入块上进行多次传递，从而以<strong>增量方式</strong>执行softmax缩减。</li>
+<li>不使用中间注意力矩阵，通过<strong>存储归一化因子</strong>来降低HBM的内存消耗。在后向传播中快速重新计算片上注意力，虽然增加了计算量，但速度更快内存更高(大大降低HBM的访问)</li>
+</ol>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">FilePath: llama_flash_attn_monkey_patch.py</span></span><br><span class="line"><span class="string">Author: jiangyihua</span></span><br><span class="line"><span class="string">Date: 2023-07-21 09:39:02</span></span><br><span class="line"><span class="string">LastEditors: Please set LastEditors</span></span><br><span class="line"><span class="string">LastEditTime: 2023-07-21 12:56:27</span></span><br><span class="line"><span class="string">Copyright: 2023 IEAD/jiangyihua. All Rights Reserved.</span></span><br><span class="line"><span class="string">Descripttion: </span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Optional</span>, <span class="type">Tuple</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">from</span> torch <span class="keyword">import</span> nn</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> transformers</span><br><span class="line"><span class="keyword">from</span> transformers.models.llama.modeling_llama <span class="keyword">import</span> LlamaConfig, LlamaRotaryEmbedding, apply_rotary_pos_emb</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> einops <span class="keyword">import</span> rearrange</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">from</span> flash_attn.flash_attn_interface <span class="keyword">import</span> flash_attn_qkvpacked_func</span><br><span class="line">    <span class="comment"># from flash_attn.flash_attn_interface import flash_attn_unpadded_qkvpacked_func</span></span><br><span class="line">    <span class="keyword">from</span> flash_attn.bert_padding <span class="keyword">import</span> unpad_input, pad_input</span><br><span class="line"><span class="keyword">except</span> ImportError:</span><br><span class="line">    <span class="keyword">raise</span> ImportError(<span class="string">&quot;Please install flash_attn to use this module&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LlamaAttention</span>(nn.Module):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Multi-headed attention from &#x27;Attention Is All You Need&#x27; paper&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        config: LlamaConfig,</span></span><br><span class="line"><span class="params">    </span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        hidden_size = config.hidden_size</span><br><span class="line">        num_heads = config.num_attention_heads</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line">        self.num_heads = num_heads</span><br><span class="line">        self.head_dim = self.hidden_size // num_heads</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (self.head_dim * num_heads) != self.hidden_size:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(</span><br><span class="line">                <span class="string">f&quot;hidden_size must be divisible by num_heads (got `hidden_size`: <span class="subst">&#123;self.hidden_size&#125;</span>&quot;</span></span><br><span class="line">                <span class="string">f&quot; and `num_heads`: <span class="subst">&#123;num_heads&#125;</span>).&quot;</span>)</span><br><span class="line">        self.q_proj = nn.Linear(</span><br><span class="line">            hidden_size,</span><br><span class="line">            num_heads * self.head_dim,</span><br><span class="line">            bias=<span class="literal">False</span>,</span><br><span class="line">        )</span><br><span class="line">        self.k_proj = nn.Linear(</span><br><span class="line">            hidden_size,</span><br><span class="line">            num_heads * self.head_dim,</span><br><span class="line">            bias=<span class="literal">False</span>,</span><br><span class="line">        )</span><br><span class="line">        self.v_proj = nn.Linear(</span><br><span class="line">            hidden_size,</span><br><span class="line">            num_heads * self.head_dim,</span><br><span class="line">            bias=<span class="literal">False</span>,</span><br><span class="line">        )</span><br><span class="line">        self.o_proj = nn.Linear(</span><br><span class="line">            num_heads * self.head_dim,</span><br><span class="line">            hidden_size,</span><br><span class="line">            bias=<span class="literal">False</span>,</span><br><span class="line">        )</span><br><span class="line">        self.rotary_emb = LlamaRotaryEmbedding(self.head_dim)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">_shape</span>(<span class="params">self, tensor: torch.Tensor, seq_len: <span class="built_in">int</span>, bsz: <span class="built_in">int</span></span>):</span><br><span class="line">        <span class="keyword">return</span> tensor.view(bsz, seq_len, self.num_heads,</span><br><span class="line">                           self.head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>).contiguous()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        hidden_states: torch.Tensor,</span></span><br><span class="line"><span class="params">        past_key_value: <span class="type">Optional</span>[<span class="type">Tuple</span>[torch.Tensor]] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">        attention_mask: <span class="type">Optional</span>[torch.Tensor] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">        position_ids: <span class="type">Optional</span>[torch.LongTensor] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">        output_attentions: <span class="built_in">bool</span> = <span class="literal">False</span>,</span></span><br><span class="line"><span class="params">        use_cache: <span class="built_in">bool</span> = <span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    </span>) -&gt; <span class="type">Tuple</span>[torch.Tensor, <span class="type">Optional</span>[torch.Tensor],</span><br><span class="line">               <span class="type">Optional</span>[<span class="type">Tuple</span>[torch.Tensor]]]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;Input shape: Batch x Time x Channel</span></span><br><span class="line"><span class="string">        </span></span><br><span class="line"><span class="string">        attention_mask: [bsz, q_len]</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        bsz, q_len, _ = hidden_states.size()</span><br><span class="line"></span><br><span class="line">        query_states = self.q_proj(hidden_states).view(</span><br><span class="line">            bsz, q_len, self.num_heads, self.head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        key_states = self.k_proj(hidden_states).view(</span><br><span class="line">            bsz, q_len, self.num_heads, self.head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        value_states = self.v_proj(hidden_states).view(</span><br><span class="line">            bsz, q_len, self.num_heads, self.head_dim).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        <span class="comment"># [bsz, q_len, nh, hd]</span></span><br><span class="line">        <span class="comment"># [bsz, nh, q_len, hd]</span></span><br><span class="line"></span><br><span class="line">        kv_seq_len = key_states.shape[-<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">if</span> past_key_value <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            kv_seq_len += past_key_value[<span class="number">0</span>].shape[-<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">        cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)</span><br><span class="line">        query_states, key_states = apply_rotary_pos_emb(query_states,</span><br><span class="line">                                                        key_states,</span><br><span class="line">                                                        cos,</span><br><span class="line">                                                        sin,</span><br><span class="line">                                                        position_ids)</span><br><span class="line">        <span class="comment"># [bsz, nh, t, hd]</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="keyword">not</span> output_attentions, <span class="string">&quot;output_attentions is not supported&quot;</span></span><br><span class="line">        <span class="keyword">assert</span> <span class="keyword">not</span> use_cache, <span class="string">&quot;use_cache is not supported&quot;</span></span><br><span class="line">        <span class="keyword">assert</span> past_key_value <span class="keyword">is</span> <span class="literal">None</span>, <span class="string">&quot;past_key_value is not supported&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># Flash attention codes from</span></span><br><span class="line">        <span class="comment"># https://github.com/HazyResearch/flash-attention/blob/main/flash_attn/flash_attention.py</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># transform the data into the format required by flash attention</span></span><br><span class="line">        qkv = torch.stack([query_states, key_states, value_states], dim=<span class="number">2</span>) <span class="comment"># [bsz, nh, 3, q_len, hd]</span></span><br><span class="line">        qkv = qkv.transpose(<span class="number">1</span>, <span class="number">3</span>) <span class="comment"># [bsz, q_len, 3, nh, hd]</span></span><br><span class="line">        <span class="comment"># We have disabled _prepare_decoder_attention_mask in LlamaModel</span></span><br><span class="line">        <span class="comment"># the attention_mask should be the same as the key_padding_mask</span></span><br><span class="line">        key_padding_mask = attention_mask</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> key_padding_mask <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            qkv = rearrange(qkv, <span class="string">&#x27;b s ... -&gt; (b s) ...&#x27;</span>)</span><br><span class="line">            max_s = q_len</span><br><span class="line">            cu_q_lens = torch.arange(<span class="number">0</span>, (bsz + <span class="number">1</span>) * q_len, step=q_len, dtype=torch.int32,</span><br><span class="line">                                    device=qkv.device)</span><br><span class="line">            output = flash_attn_qkvpacked_func(</span><br><span class="line">                qkv, cu_q_lens, max_s, <span class="number">0.0</span>,</span><br><span class="line">                softmax_scale=<span class="literal">None</span>, causal=<span class="literal">True</span></span><br><span class="line">            )</span><br><span class="line">            <span class="comment"># output = flash_attn_unpadded_qkvpacked_func(</span></span><br><span class="line">            <span class="comment">#     qkv, cu_q_lens, max_s, 0.0,</span></span><br><span class="line">            <span class="comment">#     softmax_scale=None, causal=True</span></span><br><span class="line">            <span class="comment"># )</span></span><br><span class="line">            output = rearrange(output, <span class="string">&#x27;(b s) ... -&gt; b s ...&#x27;</span>, b=bsz)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            nheads = qkv.shape[-<span class="number">2</span>]</span><br><span class="line">            x = rearrange(qkv, <span class="string">&#x27;b s three h d -&gt; b s (three h d)&#x27;</span>)</span><br><span class="line">            x_unpad, indices, cu_q_lens, max_s = unpad_input(x, key_padding_mask)</span><br><span class="line">            x_unpad = rearrange(x_unpad, <span class="string">&#x27;nnz (three h d) -&gt; nnz three h d&#x27;</span>, three=<span class="number">3</span>, h=nheads)</span><br><span class="line">            output_unpad = flash_attn_qkvpacked_func(</span><br><span class="line">                x_unpad, cu_q_lens, max_s, <span class="number">0.0</span>,</span><br><span class="line">                softmax_scale=<span class="literal">None</span>, causal=<span class="literal">True</span></span><br><span class="line">            )</span><br><span class="line">            <span class="comment"># output_unpad = flash_attn_unpadded_qkvpacked_func(</span></span><br><span class="line">            <span class="comment">#     x_unpad, cu_q_lens, max_s, 0.0,</span></span><br><span class="line">            <span class="comment">#     softmax_scale=None, causal=True</span></span><br><span class="line">            <span class="comment"># )</span></span><br><span class="line">            output = rearrange(pad_input(rearrange(output_unpad, <span class="string">&#x27;nnz h d -&gt; nnz (h d)&#x27;</span>),</span><br><span class="line">                                        indices, bsz, q_len),</span><br><span class="line">                            <span class="string">&#x27;b s (h d) -&gt; b s h d&#x27;</span>, h=nheads)</span><br><span class="line">        <span class="keyword">return</span> self.o_proj(rearrange(output,</span><br><span class="line">                                     <span class="string">&#x27;b s h d -&gt; b s (h d)&#x27;</span>)), <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Copied from transformers.models.bart.modeling_bart.BartDecoder._prepare_decoder_attention_mask</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_prepare_decoder_attention_mask</span>(<span class="params">self, attention_mask, input_shape,</span></span><br><span class="line"><span class="params">                                    inputs_embeds, past_key_values_length</span>):</span><br><span class="line">    <span class="comment"># [bsz, seq_len]</span></span><br><span class="line">    <span class="keyword">return</span> attention_mask</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">replace_llama_attn_with_flash_attn</span>():</span><br><span class="line">    transformers.models.llama.modeling_llama.LlamaModel._prepare_decoder_attention_mask = _prepare_decoder_attention_mask</span><br><span class="line">    transformers.models.llama.modeling_llama.LlamaAttention = LlamaAttention</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/626079753">FlashAttention图解（如何加速Attention）</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/618533434">论文分享：新型注意力算法FlashAttention</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/645376942">FlashAttention2详解（性能比FlashAttention提升200%） - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="Multi-Query-Attention"><a href="#Multi-Query-Attention" class="headerlink" title="Multi-Query Attention"></a>Multi-Query Attention</h1><h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/640312259">FlashAttention与Multi Query Attention</a></li>
+</ol>
+<h1 id="vLLM-PagedAttention"><a href="#vLLM-PagedAttention" class="headerlink" title="vLLM:PagedAttention"></a>vLLM:PagedAttention</h1><blockquote>
+<p> 背景：LLM模型在推理过程中，key、value通常会存在GPU中用于生成下一个token。这部分显存占用很大且由于大小是动态变化的，因此会出现过度预留显存导致显存浪费</p>
+</blockquote>
+<ol>
+<li>借鉴：操作系统中的虚拟内存和分页经典思想</li>
+<li>实现：将每个序列的KV cache进行分块，每个块中包含固定的tokens的key和value。分块之后这部分张量不再需要连续的内存，使得显存的利用率更高。</li>
+<li>特性：memory sharing<ol>
+<li>当用单个 prompt 产出多个不同的序列时，可以共享计算量和显存。</li>
+<li>通过将不同序列的 logical blocks 映射到同一个 physical blocks，可以实现显存共享。</li>
+<li>为了保证共享的安全性，对于 physical blocks 的引用次数进行统计，并实现了 Copy-on-Write 机制。</li>
+<li>这种内存共享机制，可以大幅降低复杂采样算法对于显存的需求（最高可下降55%），从而可以提升2.2倍的吞吐量。</li>
+</ol>
+</li>
+</ol>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/642802585">大模型推理加速工具：vLLM</a></li>
+</ol>
+<h1 id="xformer"><a href="#xformer" class="headerlink" title="xformer"></a>xformer</h1><h2 id="References-4"><a href="#References-4" class="headerlink" title="References"></a>References</h2><ol>
+<li><a href></a></li>
+</ol>
+<h1 id="DeepSpeed"><a href="#DeepSpeed" class="headerlink" title="DeepSpeed"></a>DeepSpeed</h1><ol>
+<li><strong>推理自适应并行性</strong>（<code>Inference-adapted parallelism</code>）：允许用户通过适应多 GPU 推理的最佳并行策略来有效地服务大型模型，同时考虑推理延迟和成本。</li>
+</ol>
+<blockquote>
+<p>模型训练权重可以加载指定的并行度，另外会为模型插入需要的通信代码协助多GPU通信</p>
+</blockquote>
+<ol start="2">
+<li><strong>针对推理优化的 CUDA 内核</strong>（<code>Inference-optimized CUDA kernels</code>）：通过深度融合和新颖的内核调度充分利用 GPU 资源，从而提高每个 GPU 的效率。</li>
+</ol>
+<blockquote>
+<p>深度融合就是将多个运算符融合到一个内核中；针对推理优化了GEMM操作。</p>
+</blockquote>
+<ol start="3">
+<li><strong>有效的量化感知训练</strong>（<code>Effective quantize-aware training</code>）：支持量化后的模型推理，如 INT8 推理，模型量化可以节省内存（memory）和减少延迟（latency），同时不损害准确性。</li>
+</ol>
+<blockquote>
+<p>通过量化混合和INT8推理内核实现，量化混合就是简单地将 FP32 参数值转换为较低精度（<code>INT4</code>、<code>INT8</code> 等），然后在权重更新期间将它们存储为 <code>FP16</code> 参数（FP16数据类型，但值映射到较低精度）；高性能INT8推理就是加载INT8参数到主存中，加载到共享内存中就会转换成FP16</p>
+</blockquote>
+<p>另外为了减少大模型的训练时间，框架提供了三种技术：</p>
+<ol>
+<li><strong>新的压缩训练策略</strong>：大模型训练期间，通过 <code>Progressive Layer Dropping</code> 利用 Transformer 层中粗粒度的<strong>稀疏性</strong>来降低训练成本，从而在不影响准确性的情况下使收敛速度提高 2.8 倍。</li>
+<li><strong>1 bit 的 LAMB</strong>：实现了大模型训练的高效通信，通信量减少 4.6 倍，即使在具有低带宽互连的集群中也能加速大型模型的训练。</li>
+<li><strong>DeepSpeed Profiler 性能工具</strong>：通过显示模型复杂性和训练效率，以帮助用户识别性能瓶颈。</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/629644249">DeepSpeed 通过系统优化加速大模型推理 - 知乎 (zhihu.com)</a></p>
+<h2 id="ZeRO-零冗余优化器"><a href="#ZeRO-零冗余优化器" class="headerlink" title="ZeRO-零冗余优化器"></a>ZeRO-零冗余优化器</h2><p>总体：ZeRO1是优化器切分到各卡，ZeRO2是梯度切分到各卡，ZeRO3是模型参数切分到各卡。OFFLOAD是用一部分内存来补充显存的不足。</p>
+<p>ZeRO：Zero Redundancy Optimizer </p>
+<p>深度学习模型的大部分内存消耗可以归结为以下三种（文中称为OPG状态）:</p>
+<ol>
+<li>O:优化器状态（例如Aadam优化器中的的momemtum、variance）</li>
+<li>G:梯度</li>
+<li>P:参数</li>
+</ol>
+<p>ZeRO通过在数据并行进程之间划分OGP模型状态而不是复制它们来消除数据并行进程之间的内存冗余，在训练过程中采用动态通信调度，保持了和数据并行基本一致的计算粒度和通信量，从而保持了计算&#x2F;通信效率。</p>
+<p>具体实现是对OPG状态分别进行优化：</p>
+<p><code>优化器优化</code>： <strong>每个GPU都保存</strong>全部的参数和梯度，但<strong>只保存1&#x2F;Nd的优化器变量</strong></p>
+<p><code>优化器+梯度优化</code>：只保存1&#x2F;Nd的梯度和优化器变量</p>
+<p><code>优化器+梯度+参数优化</code>: 只保存1&#x2F;Nd的参数、梯度和优化器变量</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/116484241">论文解读系列第十三篇：ZeRO——面向万亿级参数的模型训练方法 - 知乎 (zhihu.com)</a></p>
+<h2 id="使用说明"><a href="#使用说明" class="headerlink" title="使用说明"></a>使用说明</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/629315053">在Transformers中集成DeepSpeed - 知乎 (zhihu.com)</a></p>
+<h2 id="应用实例"><a href="#应用实例" class="headerlink" title="应用实例"></a>应用实例</h2><p>通过使用HuggingFace的accelerate库实现deepspeed方法</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/jiangxinyang227/LLM-tuning/tree/master/llama_tuning/lora_deepspeed">LLM-tuning&#x2F;llama_tuning&#x2F;lora_deepspeed at master · jiangxinyang227&#x2F;LLM-tuning (github.com)</a></p>
+<h2 id="推理加速"><a href="#推理加速" class="headerlink" title="推理加速"></a>推理加速</h2><p><a target="_blank" rel="noopener" href="https://www.deepspeed.ai/tutorials/inference-tutorial/">Getting Started with DeepSpeed for Inferencing Transformer based Models - DeepSpeed</a></p>
+<h3 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/513571706">DeepSpeed之ZeRO系列：将显存优化进行到底 - 知乎 (zhihu.com)</a></li>
+</ol>
+<h1 id="Sparse-Attention"><a href="#Sparse-Attention" class="headerlink" title="Sparse Attention"></a>Sparse Attention</h1><p>自注意力机制的计算量$O(n^2)$-需要对任意两个向量计算相关度;因此,为了节省现存,基本的思路就是减少关联性的计算.</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/775103900.png" alt="self-attn"></p>
+<h2 id="Atrous-self-attention"><a href="#Atrous-self-attention" class="headerlink" title="Atrous self attention"></a>Atrous self attention</h2><p>类似于膨胀卷积,要求每个元素只跟它相对距离为k,2k,3k,…<br>的元素关联.相当于每个元素只跟大约n&#x2F;k<br>个元素算相关性，这样一来理想情况下运行效率和显存占用都变成了$O(n^2&#x2F;k)$，也就是说能直接降低到原来的1&#x2F;k.<br><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/4107095412.png"></p>
+<h2 id="Local-self-attention"><a href="#Local-self-attention" class="headerlink" title="Local self attention"></a>Local self attention</h2><p>就直接是字面意思,将相对距离超过k的注意力全部都设为0.</p>
+<p>对于Local Self Attention来说，每个元素只跟2k+1<br>个元素算相关性，这样一来理想情况下运行效率和显存占用都变成了O((2k+1)n)∼O(kn)了，也就是说随着n而线性增长，这是一个很理想的性质——当然也直接牺牲了长程关联性。<br><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/713126535.png" alt="Local Self Attention的注意力矩阵（左）和关联图示（右）"></p>
+<h2 id="sparse-self-attention"><a href="#sparse-self-attention" class="headerlink" title="sparse self attention"></a>sparse self attention</h2><p>相当于是atrous+local,实现了除了相对距离不超过k的、相对距离为k,2k,3k,…的注意力都设为0，这样一来Attention就具有“<strong>局部紧密相关和远程稀疏相关</strong>”的特性，这对很多任务来说可能是一个不错的先验，因为真正需要密集的长程关联的任务事实上是很少的。</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/1199615308.png" alt="Sparse Self Attention的注意力矩阵（左）和关联图示（右）"></p>
+<h2 id="deepspeed-sparse-attention"><a href="#deepspeed-sparse-attention" class="headerlink" title="deepspeed-sparse attention"></a>deepspeed-sparse attention</h2><p>随机、局部、全局三种注意力的随机组合</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LLM%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/image-20230813143710826.png" alt="image-20230813143710826"></p>
+<h2 id="Refs-1"><a href="#Refs-1" class="headerlink" title="Refs"></a>Refs</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/6853">为节约而生：从标准Attention到稀疏Attention - 科学空间|Scientific Spaces (kexue.fm)</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.deepspeed.ai/2020/09/08/sparse-attention.html">DeepSpeed Sparse Attention - DeepSpeed</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8E%A8%E7%90%86%E5%8A%A0%E9%80%9F/" rel="tag"># 推理加速</a>
+              <a href="/tags/vLLM/" rel="tag"># vLLM</a>
+              <a href="/tags/FlashAttention/" rel="tag"># FlashAttention</a>
+              <a href="/tags/Multi-Query-Attention/" rel="tag"># Multi-Query Attention</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/CoT/" rel="prev" title="思维链">
+                  <i class="fa fa-angle-left"></i> 思维链
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%96%B9%E5%90%91/LongContextWindow/" rel="next" title="大模型外推窗口扩充技术">
+                  大模型外推窗口扩充技术 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

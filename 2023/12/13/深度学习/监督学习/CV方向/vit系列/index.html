@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","Pisces | Gemini":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="ViT模型  ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale  研究背景 ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ViT系列模型学习">
+<meta property="og:url" content="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/index.html">
+<meta property="og:site_name" content="JiangYh&#39;s Blog">
+<meta property="og:description" content="ViT模型  ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale  研究背景 ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-54f717f71079becca62a0247660a171d_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-ed96c7a5add85b9151c7f10fbda4943a_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-58df6c737fdea377071868f106b7c1c1_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-07a98325a29db1da6521e4ddaaed3c88_720w.webp">
+<meta property="article:published_time" content="2023-12-13T13:14:32.095Z">
+<meta property="article:modified_time" content="2023-12-13T14:59:54.369Z">
+<meta property="article:author" content="JiangYH">
+<meta property="article:tag" content="CV模型">
+<meta property="article:tag" content="vision transformer系列">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg">
+
+
+<link rel="canonical" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/","path":"2023/12/13/深度学习/监督学习/CV方向/vit系列/","title":"ViT系列模型学习"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ViT系列模型学习 | JiangYh's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">JiangYh's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ViT%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">ViT模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">主要工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">1.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MLP-Mixer"><span class="nav-number">2.</span> <span class="nav-text">MLP-Mixer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF-1"><span class="nav-number">2.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C-1"><span class="nav-number">2.2.</span> <span class="nav-text">主要工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-1"><span class="nav-number">2.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Swin-Transformer%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">Swin-Transformer模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF-2"><span class="nav-number">3.1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C-2"><span class="nav-number">3.2.</span> <span class="nav-text">主要工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References-2"><span class="nav-number">3.3.</span> <span class="nav-text">References</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Swin-Transformer-v2%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">Swin-Transformer_v2模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#References-3"><span class="nav-number">4.1.</span> <span class="nav-text">References</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">JiangYH</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yourname" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yourname" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ViT系列模型学习 | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ViT系列模型学习
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 21:14:32 / Modified: 22:59:54" itemprop="dateCreated datePublished" datetime="2023-12-13T21:14:32+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="ViT模型"><a href="#ViT模型" class="headerlink" title="ViT模型"></a>ViT模型</h1><!-- 论文名 -->
+<blockquote>
+<p>ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越大效果越好），成为了transformer在CV领域应用的里程碑著作，也引爆了后续相关研究.</p>
+<p>ViT原论文中最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果.</p>
+<p>但是当训练数据集不够大的时候，ViT的表现通常比同等大小的ResNets要差一些，因为<strong>Transformer和CNN相比缺少归纳偏置</strong>（inductive bias），即一种先验知识，提前做好的假设。</p>
+<p>CNN具有两种归纳偏置，一种是局部性（locality&#x2F;two-dimensional neighborhood structure），即图片上相邻的区域具有相似的特征；一种是平移不变形（translation equivariance）.当CNN具有以上两种归纳偏置，就有了很多先验信息，需要相对少的数据就可以学习一个比较好的模型</p>
+<p><img src="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg" alt="VIT-model"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-54f717f71079becca62a0247660a171d_720w.webp" alt="ViT-param"></p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>输入：将图像拆成N个$p*p$的小patch，然后将每个patch当成是一个token；</li>
+<li>具体到每个patch则是直接进行flatten之后直接经过线性映射得到D维Embedding表示；</li>
+<li>这里的pos-embedding按照实验是直接采用1-D位置编码,按照从左到右的块排序</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/438883618">Vision Transformer学习笔记1：ViT</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="MLP-Mixer"><a href="#MLP-Mixer" class="headerlink" title="MLP-Mixer"></a>MLP-Mixer</h1><!-- 论文名 -->
+<blockquote>
+<p>MLP-Mixer: MLP-Mixer: An all-MLP Architecture for Vision</p>
+</blockquote>
+<h2 id="研究背景-1"><a href="#研究背景-1" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT作者团队出品，在CNN和Transformer大火的背景下，舍弃了卷积和注意力机制，提出了MLP-Mixer，一个完全基于MLPs的结构，其MLPs有两种类型，分别是<strong>channel-mixing MLPs</strong>和<strong>token-mixing MLPs</strong>，前者独立作用于image patches（融合通道信息），后者跨image patches作用（融合空间信息）。<br><img src="https://pic3.zhimg.com/80/v2-ed96c7a5add85b9151c7f10fbda4943a_720w.webp" alt="mlp-mixer-model"></p>
+<h2 id="主要工作-1"><a href="#主要工作-1" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>类似于ViT的模型结构训练方式,也需要将图像信息打成多个块;</li>
+<li>提出两种MLPs结构<br><code>token-mixing MLPs</code>：允许信息在空间维度交互，独立作用于每一个channel，作用于列，融合不同token的特征<br><code>channel-mixing MLPs</code>：允许信息在通道交互，独立作用于每一个token，作用于行，融合不同channel的特征<br><img src="https://pic2.zhimg.com/80/v2-58df6c737fdea377071868f106b7c1c1_720w.webp" alt="mlp-layer"></li>
+<li>因为token-mixing MLPs对输入tokens的顺序非常敏感,Mixer不适用positional encoding</li>
+<li>每个Mixer Layer中token-mixing MLPs共享参数，channel-mixing MLPs同样共享参数</li>
+<li>当在大规模数据集上预训练（100million images），Mixer可以接近CNNs和Transformers的SOTA表现，在ImageNet上达到87.94%的top-1 accuracy；当在更小规模数据集上预训练时（10million），结合一些regularization techniques，Mixer可以接近ViT的性能，但是稍逊于CNN</li>
+</ol>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="Swin-Transformer模型"><a href="#Swin-Transformer模型" class="headerlink" title="Swin-Transformer模型"></a>Swin-Transformer模型</h1><!-- 论文名 -->
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2103.14030.pdf">Swin Transformer: Hierarchical Vision Transformer using Shifted Windows</a></p>
+</blockquote>
+<h2 id="研究背景-2"><a href="#研究背景-2" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p><img src="https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg" alt="swin-transformer-model"></p>
+<ul>
+<li>核心思路：披着CNN的Transformer。</li>
+<li>挑战：ViT性能并没有超过其他的工作；基于全局自注意力计算会导致计算量较大;强行分割patch其实破坏了原有的邻域结构，不再具有卷积的空间不变性。</li>
+<li>通过提出一种称为shifted window的方法来解决以上问题。</li>
+</ul>
+<h2 id="主要工作-2"><a href="#主要工作-2" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li><p>结构大致介绍：</p>
+<ul>
+<li>在输入开始的时候，做了一个Patch Embedding，将图片切成一个个图块，并嵌入到Embedding。</li>
+<li>在每个Stage里，由Patch Merging和多个Block组成。</li>
+<li>其中Patch Merging模块主要在每个Stage一开始降低图片分辨率。</li>
+<li>而Block具体结构如上图所示，主要是LayerNorm，MLP，Window Attention 和 Shifted Window Attention组成</li>
+</ul>
+</li>
+<li><p>Patch Embedding</p>
+<pre><code> 将图片划分为若干4*4的patch，使用线性变换来将patch变为Embedding向量，这一步和ViT是一样的。但是注意，这里的patch比ViT的14*14小了很多。
+</code></pre>
+</li>
+<li><p>Patch Merging</p>
+<pre><code> 该模块的作用是在每个Stage开始前做降采样，用于缩小分辨率，调整通道数 进而形成层次化的设计，同时也能节省一定运算量。每次降采样是两倍，因此在行方向和列方向上，间隔2选取元素。
+</code></pre>
+</li>
+<li><p>Window Attention</p>
+<pre><code> 传统的Transformer都是基于全局来计算注意力的，因此计算复杂度十分高。而Swin Transformer则将注意力的计算限制在每个窗口内，进而减少了计算量.
+ 主要计算区别在于：在原始计算Attention的公式中的Q,K时加入了相对位置编码。
+</code></pre>
+</li>
+<li><p>Shifted Window Attention</p>
+</li>
+</ol>
+<p><img src="https://pic1.zhimg.com/80/v2-07a98325a29db1da6521e4ddaaed3c88_720w.webp" alt="swa"></p>
+<pre><code>    前面的Window Attention是在每个窗口下计算注意力的，为了更好的和其他window进行信息交互，Swin Transformer还引入了shifted window操作。
+    由于这一操作会使得window变化，因此实际操作中通过对特征图移位，并给Attention设置mask来间接实现的。能在保持原有的window个数下，最后的计算结果等价。
+</code></pre>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367111046">图解Swin Transformer</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
+<h1 id="Swin-Transformer-v2模型"><a href="#Swin-Transformer-v2模型" class="headerlink" title="Swin-Transformer_v2模型"></a>Swin-Transformer_v2模型</h1><p>主要是解决模型上规模的问题，有几个主要的改动：</p>
+<ol>
+<li>把每个Block里的LN从前面换到了后面，来解决深度增加之后训练不稳定的问题</li>
+<li>把原来的scaled dot attention换成了scaled cosine attention，也是为了解决训练不稳定的问题（否则可能被某些像素对的相似度主导）。</li>
+<li>改进相对位置偏置。V1版里这个模块是用一个规模跟窗口大小M相关可学习参数矩阵来处理的，如果预训练和finetune时M大小改变，就用插值来生成原来不存在的值。V2版首先是引入了一个小网络来取代参数矩阵，其次是将相对位置从线性空间换到了对数空间，通过取对数压缩空间差距来让M变化时的过渡更加顺滑</li>
+</ol>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CV%E6%A8%A1%E5%9E%8B/" rel="tag"># CV模型</a>
+              <a href="/tags/vision-transformer%E7%B3%BB%E5%88%97/" rel="tag"># vision transformer系列</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/CV%E5%9F%BA%E7%A1%80/" rel="prev" title="CV基础">
+                  <i class="fa fa-angle-left"></i> CV基础
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/" rel="next" title="预训练模型学习">
+                  预训练模型学习 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">JiangYH</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>

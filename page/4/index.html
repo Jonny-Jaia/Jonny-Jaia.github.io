@@ -123,18 +123,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">72</span>
+        <span class="site-state-item-count">77</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -156,6 +156,646 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/Prompt%E8%8C%83%E5%BC%8F%E6%A8%A1%E5%9E%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/Prompt%E8%8C%83%E5%BC%8F%E6%A8%A1%E5%9E%8B/" class="post-title-link" itemprop="url">prompt类预模型学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 22:56:46 / Modified: 22:57:42" itemprop="dateCreated datePublished" datetime="2023-12-13T22:56:46+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li><a href="#uie%E6%A8%A1%E5%9E%8B">UIE模型</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><strong>主要工作</strong></a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="UIE模型"><a href="#UIE模型" class="headerlink" title="UIE模型"></a>UIE模型</h1><!-- 论文名 -->
+<blockquote>
+<p>UIE: Unified Structure Generation for Universal Information Extraction</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>在信息抽取(IE)领域,由于抽取目标多样、多种不同的复杂异构结构以及领域的需求多变，导致当前IE难以统一建模。极大限制了IE系统高效架构开发、有效知识共享、快速跨域适配。</p>
+<p>针对不同任务设定，需要针对特定领域schema建模，不同IE模型被单个训练、不共享，一个公司可能需要管理众多IE模型。</p>
+<p>UIE提出生成式统一建模，通过统一文本到结构生成框架实现：</p>
+<ul>
+<li>统一地建模不同的IE任务；</li>
+<li>自适应地生成目标结构；</li>
+<li>从不同的知识来源统一学习通用的信息抽取能力</li>
+</ul>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>统一建模：文本到结构生成</li>
+</ol>
+<p>SSI(结构化模式提示器)：统一prompt编码结构，即编码实体、关系、事件统一表示。</p>
+<p>SEL(结构化抽取语言):将不同任务抽取结果统一用一种方式表达。</p>
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/Prompt%E8%8C%83%E5%BC%8F%E6%A8%A1%E5%9E%8B/v2-eaf56dcb4d2d967ba541bc27ef1c41cd_720w.webp" alt="建模方式"></p>
+<ol start="2">
+<li>预训练与微调</li>
+</ol>
+<ul>
+<li>预训练：大规模异构监督预训练</li>
+</ul>
+<p>对三种预训练预料数据分别构建了对应的数据结构。并在预训练阶段将这三部分数据训练整合训练。分别构建3个与训练任务，使得模型能够有从文本到结构数据映射的能力，具备SEL的结构化能力以及基础的编码能力</p>
+<ul>
+<li>微调：拒识噪声注入的模型微调机制</li>
+</ul>
+<p>随机采样SEL中不存在的SpotName类别和AssoName类别，即：(SPOTNAME, [NULL]) 和 (ASSONAME, [NULL])，学会拒绝生成错误结果的能力，如下图所示：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-8d8ab702762b7f7b6a5290c35d0bf443_720w.webp" alt="fintune"></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/495600185">信息抽取大一统：百度中科院发布通用抽取模型UIE，刷新13个IE数据集SOTA！</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/" class="post-title-link" itemprop="url">预训练模型学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 21:17:17 / Modified: 21:58:26" itemprop="dateCreated datePublished" datetime="2023-12-13T21:17:17+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <ul>
+<li><a href="#%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B">预训练模型</a><ul>
+<li><a href="#%E8%AF%84%E4%BC%B0">评估</a><ul>
+<li><a href="#ref">ref</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#deberta%E7%B3%BB%E5%88%97%E6%A8%A1%E5%9E%8B">DeBERTa系列模型</a><ul>
+<li><a href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><strong>研究背景</strong></a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E5%B7%A5%E4%BD%9C"><strong>主要工作</strong></a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9F%BA%E7%A1%80plm%E7%B3%BB%E5%88%97">基础PLM系列</a><ul>
+<li><a href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">基础知识</a><ul>
+<li><a href="#cls%E6%A0%87%E8%AF%86">CLS标识</a><ul>
+<li><a href="#references-1">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#roberta%E6%A8%A1%E5%9E%8B">RoBERTa模型</a></li>
+<li><a href="#xlnet%E6%A8%A1%E5%9E%8B">XLNET模型</a><ul>
+<li><a href="#references-2">References</a></li>
+</ul>
+</li>
+<li><a href="#ernie%E6%A8%A1%E5%9E%8B">ERNIE模型</a><ul>
+<li><a href="#references-3">References</a></li>
+</ul>
+</li>
+<li><a href="#albert">ALBERT</a><ul>
+<li><a href="#references-4">References</a></li>
+</ul>
+</li>
+<li><a href="#electra%E6%A8%A1%E5%9E%8B">ELECTRA模型</a><ul>
+<li><a href="#references-5">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="预训练模型"><a href="#预训练模型" class="headerlink" title="预训练模型"></a>预训练模型</h1><h2 id="评估"><a href="#评估" class="headerlink" title="评估"></a>评估</h2><p>评估预训练语言模型的优劣通常有以下几种方法：</p>
+<p>困惑度（Perplexity）：困惑度是一种常用的评估语言模型的方法，它可以用来衡量模型对新数据的预测能力。困惑度越低，表示模型对数据的拟合效果越好。</p>
+<p>语言模型下游任务：语言模型下游任务是指在特定任务上使用预训练语言模型进行微调，以便更好地适应该任务。通常，如果预训练语言模型在下游任务上表现良好，则说明该模型具有较好的泛化能力和语言理解能力。</p>
+<p>人类评估：人类评估是指通过人工判断预训练语言模型生成的文本是否符合语法、逻辑和语义等方面的要求。虽然这种方法比较费时费力，但是它可以提供更加客观的评估结果。</p>
+<p>对抗样本攻击：对抗样本攻击是指通过对预训练语言模型输入进行修改，使其输出错误结果或误导结果。通过对抗样本攻击，可以评估模型的鲁棒性和安全性。</p>
+<p>多样性和一致性：多样性和一致性是指预训练语言模型在生成文本时是否有足够的创造力和一致性。如果模型生成的文本过于单调或者不一致，可能会影响其应用价值。</p>
+<p>训练效率和存储空间：除了以上几个方面，评估预训练语言模型的优劣还需要考虑其训练效率和存储空间等因素。一般来说，训练效率和存储空间越小，表示该模型越实用</p>
+<h3 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/pipisorry/article/details/131165857">https://blog.csdn.net/pipisorry/article/details/131165857</a></li>
+</ol>
+<h1 id="DeBERTa系列模型"><a href="#DeBERTa系列模型" class="headerlink" title="DeBERTa系列模型"></a>DeBERTa系列模型</h1><!-- 论文名 -->
+<blockquote>
+<p>DeBERTa: Decoding-enhanced BERT with Disentangled Attention</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+
+<p><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/v2-0d5ce3648f1bfeb9d7bd8f407be6721a_720w.webp" alt="deberta-model"></p>
+<p>在Bert的基础上对模型进行改进，取得了不错的效果。</p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><p>deberta-1.0</p>
+<ol>
+<li><p>解耦self attention</p>
+<ul>
+<li><p>Disentangled Attention</p>
+<p>  一种新的相对位置编码方法；<br>  这里的解耦是将<strong>位置信息和内容信息</strong>分别&#x2F;交叉做attention，而这里的位置信息在Deberta中采用的是<strong>相对位置编码</strong></p>
+</li>
+</ul>
+<p> <img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/v2-c42263e119a1269e65f37cb1530112fa_720w.webp" alt="相对位置计算"><br> <img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/image-20230525114212503.png" alt="image-20230525114212503">
+ </p>
+</li>
+<li><p>考虑绝对位置的MLM任务</p>
+<ul>
+<li>Enhanced Mask Decoder</li>
+</ul>
+<p> <img src="https://pic3.zhimg.com/80/v2-bbe511611bfac703b014a58e14101f12_720w.webp" alt="EMD"><br>     BERT结构存在<strong>预训练和微调不一致的问题</strong>，即预训练时是将最终的隐状态输入softmax层预测masked tokens，而微调时根据下游任务的不同其结构存在差异。<br>     EMD将模型在预训练时的结构加以改变，其结构如上所示，其中H为之前Transformer层的隐状态，I可以是任何对于decoding有帮助的信息（例如：直接用H，绝对位置信息，之前EMD层的输出等）。<br>     通过信息增加有助于调整需要的特征。</p>
+</li>
+<li><p>预训练引入对抗训练</p>
+<ul>
+<li>SIFT（scale invariant fine tuning）</li>
+</ul>
+<p> 由于词向量的范数在不同的词和模型中有所不同，若模型较大，方差会变得更大，从而导致虚拟对抗训练的不稳定。<br> 所以在首先要对词向量归一化为随机向量，然后再对词向量施加扰动进行虚拟对抗训练。</p>
+</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/505440976">还在用RoBERTa？快来看看DeBERTa吧！</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/522166837">预训练模型–DeBERTa</a></li>
+</ol>
+<h1 id="基础PLM系列"><a href="#基础PLM系列" class="headerlink" title="基础PLM系列"></a>基础PLM系列</h1><h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="CLS标识"><a href="#CLS标识" class="headerlink" title="CLS标识"></a>CLS标识</h3><h4 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h4><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/360343071">关于BERT中的那些为什么</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/643560888">大模型面试八股</a></li>
+<li></li>
+</ol>
+<h2 id="RoBERTa模型"><a href="#RoBERTa模型" class="headerlink" title="RoBERTa模型"></a>RoBERTa模型</h2><ul>
+<li>核心思想</li>
+</ul>
+<p>通过更好地训练BERT可以达到超过其他新的预训练语言模型的效果</p>
+<ul>
+<li>核心改动</li>
+</ul>
+<ol>
+<li>更大的 Batch Size （最大的 Batch Size 达到了 32K）</li>
+<li>去掉 Next Sentence Prediction （在建模时需要注意这一点）</li>
+<li>采用更大的预训练语料 （超过100G）</li>
+<li>Dynamic Masking （BERT在训练时可能会固定地把一个地方 Mask几遍）</li>
+</ol>
+<h2 id="XLNET模型"><a href="#XLNET模型" class="headerlink" title="XLNET模型"></a>XLNET模型</h2><ul>
+<li>研究背景</li>
+</ul>
+<p>Bert采用AE（自编码）方法存在的问题：</p>
+<ol>
+<li>有个不符合真实情况的假设：即被mask掉的token是相互独立的。</li>
+<li>BERT在预训练和精调阶段存在差异</li>
+</ol>
+<ul>
+<li>改进方案</li>
+</ul>
+<ol>
+<li>对序列重新组合，让模型能够学习如何聚集所有位置的信息，Permutation Language Modeling Transformer-XL，主要用于解决长文本的问题</li>
+<li>Two-Stream Self-Attention，由于前面的排序重组会导致同一序列不知道预测什么内容的情况，为了解决这一问题模型加入了位置信息。</li>
+<li>借鉴RNN，提出带有记忆能力的Transformer-XL<br><img src="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/NLP%E6%96%B9%E5%90%91/PLMs/c86f0ea2-5a70-4d42-ab29-b1a5fc933bcd.png" alt="Transformer-XL"></li>
+<li>增加了多片段建模的方法，判断两个token是否在一个片段中。具体是在计算注意力权重的同时针对query额外计算一个权重，加到原本的权重上去。</li>
+<li>增大了预训练阶段使用数据的规模</li>
+</ol>
+<h3 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/70257427">张俊林：XLNet:运行机制及和Bert的异同比较</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/330307904/answer/721986216">如何评价在20个任务上超越BERT的XLNet？</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/70218096">李rumor：Google XLNet原理解读</a></li>
+</ol>
+<h2 id="ERNIE模型"><a href="#ERNIE模型" class="headerlink" title="ERNIE模型"></a>ERNIE模型</h2><ul>
+<li>ERNIE 1.0</li>
+</ul>
+<p>改进了masking的策略</p>
+<ol>
+<li>基于短语的</li>
+<li>基于实体的</li>
+</ol>
+<ul>
+<li>ERNIE 2.0</li>
+</ul>
+<blockquote>
+<p>核心：提出了一个预训练框架，可以在大型数据集上进行增量训练</p>
+</blockquote>
+<ol>
+<li>预训练连续学习，能够在学习新的任务的时候记住之前任务的结果。具体实现，当前工作分别构建了词法级别、语法级别和语义级别的预训练任务</li>
+<li>encoder权重不共享</li>
+<li>用不同的task id标记预训练任务</li>
+</ol>
+<h3 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/87008569">ModifyAI：一文读懂最强中文NLP预训练模型ERNIE</a></li>
+</ol>
+<h2 id="ALBERT"><a href="#ALBERT" class="headerlink" title="ALBERT"></a>ALBERT</h2><ul>
+<li>核心思想：</li>
+</ul>
+<blockquote>
+<p>权重共享 输入层的优化 Sentence Order Prediction </p>
+</blockquote>
+<ul>
+<li>工作与总结：</li>
+</ul>
+<p>ALBERT的核心思想是采用了两种减少模型参数的方法，比BERT占用的内存空间小很多，同时极大提升了训练速度，更重要的是效果上也有很大的提升！</p>
+<ul>
+<li>具体工作细节：</li>
+</ul>
+<ol>
+<li><p>Factorized Embedding Parameterization</p>
+<p> 原Bert-base由12层Transformer中的encoder组成，经由bert获得的向量表示维度H与其一开始的Embedding层维度E一致，但是其实没有必要，E大小可以根据实际的词表大小调节，此时若要保持H维度大小的输出仅需E*H的变换即可。</p>
+</li>
+<li><p>Cross-layer Parameter Sharing</p>
+<p> 共享所有层的参数，主要是attention和FeedForward参数，该手段则是通过共享部分attention和Feedforward参数实现参数量的减少，此时效果会有所下降，但通过增加H的维度实现效果提升-推理速度不变</p>
+</li>
+<li><p>Sentence Order Prediction</p>
+<p> NSP预训练任务将Topic Prediction和Coherence prediction融合起来了，只要判断两个句子是不是一个Topic的就能对预训练任务出个大概的结果了。论文通过将负样本换成同一篇文章中的两个逆序句子，来消除Topic prediction，提升预训练任务的学习效果。</p>
+</li>
+</ol>
+<p>参数量以及具体效果分析：</p>
+<p>bert-base:108M<br>albert-base:89M(no-shared),12M(shared)</p>
+<p>参数量减少了，但是并没有对模型推理速度这一块有较大的提升。主要还是减少了模型的参数量加快模型的训练，并没有对推理有太好的效果提升。</p>
+<h3 id="References-4"><a href="#References-4" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/268130746">Mr.robot：面试中理解ALBERT？（NLP面经）</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/485441585/answer/2112050954">ALBERT 如何有效减少 BERT 的参数？</a></li>
+</ol>
+<h2 id="ELECTRA模型"><a href="#ELECTRA模型" class="headerlink" title="ELECTRA模型"></a>ELECTRA模型</h2><ul>
+<li>核心思想：采用对抗训练提升模型训练效果</li>
+<li>具体实现：通过 MLM 训练 Generator Discriminator 负责区分 Generator 生成的 token 是否被替代</li>
+<li>其他改进：采用权重共享</li>
+</ul>
+<h3 id="References-5"><a href="#References-5" class="headerlink" title="References"></a>References</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/89763176">李rumor：ELECTRA: 超越BERT, 19年最佳NLP预训练模型</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/vit%E7%B3%BB%E5%88%97/" class="post-title-link" itemprop="url">ViT系列模型学习</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 21:14:32 / Modified: 22:59:54" itemprop="dateCreated datePublished" datetime="2023-12-13T21:14:32+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="ViT模型"><a href="#ViT模型" class="headerlink" title="ViT模型"></a>ViT模型</h1><!-- 论文名 -->
+<blockquote>
+<p>ViT: An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</p>
+</blockquote>
+<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT是2020年Google团队提出的将Transformer应用在图像分类的模型，虽然不是第一篇将transformer应用在视觉任务的论文，但是因为其模型“简单”且效果好，可扩展性强（scalable，模型越大效果越好），成为了transformer在CV领域应用的里程碑著作，也引爆了后续相关研究.</p>
+<p>ViT原论文中最核心的结论是，当拥有足够多的数据进行预训练的时候，ViT的表现就会超过CNN，突破transformer缺少归纳偏置的限制，可以在下游任务中获得较好的迁移效果.</p>
+<p>但是当训练数据集不够大的时候，ViT的表现通常比同等大小的ResNets要差一些，因为<strong>Transformer和CNN相比缺少归纳偏置</strong>（inductive bias），即一种先验知识，提前做好的假设。</p>
+<p>CNN具有两种归纳偏置，一种是局部性（locality&#x2F;two-dimensional neighborhood structure），即图片上相邻的区域具有相似的特征；一种是平移不变形（translation equivariance）.当CNN具有以上两种归纳偏置，就有了很多先验信息，需要相对少的数据就可以学习一个比较好的模型</p>
+<p><img src="https://pic3.zhimg.com/v2-11c956744a01c97c1da1cf91612b8e3e_r.jpg" alt="VIT-model"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-54f717f71079becca62a0247660a171d_720w.webp" alt="ViT-param"></p>
+<h2 id="主要工作"><a href="#主要工作" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>输入：将图像拆成N个$p*p$的小patch，然后将每个patch当成是一个token；</li>
+<li>具体到每个patch则是直接进行flatten之后直接经过线性映射得到D维Embedding表示；</li>
+<li>这里的pos-embedding按照实验是直接采用1-D位置编码,按照从左到右的块排序</li>
+</ol>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/438883618">Vision Transformer学习笔记1：ViT</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="MLP-Mixer"><a href="#MLP-Mixer" class="headerlink" title="MLP-Mixer"></a>MLP-Mixer</h1><!-- 论文名 -->
+<blockquote>
+<p>MLP-Mixer: MLP-Mixer: An all-MLP Architecture for Vision</p>
+</blockquote>
+<h2 id="研究背景-1"><a href="#研究背景-1" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p>ViT作者团队出品，在CNN和Transformer大火的背景下，舍弃了卷积和注意力机制，提出了MLP-Mixer，一个完全基于MLPs的结构，其MLPs有两种类型，分别是<strong>channel-mixing MLPs</strong>和<strong>token-mixing MLPs</strong>，前者独立作用于image patches（融合通道信息），后者跨image patches作用（融合空间信息）。<br><img src="https://pic3.zhimg.com/80/v2-ed96c7a5add85b9151c7f10fbda4943a_720w.webp" alt="mlp-mixer-model"></p>
+<h2 id="主要工作-1"><a href="#主要工作-1" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li>类似于ViT的模型结构训练方式,也需要将图像信息打成多个块;</li>
+<li>提出两种MLPs结构<br><code>token-mixing MLPs</code>：允许信息在空间维度交互，独立作用于每一个channel，作用于列，融合不同token的特征<br><code>channel-mixing MLPs</code>：允许信息在通道交互，独立作用于每一个token，作用于行，融合不同channel的特征<br><img src="https://pic2.zhimg.com/80/v2-58df6c737fdea377071868f106b7c1c1_720w.webp" alt="mlp-layer"></li>
+<li>因为token-mixing MLPs对输入tokens的顺序非常敏感,Mixer不适用positional encoding</li>
+<li>每个Mixer Layer中token-mixing MLPs共享参数，channel-mixing MLPs同样共享参数</li>
+<li>当在大规模数据集上预训练（100million images），Mixer可以接近CNNs和Transformers的SOTA表现，在ImageNet上达到87.94%的top-1 accuracy；当在更小规模数据集上预训练时（10million），结合一些regularization techniques，Mixer可以接近ViT的性能，但是稍逊于CNN</li>
+</ol>
+<h2 id="References-1"><a href="#References-1" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/445122996">ViT（Vision Transformer）解析</a></li>
+</ol>
+<hr>
+<h1 id="Swin-Transformer模型"><a href="#Swin-Transformer模型" class="headerlink" title="Swin-Transformer模型"></a>Swin-Transformer模型</h1><!-- 论文名 -->
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2103.14030.pdf">Swin Transformer: Hierarchical Vision Transformer using Shifted Windows</a></p>
+</blockquote>
+<h2 id="研究背景-2"><a href="#研究背景-2" class="headerlink" title="研究背景"></a><strong>研究背景</strong></h2><!-- 研究点与创新点 -->
+<p><img src="https://pic3.zhimg.com/v2-9a475a9b8389c48ea61da8f0b821fe56_r.jpg" alt="swin-transformer-model"></p>
+<ul>
+<li>核心思路：披着CNN的Transformer。</li>
+<li>挑战：ViT性能并没有超过其他的工作；基于全局自注意力计算会导致计算量较大;强行分割patch其实破坏了原有的邻域结构，不再具有卷积的空间不变性。</li>
+<li>通过提出一种称为shifted window的方法来解决以上问题。</li>
+</ul>
+<h2 id="主要工作-2"><a href="#主要工作-2" class="headerlink" title="主要工作"></a><strong>主要工作</strong></h2><ol>
+<li><p>结构大致介绍：</p>
+<ul>
+<li>在输入开始的时候，做了一个Patch Embedding，将图片切成一个个图块，并嵌入到Embedding。</li>
+<li>在每个Stage里，由Patch Merging和多个Block组成。</li>
+<li>其中Patch Merging模块主要在每个Stage一开始降低图片分辨率。</li>
+<li>而Block具体结构如上图所示，主要是LayerNorm，MLP，Window Attention 和 Shifted Window Attention组成</li>
+</ul>
+</li>
+<li><p>Patch Embedding</p>
+<pre><code> 将图片划分为若干4*4的patch，使用线性变换来将patch变为Embedding向量，这一步和ViT是一样的。但是注意，这里的patch比ViT的14*14小了很多。
+</code></pre>
+</li>
+<li><p>Patch Merging</p>
+<pre><code> 该模块的作用是在每个Stage开始前做降采样，用于缩小分辨率，调整通道数 进而形成层次化的设计，同时也能节省一定运算量。每次降采样是两倍，因此在行方向和列方向上，间隔2选取元素。
+</code></pre>
+</li>
+<li><p>Window Attention</p>
+<pre><code> 传统的Transformer都是基于全局来计算注意力的，因此计算复杂度十分高。而Swin Transformer则将注意力的计算限制在每个窗口内，进而减少了计算量.
+ 主要计算区别在于：在原始计算Attention的公式中的Q,K时加入了相对位置编码。
+</code></pre>
+</li>
+<li><p>Shifted Window Attention</p>
+</li>
+</ol>
+<p><img src="https://pic1.zhimg.com/80/v2-07a98325a29db1da6521e4ddaaed3c88_720w.webp" alt="swa"></p>
+<pre><code>    前面的Window Attention是在每个窗口下计算注意力的，为了更好的和其他window进行信息交互，Swin Transformer还引入了shifted window操作。
+    由于这一操作会使得window变化，因此实际操作中通过对特征图移位，并给Attention设置mask来间接实现的。能在保持原有的window个数下，最后的计算结果等价。
+</code></pre>
+<h2 id="References-2"><a href="#References-2" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/367111046">图解Swin Transformer</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
+<h1 id="Swin-Transformer-v2模型"><a href="#Swin-Transformer-v2模型" class="headerlink" title="Swin-Transformer_v2模型"></a>Swin-Transformer_v2模型</h1><p>主要是解决模型上规模的问题，有几个主要的改动：</p>
+<ol>
+<li>把每个Block里的LN从前面换到了后面，来解决深度增加之后训练不稳定的问题</li>
+<li>把原来的scaled dot attention换成了scaled cosine attention，也是为了解决训练不稳定的问题（否则可能被某些像素对的相似度主导）。</li>
+<li>改进相对位置偏置。V1版里这个模块是用一个规模跟窗口大小M相关可学习参数矩阵来处理的，如果预训练和finetune时M大小改变，就用插值来生成原来不存在的值。V2版首先是引入了一个小网络来取代参数矩阵，其次是将相对位置从线性空间换到了对数空间，通过取对数压缩空间差距来让M变化时的过渡更加顺滑</li>
+</ol>
+<h2 id="References-3"><a href="#References-3" class="headerlink" title="References"></a>References</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/442006157">ViT学习笔记2：Swin Transformer</a></li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/CV%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="JiangYH">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | JiangYh's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2023/12/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0/CV%E6%96%B9%E5%90%91/CV%E5%9F%BA%E7%A1%80/" class="post-title-link" itemprop="url">CV基础</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2023-12-13 21:14:32 / Modified: 23:02:21" itemprop="dateCreated datePublished" datetime="2023-12-13T21:14:32+08:00">2023-12-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">学习笔记</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="CV中的特征维度变换"><a href="#CV中的特征维度变换" class="headerlink" title="CV中的特征维度变换"></a>CV中的特征维度变换</h1><p>CNN的卷积核通道数 &#x3D; 卷积输入层的通道数<br>CNN的卷积输出层通道数(深度)&#x3D; 卷积核的个数</p>
+<p>设输入图像尺寸为WxW，卷积核尺寸为FxF，步幅为S，Padding使用P,经过该卷积层后输出的图像尺寸为NxN:$N&#x3D;\frac{W-F+2P}{S}+1$</p>
+<p>池化计算：</p>
+<p>$W&#x3D;\frac{W-F}{S}+1,H&#x3D;\frac{H-F}{S}+1$</p>
+<h2 id="空洞卷积变换计算"><a href="#空洞卷积变换计算" class="headerlink" title="空洞卷积变换计算"></a>空洞卷积变换计算</h2><p>$W&#x3D;\frac{W-d(F-1)+2p}{S}+1$,d为空洞率，正常卷积为1，F为卷积核大小</p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 

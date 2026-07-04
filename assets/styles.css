@@ -4370,3 +4370,314 @@ body {
     height: 620px;
   }
 }
+
+/* Mobile layout override: keep the study workspace readable on phones. */
+@media (max-width: 760px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    background: var(--nb-bg, #e8edf0) !important;
+    font-size: 15px;
+  }
+
+  .app-shell {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .sidebar,
+  .insight-panel {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 14px !important;
+    border: 0 !important;
+  }
+
+  .sidebar {
+    color: var(--nb-ink, #17202a) !important;
+    background: #f7faf7 !important;
+  }
+
+  .sidebar::before,
+  .sidebar::after {
+    display: none !important;
+  }
+
+  .brand {
+    margin-bottom: 12px !important;
+  }
+
+  .brand-mark {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .search-box {
+    margin-bottom: 12px !important;
+  }
+
+  .module-nav {
+    display: flex !important;
+    gap: 8px !important;
+    margin: 0 -14px 12px !important;
+    padding: 0 14px 4px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .module-button {
+    flex: 0 0 154px;
+    min-height: 58px !important;
+    padding: 10px !important;
+    scroll-snap-align: start;
+  }
+
+  .module-button span {
+    display: none !important;
+  }
+
+  .item-nav {
+    max-height: 260px;
+    overflow: auto;
+    border: 1px solid rgba(23, 32, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.62);
+    padding: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-title {
+    margin: 10px 4px 6px !important;
+  }
+
+  .item-button {
+    padding: 9px 10px !important;
+  }
+
+  .content {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 12px !important;
+  }
+
+  .hero,
+  .overview-grid,
+  .grid-two,
+  .doc-layout,
+  .learning-brief,
+  .insight-panel {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .hero {
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .hero > div,
+  .main-article,
+  .article-header,
+  .doc-card,
+  .learning-brief,
+  .doc-toc,
+  .overview-card,
+  .insight-panel section,
+  .info-box,
+  .qa-item,
+  .table-wrap,
+  .math-block,
+  .flow-diagram,
+  .archify-diagram {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+  }
+
+  .hero > div,
+  .main-article,
+  .article-header,
+  .doc-card,
+  .learning-brief,
+  .overview-card,
+  .insight-panel section {
+    padding: 14px !important;
+  }
+
+  .hero h2,
+  .article-header h2 {
+    font-size: 22px !important;
+    line-height: 1.28 !important;
+  }
+
+  .hero p,
+  .article-header p,
+  .overview-card p,
+  .markdown-body {
+    font-size: 15px !important;
+    line-height: 1.76 !important;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .stat {
+    grid-template-columns: 1fr !important;
+    min-height: 68px !important;
+    padding: 10px !important;
+  }
+
+  .overview-grid {
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .overview-card {
+    min-height: auto !important;
+  }
+
+  .article-header {
+    display: grid !important;
+    gap: 10px !important;
+  }
+
+  .meta,
+  .article-meta {
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+  }
+
+  .doc-layout {
+    gap: 12px !important;
+  }
+
+  .doc-toc {
+    position: static !important;
+    max-height: 220px !important;
+    overflow: auto !important;
+    padding: 12px !important;
+  }
+
+  .doc-toc::after {
+    display: none !important;
+  }
+
+  .markdown-body {
+    max-width: 100% !important;
+  }
+
+  .markdown-body h3 {
+    font-size: 20px !important;
+    line-height: 1.34 !important;
+  }
+
+  .markdown-body h4 {
+    margin-top: 24px !important;
+    font-size: 17px !important;
+    line-height: 1.42 !important;
+  }
+
+  .table-wrap,
+  .code-box,
+  .code-box-large,
+  .math-block,
+  .flow-diagram {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-wrap table {
+    min-width: 680px !important;
+  }
+
+  .flow-diagram svg {
+    min-width: 560px !important;
+  }
+
+  .code-box,
+  .code-box-large {
+    padding: 12px !important;
+  }
+
+  .code-box code,
+  .code-box-large code,
+  .markdown-body .code-box code,
+  .markdown-body .code-box-large code {
+    font-size: 12.5px !important;
+    line-height: 1.7 !important;
+  }
+
+  .resource-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .archify-diagram figcaption {
+    display: grid !important;
+    gap: 8px !important;
+    align-items: start !important;
+  }
+
+  .archify-diagram iframe {
+    height: 480px !important;
+  }
+
+  .insight-panel {
+    gap: 10px !important;
+    background: #edf3f0 !important;
+  }
+
+  .note-box textarea {
+    min-height: 120px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .content {
+    padding: 10px !important;
+  }
+
+  .sidebar,
+  .insight-panel {
+    padding: 12px !important;
+  }
+
+  .hero > div,
+  .main-article,
+  .article-header,
+  .doc-card,
+  .learning-brief,
+  .overview-card,
+  .insight-panel section {
+    padding: 12px !important;
+  }
+
+  .module-button {
+    flex-basis: 138px;
+  }
+
+  .item-nav {
+    max-height: 230px;
+  }
+
+  .hero-stats {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .hero h2,
+  .article-header h2 {
+    font-size: 20px !important;
+  }
+}

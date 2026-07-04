@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Tool Calling Safety Flow",
+    "subtitle": "Schema validation, permission gate, execution, observation, and audit",
+    "output": "assets/diagrams/html/tool-calling-safety.html",
+    "viewBox": [
+      720,
+      780
+    ]
+  },
+  "lanes": [
+    {
+      "id": "model",
+      "label": "Model Intent"
+    },
+    {
+      "id": "policy",
+      "label": "Policy Boundary"
+    },
+    {
+      "id": "runtime",
+      "label": "Tool Runtime"
+    },
+    {
+      "id": "audit",
+      "label": "Audit / Recovery",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "select",
+      "label": "Select",
+      "fromCol": 0,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "guard",
+      "label": "Guard",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "security"
+    },
+    {
+      "id": "execute",
+      "label": "Execute",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "groups": [
+    {
+      "id": "guardrail",
+      "label": "Validation and permission",
+      "lane": "policy",
+      "fromCol": 2,
+      "toCol": 4,
+      "variant": "security"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "intent",
+      "lane": "model",
+      "col": 0,
+      "type": "backend",
+      "label": "Intent",
+      "sublabel": "what to do"
+    },
+    {
+      "id": "select-tool",
+      "lane": "model",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Select Tool",
+      "sublabel": "registry match"
+    },
+    {
+      "id": "args",
+      "lane": "model",
+      "col": 3,
+      "type": "backend",
+      "label": "Arguments",
+      "sublabel": "structured JSON"
+    },
+    {
+      "id": "schema",
+      "lane": "policy",
+      "col": 3,
+      "type": "security",
+      "label": "Schema Check",
+      "sublabel": "types / enums"
+    },
+    {
+      "id": "permission",
+      "lane": "policy",
+      "col": 5,
+      "type": "security",
+      "label": "Permission",
+      "sublabel": "confirm / deny"
+    },
+    {
+      "id": "execute-tool",
+      "lane": "runtime",
+      "col": 5,
+      "type": "cloud",
+      "label": "Execute",
+      "sublabel": "API / sandbox"
+    },
+    {
+      "id": "observation",
+      "lane": "runtime",
+      "col": 3,
+      "type": "database",
+      "label": "Observation",
+      "sublabel": "typed result"
+    },
+    {
+      "id": "audit-log",
+      "lane": "audit",
+      "col": 1,
+      "type": "database",
+      "label": "Audit Log",
+      "sublabel": "args + result"
+    },
+    {
+      "id": "recover",
+      "lane": "audit",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Recover",
+      "sublabel": "retry / fallback"
+    }
+  ],
+  "edges": [
+    {
+      "from": "intent",
+      "to": "select-tool"
+    },
+    {
+      "from": "select-tool",
+      "to": "args",
+      "variant": "default"
+    },
+    {
+      "from": "args",
+      "to": "schema",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "schema",
+      "to": "permission",
+      "variant": "security"
+    },
+    {
+      "from": "permission",
+      "to": "execute-tool",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "execute-tool",
+      "to": "observation",
+      "variant": "default",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "bottom-channel"
+    },
+    {
+      "from": "audit-log",
+      "to": "recover",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Failure modes",
+      "items": [
+        "Argument hallucination",
+        "Permission bypass",
+        "Tool error treated as success",
+        "Prompt injection through retrieved content"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "OPD / KL 蒸馏链路",
+    "subtitle": "学生 on-policy prefix 上的 teacher signal 与 KL/JSD 更新",
+    "output": "assets/diagrams/html/opd-distillation-loop.html",
+    "viewBox": [
+      720,
+      820
+    ]
+  },
+  "lanes": [
+    {
+      "id": "student",
+      "label": "Student Policy"
+    },
+    {
+      "id": "teacher",
+      "label": "Teacher Signal"
+    },
+    {
+      "id": "objective",
+      "label": "Divergence Objective"
+    },
+    {
+      "id": "update",
+      "label": "Optimization"
+    }
+  ],
+  "phases": [
+    {
+      "id": "sample",
+      "label": "On-policy Sampling",
+      "fromCol": 0,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "match",
+      "label": "Distribution Matching",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "dashed"
+    },
+    {
+      "id": "learn",
+      "label": "Update",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "kl-family",
+      "label": "Forward KL / Reverse KL / JSD",
+      "lane": "objective",
+      "fromCol": 3,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "mainPath": [
+    "prompt",
+    "rollout",
+    "prefix",
+    "teacher-eval",
+    "signal",
+    "divergence",
+    "student-update"
+  ],
+  "nodes": [
+    {
+      "id": "prompt",
+      "lane": "student",
+      "col": 0,
+      "type": "external",
+      "label": "Question",
+      "sublabel": "x"
+    },
+    {
+      "id": "rollout",
+      "lane": "student",
+      "col": 1,
+      "type": "backend",
+      "label": "Rollout",
+      "sublabel": "y ~ q_theta",
+      "width": 104
+    },
+    {
+      "id": "prefix",
+      "lane": "student",
+      "col": 3,
+      "type": "database",
+      "label": "Student Prefix",
+      "sublabel": "x, y_<t"
+    },
+    {
+      "id": "teacher-eval",
+      "lane": "teacher",
+      "col": 3,
+      "type": "backend",
+      "label": "Teacher Eval",
+      "sublabel": "p_T(. | prefix)"
+    },
+    {
+      "id": "signal",
+      "lane": "teacher",
+      "col": 5,
+      "type": "database",
+      "label": "Token Signal",
+      "sublabel": "full / top-k / sampled"
+    },
+    {
+      "id": "divergence",
+      "lane": "objective",
+      "col": 5,
+      "type": "messagebus",
+      "label": "KL / JSD",
+      "sublabel": "cover / seek / mix"
+    },
+    {
+      "id": "pg",
+      "lane": "objective",
+      "col": 3,
+      "type": "security",
+      "label": "PG Term",
+      "sublabel": "bias-variance"
+    },
+    {
+      "id": "student-update",
+      "lane": "update",
+      "col": 5,
+      "type": "backend",
+      "label": "Student Update",
+      "sublabel": "dense supervision"
+    }
+  ],
+  "edges": [
+    {
+      "from": "prompt",
+      "to": "rollout",
+      "variant": "emphasis"
+    },
+    {
+      "from": "rollout",
+      "to": "prefix",
+      "variant": "default"
+    },
+    {
+      "from": "prefix",
+      "to": "teacher-eval",
+      "label": "on-policy prefix",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "teacher-eval",
+      "to": "signal",
+      "variant": "default"
+    },
+    {
+      "from": "signal",
+      "to": "divergence",
+      "label": "teacher distribution",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "divergence",
+      "to": "student-update",
+      "label": "KL loss",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "signal",
+      "to": "pg",
+      "label": "optional PG",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "面试抓手",
+      "items": [
+        "OPD 是在 student 真正访问的 prefix 上蒸馏",
+        "Forward KL 更覆盖，Reverse KL 更择峰，JSD 折中",
+        "sampled-token 信号便宜但要处理方差和极端值"
+      ]
+    }
+  ]
+}

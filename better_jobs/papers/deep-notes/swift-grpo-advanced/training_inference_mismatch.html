@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Training-Inference-Mismatch &mdash; swift 4.5.0.dev0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4942388b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <script src="../../../_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+    <link rel="next" title="TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling" href="treepo.html" />
+    <link rel="prev" title="Soft Adaptive Policy Optimization (SAPO)" href="SAPO.html" /> 
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="swift-zh" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/Instruction/GRPO/AdvancedResearch/training_inference_mismatch.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            swift
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/SWIFT-installation.html">SWIFT安装</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Web-UI.html">Web-UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instruction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Pre-training-and-Fine-tuning.html">预训练与微调</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">GRPO</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GetStarted/index.html">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../DeveloperGuide/index.html">Developer Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Advanced Research</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="entropy_mask.html">Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CISPO.html">Clipped Importance Sampling Policy Optimization (CISPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DAPO.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deepeyes.html">DeepEyes: Incentivizing &quot;Thinking with Images&quot; via Reinforcement Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="FIPO.html">FIPO: Future-KL Influenced Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GSPO.html">Group Sequence Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CHORD.html">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="RLOO.html">REINFORCE Leave-One-Out (RLOO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REINFORCEPP.html">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REAL.html">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="router_replay.html">Router Replay (R2/R3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SAPO.html">Soft Adaptive Policy Optimization (SAPO)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Training-Inference-Mismatch</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solution">Solution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#metrics">Metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">使用方式</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#off-policy-sequence-masking">Off-Policy Sequence Masking</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="treepo.html">TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Distillation.html">知识蒸馏（Knowledge Distillation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RLHF.html">人类对齐</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Inference-and-deployment.html">推理和部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Sample.html">采样</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Evaluation.html">评测</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Export-and-push.html">导出与推送</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray.html">ray的支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Reinforced-Fine-tuning.html">强化微调</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Agent-support.html">Agent支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supported-models-and-datasets.html">支持的模型和数据集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Use-tuners.html">使用Tuners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Frequently-asked-questions.html">常见问题整理</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Megatron-SWIFT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/LoRA-Training.html">LoRA训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Multimodal-Model.html">多模态模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Mcore-Bridge.html">Mcore-Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GRPO.html">GRPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GKD.html">GKD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Ascend.html">Ascend NPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Custom-Model.html">自定义Megatron模型</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Architecture.html">架构介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-model.html">自定义模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-dataset.html">自定义数据集</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO.html">GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Multi-Modal-Training.html">多模态GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Code-Training.html">GRPO代码训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-Best-Practice.html">Qwen3最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-VL-Best-Practice.html">Qwen3-VL最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3_5-Best-Practice.html">Qwen3.5 最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/deepseek-v4.html">DeepSeek-V4 训练支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/MLLM-Registration.html">注册多模态模型最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Embedding.html">Embedding训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Reranker.html">Reranker训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Rapidly-Training-VL-model.html">快速训练VL模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Metax-support.html">Metax支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/AMD-support.html">AMD GPU 支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/More-Best-Practices.html">更多最佳实践</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">swift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">GRPO</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Advanced Research</a></li>
+      <li class="breadcrumb-item active">Training-Inference-Mismatch</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Instruction/GRPO/AdvancedResearch/training_inference_mismatch.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="training-inference-mismatch">
+<h1>Training-Inference-Mismatch<a class="headerlink" href="#training-inference-mismatch" title="Link to this heading"></a></h1>
+<p><strong>TL;DR</strong>: GRPO 引入 vLLM 加速采样过程的同时，也引入了训练-推理不一致（Training-Inference Mismatch）的问题，从而可能影响训练稳定性。本文将解释这个问题的背景、原因以及相应的解决方案。</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<section id="grpo">
+<h3>GRPO 的基本假设<a class="headerlink" href="#grpo" title="Link to this heading"></a></h3>
+<p>GRPO (Group Relative Policy Optimization) 的训练目标可以表示为：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathcal{L}_{\text{GRPO}} = - \mathbb{E}_{y \sim \pi_\theta} \left[ \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+\]</div>
+<p>其中：</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(r_t(\theta) = \frac{\pi_\theta(y_t|x, y_{&lt;t})}{\pi_{\theta_{\text{old}}}(y_t|x, y_{&lt;t})}\)</span> 是重要性采样比</p></li>
+<li><p><span class="math notranslate nohighlight">\(\hat{A}_t\)</span> 是优势函数（advantage），基于 reward 和 group baseline 计算</p></li>
+<li><p><span class="math notranslate nohighlight">\(\epsilon\)</span> 是 clipping 参数</p></li>
+</ul>
+<p><strong>核心假设</strong>：样本 <span class="math notranslate nohighlight">\(y\)</span> 是从策略 <span class="math notranslate nohighlight">\(\pi_\theta\)</span> 中采样得到的。在实际训练中，这意味着：</p>
+<ol class="arabic simple">
+<li><p>采样模型（rollout model）与训练模型（policy model）应当是<strong>同一个模型</strong> <span class="math notranslate nohighlight">\(\pi_\theta\)</span></p></li>
+<li><p>两个模型的概率分布应当<strong>完全一致</strong>，即 <span class="math notranslate nohighlight">\(\pi_{\text{rollout}} = \pi_\theta\)</span></p></li>
+</ol>
+</section>
+<section id="vllm">
+<h3>引入 vLLM 后的假设偏离<a class="headerlink" href="#vllm" title="Link to this heading"></a></h3>
+<p>GRPO 的训练速度很大程度上受到采样过程（rollout）的速度制约。为了加速，训练框架引入高效推理引擎（如 vLLM）来执行采样。<strong>理想假设</strong>是：通过权重同步，vLLM 与训练模型保持一致，即 <span class="math notranslate nohighlight">\(\pi_{\text{vLLM}} \equiv \pi_\theta\)</span>。</p>
+<p>然而，在实践中，即使权重完全同步，由于算子实现等差异，两者的概率分布仍然存在偏差：</p>
+<div class="math notranslate nohighlight">
+\[
+\pi_{\text{vLLM}}(y|x) \neq \pi_\theta(y|x)
+\]</div>
+<p>此时，实际的训练目标变为：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathcal{L} = - \mathbb{E}_{y \sim \pi_{\text{vLLM}}} \left[ \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+\]</div>
+<p>其中样本来自 <span class="math notranslate nohighlight">\(\pi_{\text{vLLM}}\)</span>，但梯度是基于 <span class="math notranslate nohighlight">\(\pi_\theta\)</span> 计算的，这<strong>破坏了算法的 on-policy 假设</strong>，引入了训推不一致的问题。</p>
+</section>
+</section>
+<section id="solution">
+<h2>Solution<a class="headerlink" href="#solution" title="Link to this heading"></a></h2>
+<p>针对训推不一致问题，可以引入**重要性采样（Importance Sampling, IS）**的校正机制。</p>
+<section id="id1">
+<h3>重要性采样校正<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>重要性采样的基本思想是：当样本来自分布 <span class="math notranslate nohighlight">\(q\)</span> 而非目标分布 <span class="math notranslate nohighlight">\(p\)</span> 时，可以通过引入权重来修正期望的计算：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbb{E}_{x \sim p} [f(x)] = \mathbb{E}_{x \sim q} \left[ \frac{p(x)}{q(x)} \cdot f(x) \right]
+\]</div>
+<p>应用到 GRPO 的场景，修正后的损失函数为：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathcal{L}_{\text{corrected}} = - \mathbb{E}_{y \sim \pi_{\text{vLLM}}} \left[ w(x, y) \cdot \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(w(x, y)\)</span> 是重要性采样权重，用于校正 vLLM 与训练模型之间的分布偏差</p>
+<p>重要性采样权重可以在不同粒度上计算和应用：</p>
+<ol class="arabic simple">
+<li><p><strong>Token-Level</strong></p></li>
+</ol>
+<p>每个 token 上计算重要性采样比：</p>
+<div class="math notranslate nohighlight">
+\[
+w_{i,t}^{\text{token}} = \frac{\pi_\theta(y_{i,t}|x, y_{i,&lt;t})}{\pi_{\text{vLLM}}(y_{i,t}|x, y_{i,&lt;t})}
+\]</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Sequence-Level</strong></p></li>
+</ol>
+<p>计算序列级别的重要性采样比，然后广播到每个 token：</p>
+<div class="math notranslate nohighlight">
+\[
+w_i^{\text{seq}} = \left[ \frac{\pi_\theta(y_i|x)}{\pi_{\text{vLLM}}(y_i|x)} \right]^{\frac{1}{|y_i|}} = \exp\left( \frac{1}{|y_i|} \sum_{t=1}^{|y_i|} \log \frac{\pi_\theta(y_{i,t}|x, y_{i,&lt;t})}{\pi_{\text{vLLM}}(y_{i,t}|x, y_{i,&lt;t})} \right)
+\]</div>
+</section>
+<section id="truncate-vs-mask">
+<h3>稳定性控制：Truncate vs. Mask<a class="headerlink" href="#truncate-vs-mask" title="Link to this heading"></a></h3>
+<p>过大的重要性采样权重会导致梯度爆炸，破坏训练稳定性。因此需要对权重进行控制：</p>
+<section id="truncate">
+<h4>1. Truncate（截断）<a class="headerlink" href="#truncate" title="Link to this heading"></a></h4>
+<p>将重要性采样权重截断到 <span class="math notranslate nohighlight">\([0, \tau]\)</span> 区间：</p>
+<div class="math notranslate nohighlight">
+\[
+w_{\text{truncate}} = \min(w, \tau)
+\]</div>
+<p>该方法保留所有样本，但限制其影响范围。</p>
+</section>
+<section id="mask">
+<h4>2. Mask（屏蔽）<a class="headerlink" href="#mask" title="Link to this heading"></a></h4>
+<p>舍弃权重超过阈值的 token/sequence 数据</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+w_{\text{mask}} = \begin{cases}
+w &amp; \text{if } w \leq \tau \\
+0 &amp; \text{otherwise}
+\end{cases}
+\end{split}\]</div>
+</section>
+</section>
+<section id="id2">
+<h3>四种校正模式<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>结合粒度和控制策略，共设置四种校正模式（通过 <code class="docutils literal notranslate"><span class="pre">--rollout_importance_sampling_mode</span></code> 参数选择）：</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>模式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>token_truncate</code></td>
+<td>Token 级截断</td>
+</tr>
+<tr>
+<td><code>token_mask</code></td>
+<td>Token 级屏蔽</td>
+</tr>
+<tr>
+<td><code>sequence_truncate</code></td>
+<td>Sequence 级截断</td>
+</tr>
+<tr>
+<td><code>sequence_mask</code></td>
+<td>Sequence 级屏蔽</td>
+</tr>
+</tbody>
+</table>
+<p>其中阈值通过 <code class="docutils literal notranslate"><span class="pre">--rollout_importance_sampling_threshold</span></code> 参数设置。</p>
+</section>
+</section>
+<section id="metrics">
+<h2>Metrics<a class="headerlink" href="#metrics" title="Link to this heading"></a></h2>
+<p>为了监控训练中训推不一致的程度，我们在log中加入以下指标（前缀为 <code class="docutils literal notranslate"><span class="pre">rollout_correction/</span></code>）：</p>
+<section id="kl-kl-divergence">
+<h3>1. KL 散度（KL Divergence）<a class="headerlink" href="#kl-kl-divergence" title="Link to this heading"></a></h3>
+<p>KL 散度衡量 rollout 策略与训练策略之间的偏离程度。两个指标都估计 <span class="math notranslate nohighlight">\(\text{KL}(\pi_{\text{vLLM}} \| \pi_\theta)\)</span></p>
+<p><strong>直接估计器 <code class="docutils literal notranslate"><span class="pre">kl</span></code></strong>：</p>
+<div class="math notranslate nohighlight">
+\[
+\text{KL}(\pi_{\text{vLLM}} \| \pi_\theta) = \mathbb{E}_{\pi_{\text{vLLM}}}\left[ \log \frac{\pi_{\text{vLLM}}}{\pi_\theta} \right]
+\]</div>
+<p><strong>K3 估计器 <code class="docutils literal notranslate"><span class="pre">k3_kl</span></code></strong>：</p>
+<div class="math notranslate nohighlight">
+\[
+\text{KL}(\pi_{\text{vLLM}} \| \pi_\theta) \approx \mathbb{E}_{\pi_{\text{vLLM}}}\left[ \rho - \log \rho - 1 \right], \quad \rho = \frac{\pi_\theta}{\pi_{\text{vLLM}}}
+\]</div>
+<p>K3 估计器在 KL 值较小时数值更稳定，且始终非负。</p>
+</section>
+<section id="perplexity-ppl">
+<h3>2. Perplexity (PPL)<a class="headerlink" href="#perplexity-ppl" title="Link to this heading"></a></h3>
+<p>困惑度衡量模型对序列的预测不确定性：</p>
+<div class="math notranslate nohighlight">
+\[
+\text{PPL} = \exp\left( -\frac{1}{|y|} \sum_{t=1}^{|y|} \log p(y_t) \right)
+\]</div>
+<p>相关指标：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">training_ppl</span></code> / <code class="docutils literal notranslate"><span class="pre">training_log_ppl</span></code>：训练策略的 PPL 及其对数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rollout_ppl</span></code> / <code class="docutils literal notranslate"><span class="pre">rollout_log_ppl</span></code>：rollout 策略的 PPL 及其对数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_ppl_diff</span></code>：log PPL 差异，正值表示训练策略分配的概率更低</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_ppl_abs_diff</span></code>：log PPL 绝对差异</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_ppl_diff_max</span></code> / <code class="docutils literal notranslate"><span class="pre">log_ppl_diff_min</span></code>：log PPL 差异的最大/最小值</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ppl_ratio</span></code>：PPL 比率 <span class="math notranslate nohighlight">\(\frac{\text{PPL}_{\text{training}}}{\text{PPL}_{\text{rollout}}}\)</span></p></li>
+</ul>
+</section>
+<section id="chi-squared-divergence">
+<h3>3. χ² 散度（Chi-squared Divergence）<a class="headerlink" href="#chi-squared-divergence" title="Link to this heading"></a></h3>
+<p>χ² 散度衡量重要性采样权重的方差：</p>
+<div class="math notranslate nohighlight">
+\[
+\chi^2(\pi_\theta \| \pi_{\text{vLLM}}) = \mathbb{E}_{\pi_{\text{vLLM}}}\left[ \rho^2 \right] - 1, \quad \rho = \frac{\pi_\theta}{\pi_{\text{vLLM}}}
+\]</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">chi2_token</span></code>：Token 级别 χ² 散度，<span class="math notranslate nohighlight">\(\mathbb{E}[\rho_t^2] - 1\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chi2_seq</span></code>：Sequence 级别 χ² 散度（基于几何平均），<span class="math notranslate nohighlight">\(\mathbb{E}[\rho_{\text{geo}}^2] - 1\)</span>，其中 <span class="math notranslate nohighlight">\(\rho_{\text{geo}} = \exp(\frac{1}{T}\sum_t \log \rho_t)\)</span></p></li>
+</ul>
+<p>χ² 散度越大，表示 IS 权重方差越大，训练越不稳定。<code class="docutils literal notranslate"><span class="pre">chi2_seq</span></code> 使用几何平均而非乘积，使其与 <code class="docutils literal notranslate"><span class="pre">chi2_token</span></code> 在量级上可比较。</p>
+</section>
+<section id="effective-sample-size-ess">
+<h3>4. Effective Sample Size (ESS)<a class="headerlink" href="#effective-sample-size-ess" title="Link to this heading"></a></h3>
+<p>有效样本大小衡量重要性采样后实际起作用的样本数量：</p>
+<div class="math notranslate nohighlight">
+\[
+\text{ESS} = \frac{1}{\mathbb{E}\left[\left(\frac{w}{\mathbb{E}[w]}\right)^2\right]}
+\]</div>
+<p>ESS 值越大（接近1），表示重要性采样权重分布越均匀，样本的有效利用率越高。当所有权重相等时（on-policy），ESS = 1；当权重差异很大时（严重 off-policy），ESS 会很小。</p>
+</section>
+<section id="is">
+<h3>5. IS 权重统计<a class="headerlink" href="#is" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">is_weight_mean</span></code>：平均重要性采样权重，理想值为 1.0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clipped_frac</span></code>：被截断或屏蔽的样本比例</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>使用方式<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>仅记录诊断指标<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>如果只想监控训推不一致的程度，而不启用重要性采样校正，可以设置：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">log_rollout_offpolicy_metrics</span> <span class="n">true</span>
+</pre></div>
+</div>
+<p>这将记录上述所有诊断指标（KL、PPL、χ² 等），但不会对损失函数进行任何修正。</p>
+</section>
+<section id="id5">
+<h3>启用重要性采样校正<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>在GRPO训练中，设置以下参数启用校正机制：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>--rollout_importance_sampling_mode （默认为None）
+--rollout_importance_sampling_threshold （默认为2）
+</pre></div>
+</div>
+<p>当设置了 <code class="docutils literal notranslate"><span class="pre">rollout_importance_sampling_mode</span></code> 时，诊断指标会自动记录，无需额外设置 <code class="docutils literal notranslate"><span class="pre">log_rollout_offpolicy_metrics</span></code>。</p>
+</section>
+</section>
+<section id="off-policy-sequence-masking">
+<h2>Off-Policy Sequence Masking<a class="headerlink" href="#off-policy-sequence-masking" title="Link to this heading"></a></h2>
+<p>除了重要性采样校正外，还可以使用 <strong>Off-Policy Sequence Masking</strong> 技术来处理训推不一致问题。该技术来自 <a class="reference external" href="https://arxiv.org/abs/2512.02556">DeepSeek-V3.2 论文</a>。</p>
+<section id="id6">
+<h3>原理<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>Off-Policy Sequence Masking 的核心思想是：当当前策略相对于旧策略（rollout 或 old policy）发生较大偏移时，直接丢弃（mask）该序列，不参与损失计算。这种方法特别针对<strong>优势为负的序列</strong>，因为这些序列在策略偏移较大时更容易导致训练不稳定。</p>
+<p>具体来说，对于每个序列，计算：</p>
+<div class="math notranslate nohighlight">
+\[
+\delta_i = \frac{1}{|y_i|} \sum_{t=1}^{|y_i|} \bigl( \log \pi_{\text{old}}(y_{i,t}|x, y_{i,&lt;t}) - \log \pi_\theta(y_{i,t}|x, y_{i,&lt;t}) \bigr)
+\]</div>
+<p>当满足以下条件时，序列 <span class="math notranslate nohighlight">\(i\)</span> 将被 mask 掉（平均只在 completion token 上计算，即 <code class="docutils literal notranslate"><span class="pre">completion_mask=1</span></code> 的位置）：</p>
+<ol class="arabic simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_i &gt; \tau\)</span></p></li>
+<li><p><strong>且</strong> <span class="math notranslate nohighlight">\(\hat{A}_i &lt; 0\)</span></p></li>
+</ol>
+<p>其中：</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\pi_{\text{old}}\)</span> 优先使用 <code class="docutils literal notranslate"><span class="pre">rollout_per_token_logps</span></code>（rollout/行为策略的 logprobs），若不存在则使用 <code class="docutils literal notranslate"><span class="pre">old_per_token_logps</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau\)</span> 是用户设置的阈值（<code class="docutils literal notranslate"><span class="pre">--off_policy_sequence_mask_delta</span></code>，默认 None 表示关闭）</p></li>
+</ul>
+<p>参考资料</p>
+<ol class="arabic simple">
+<li><p>https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda</p></li>
+<li><p>https://fengyao.notion.site/off-policy-rl</p></li>
+<li><p>https://github.com/volcengine/verl/blob/main/verl/trainer/ppo/rollout_corr_helper.py</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2512.02556">DeepSeek-V3.2: Pushing the Frontier of Open Large Language Models</a></p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="SAPO.html" class="btn btn-neutral float-left" title="Soft Adaptive Policy Optimization (SAPO)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="treepo.html" class="btn btn-neutral float-right" title="TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022-2025, Alibaba ModelScope。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

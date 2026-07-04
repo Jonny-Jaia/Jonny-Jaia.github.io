@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "SGLang RadixAttention",
+    "subtitle": "prefix reuse for structured and multi-turn programs",
+    "output": "sglang-radixattention.html"
+  },
+  "lanes": [
+    {
+      "id": "program",
+      "label": "LLM Program"
+    },
+    {
+      "id": "cache",
+      "label": "Radix Prefix Cache"
+    },
+    {
+      "id": "runtime",
+      "label": "Runtime"
+    }
+  ],
+  "phases": [
+    {
+      "id": "shared",
+      "label": "Shared Prefix",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "branch",
+      "label": "Branching Calls",
+      "fromCol": 2,
+      "toCol": 3
+    },
+    {
+      "id": "agent",
+      "label": "Agent / RAG",
+      "fromCol": 4,
+      "toCol": 5
+    }
+  ],
+  "nodes": [
+    {
+      "id": "prompt",
+      "lane": "program",
+      "col": 0,
+      "type": "frontend",
+      "label": "Prompt Prefix",
+      "sublabel": "system + context"
+    },
+    {
+      "id": "radix",
+      "lane": "cache",
+      "col": 2,
+      "type": "database",
+      "label": "Radix Tree",
+      "sublabel": "prefix nodes"
+    },
+    {
+      "id": "branches",
+      "lane": "program",
+      "col": 3,
+      "type": "backend",
+      "label": "Branches",
+      "sublabel": "tools / choices",
+      "width": 86
+    },
+    {
+      "id": "structured",
+      "lane": "runtime",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Structured",
+      "sublabel": "JSON / regex",
+      "width": 86
+    },
+    {
+      "id": "multiturn",
+      "lane": "runtime",
+      "col": 5,
+      "type": "cloud",
+      "label": "Multi-turn",
+      "sublabel": "agent rollout",
+      "width": 86
+    }
+  ],
+  "edges": [
+    {
+      "from": "prompt",
+      "to": "radix",
+      "label": "insert prefix",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "radix",
+      "to": "branches",
+      "label": "reuse cache",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "left",
+      "route": "drop"
+    },
+    {
+      "from": "branches",
+      "to": "structured",
+      "label": "constrained gen",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "structured",
+      "to": "multiturn",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "cards": []
+}

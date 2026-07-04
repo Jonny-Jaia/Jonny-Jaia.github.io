@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIPO: Future-KL Influenced Policy Optimization &mdash; swift 4.5.0.dev0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4942388b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <script src="../../../_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+    <link rel="next" title="Group Sequence Policy Optimization" href="GSPO.html" />
+    <link rel="prev" title="DeepEyes: Incentivizing &#34;Thinking with Images&#34; via Reinforcement Learning" href="deepeyes.html" /> 
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="swift-zh" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/Instruction/GRPO/AdvancedResearch/FIPO.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            swift
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/SWIFT-installation.html">SWIFT安装</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Web-UI.html">Web-UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instruction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Pre-training-and-Fine-tuning.html">预训练与微调</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">GRPO</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GetStarted/index.html">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../DeveloperGuide/index.html">Developer Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Advanced Research</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="entropy_mask.html">Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CISPO.html">Clipped Importance Sampling Policy Optimization (CISPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DAPO.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deepeyes.html">DeepEyes: Incentivizing &quot;Thinking with Images&quot; via Reinforcement Learning</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">FIPO: Future-KL Influenced Policy Optimization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">核心思想</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">训练示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="GSPO.html">Group Sequence Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CHORD.html">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="RLOO.html">REINFORCE Leave-One-Out (RLOO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REINFORCEPP.html">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REAL.html">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="router_replay.html">Router Replay (R2/R3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SAPO.html">Soft Adaptive Policy Optimization (SAPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="training_inference_mismatch.html">Training-Inference-Mismatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="treepo.html">TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Distillation.html">知识蒸馏（Knowledge Distillation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RLHF.html">人类对齐</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Inference-and-deployment.html">推理和部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Sample.html">采样</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Evaluation.html">评测</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Export-and-push.html">导出与推送</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray.html">ray的支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Reinforced-Fine-tuning.html">强化微调</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Agent-support.html">Agent支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supported-models-and-datasets.html">支持的模型和数据集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Use-tuners.html">使用Tuners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Frequently-asked-questions.html">常见问题整理</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Megatron-SWIFT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/LoRA-Training.html">LoRA训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Multimodal-Model.html">多模态模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Mcore-Bridge.html">Mcore-Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GRPO.html">GRPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GKD.html">GKD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Ascend.html">Ascend NPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Custom-Model.html">自定义Megatron模型</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Architecture.html">架构介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-model.html">自定义模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-dataset.html">自定义数据集</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO.html">GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Multi-Modal-Training.html">多模态GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Code-Training.html">GRPO代码训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-Best-Practice.html">Qwen3最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-VL-Best-Practice.html">Qwen3-VL最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3_5-Best-Practice.html">Qwen3.5 最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/deepseek-v4.html">DeepSeek-V4 训练支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/MLLM-Registration.html">注册多模态模型最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Embedding.html">Embedding训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Reranker.html">Reranker训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Rapidly-Training-VL-model.html">快速训练VL模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Metax-support.html">Metax支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/AMD-support.html">AMD GPU 支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/More-Best-Practices.html">更多最佳实践</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">swift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">GRPO</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Advanced Research</a></li>
+      <li class="breadcrumb-item active">FIPO: Future-KL Influenced Policy Optimization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Instruction/GRPO/AdvancedResearch/FIPO.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="fipo-future-kl-influenced-policy-optimization">
+<h1>FIPO: Future-KL Influenced Policy Optimization<a class="headerlink" href="#fipo-future-kl-influenced-policy-optimization" title="Link to this heading"></a></h1>
+<p>作者： <a class="reference external" href="https://github.com/li2zhi">li2zhi</a></p>
+<p><a class="reference external" href="https://arxiv.org/abs/2603.19835">FIPO</a> 是一种面向长链推理的 value-free RL 方法。它保留 GRPO/DAPO 的整体训练框架，但改变 token 级策略更新的加权方式：不再让一个序列级 advantage 均匀作用到所有 token，而是用折扣累积的 Future-KL 信号判断“从当前 token 开始的后续轨迹”整体是在被增强还是被削弱。</p>
+<section id="id1">
+<h2>核心思想<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>GRPO/DAPO 中，每个 response 的 token 通常共享同一个序列级 advantage：</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{A}_{i,t} = \hat{A}_{i}
+\]</div>
+<p>这种做法稳定且简单，但 credit assignment 粒度较粗。FIPO 引入当前策略与旧策略在每个 token 上的 log-prob shift：</p>
+<div class="math notranslate nohighlight">
+\[
+\Delta \log p_t = \log \pi_\theta(y_t \mid x, y_{&lt;t}) -
+\log \pi_{\mathrm{old}}(y_t \mid x, y_{&lt;t})
+\]</div>
+<p>如果 <span class="math notranslate nohighlight">\(\Delta \log p_t &gt; 0\)</span>，说明当前训练正在提高该 token 的概率；如果小于 0，则说明该 token 正在被压低。FIPO进一步从当前位置向后折扣累积该信号：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathrm{FutureKL}_t =
+\sum_{k=t}^{T}\gamma^{k-t} M_k \Delta \log p_k
+\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(M_k\)</span> 是 completion mask，<span class="math notranslate nohighlight">\(\gamma = 2^{-1 / \text{decay\_rate}}\)</span>。<code class="docutils literal notranslate"><span class="pre">decay_rate</span></code> 越大，越远的 future token 对当前位置的影响越强；<code class="docutils literal notranslate"><span class="pre">decay_rate</span></code> 越小，Future-KL 越偏局部。然后将 Future-KL 映射为 influence weight：</p>
+<div class="math notranslate nohighlight">
+\[
+f_t = \mathrm{clip}(\exp(\mathrm{FutureKL}_t), 1-\epsilon_f, 1+\epsilon_f)
+\]</div>
+<p>最终把原本的 advantage 改成 future-aware advantage：</p>
+<div class="math notranslate nohighlight">
+\[
+\tilde{A}_{i,t} = \hat{A}_{i} \cdot f_{i,t}
+\]</div>
+</section>
+<section id="id2">
+<h2>参数<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--loss_type</code></td>
+<td><code>str</code></td>
+<td><code>grpo</code></td>
+<td>设置为<code>fipo</code> 启用 FIPO loss</td>
+</tr>
+<tr>
+<td><code>--delta</code></td>
+<td><code>float</code></td>
+<td><code>None</code></td>
+<td>启用后会同时用于 Future-KL 高 IS ratio token 过滤和主 loss 的 dual-clip 上限，应大于 <code>1 + epsilon_high</code>，对齐FIPO 32B训练脚本建议设置为 <code>10.0</code></td>
+</tr>
+<tr>
+<td><code>--fipo_decay_rate</code></td>
+<td><code>float</code></td>
+<td><code>32.0</code></td>
+<td>Future-KL 折扣半衰参数，实际折扣为<code>2 ** (-1 / fipo_decay_rate)</code></td>
+</tr>
+<tr>
+<td><code>--fipo_clip_range</code></td>
+<td><code>float</code></td>
+<td><code>0.2</code></td>
+<td>influence weight 裁剪范围；<code>0.2</code> 表示默认裁剪到 <code>[0.8, 1.2]</code></td>
+</tr>
+<tr>
+<td><code>--fipo_clip_high_only</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+<td>若为<code>true</code>，权重只裁剪到 <code>[1.0, 1.0 + fipo_clip_range]</code>，更偏向放大正 Future-KL</td>
+</tr>
+<tr>
+<td><code>--fipo_safety_threshold</code></td>
+<td><code>float</code></td>
+<td><code>4.0</code></td>
+<td>负 advantage 且 IS ratio 超过该阈值时，将 FIPO 权重限制到 <code>[0.8, 1.0]</code> 以避免过度惩罚</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h2>训练示例<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/fipo.sh">swift</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="deepeyes.html" class="btn btn-neutral float-left" title="DeepEyes: Incentivizing &#34;Thinking with Images&#34; via Reinforcement Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="GSPO.html" class="btn btn-neutral float-right" title="Group Sequence Policy Optimization" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022-2025, Alibaba ModelScope。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

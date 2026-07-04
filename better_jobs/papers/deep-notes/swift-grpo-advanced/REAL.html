@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rewards as Labels: Revisiting RLVR from a Classification Perspective &mdash; swift 4.5.0.dev0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4942388b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <script src="../../../_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+    <link rel="next" title="Router Replay (R2/R3)" href="router_replay.html" />
+    <link rel="prev" title="REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models" href="REINFORCEPP.html" /> 
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="swift-zh" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/Instruction/GRPO/AdvancedResearch/REAL.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            swift
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/SWIFT-installation.html">SWIFT安装</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Web-UI.html">Web-UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instruction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Pre-training-and-Fine-tuning.html">预训练与微调</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">GRPO</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GetStarted/index.html">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../DeveloperGuide/index.html">Developer Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Advanced Research</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="entropy_mask.html">Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CISPO.html">Clipped Importance Sampling Policy Optimization (CISPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DAPO.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deepeyes.html">DeepEyes: Incentivizing &quot;Thinking with Images&quot; via Reinforcement Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="FIPO.html">FIPO: Future-KL Influenced Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GSPO.html">Group Sequence Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CHORD.html">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="RLOO.html">REINFORCE Leave-One-Out (RLOO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REINFORCEPP.html">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">背景与动机</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">参数设置</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">注意事项</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="router_replay.html">Router Replay (R2/R3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SAPO.html">Soft Adaptive Policy Optimization (SAPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="training_inference_mismatch.html">Training-Inference-Mismatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="treepo.html">TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Distillation.html">知识蒸馏（Knowledge Distillation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RLHF.html">人类对齐</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Inference-and-deployment.html">推理和部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Sample.html">采样</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Evaluation.html">评测</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Export-and-push.html">导出与推送</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray.html">ray的支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Reinforced-Fine-tuning.html">强化微调</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Agent-support.html">Agent支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supported-models-and-datasets.html">支持的模型和数据集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Use-tuners.html">使用Tuners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Frequently-asked-questions.html">常见问题整理</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Megatron-SWIFT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/LoRA-Training.html">LoRA训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Multimodal-Model.html">多模态模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Mcore-Bridge.html">Mcore-Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GRPO.html">GRPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GKD.html">GKD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Ascend.html">Ascend NPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Custom-Model.html">自定义Megatron模型</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Architecture.html">架构介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-model.html">自定义模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-dataset.html">自定义数据集</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO.html">GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Multi-Modal-Training.html">多模态GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Code-Training.html">GRPO代码训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-Best-Practice.html">Qwen3最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-VL-Best-Practice.html">Qwen3-VL最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3_5-Best-Practice.html">Qwen3.5 最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/deepseek-v4.html">DeepSeek-V4 训练支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/MLLM-Registration.html">注册多模态模型最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Embedding.html">Embedding训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Reranker.html">Reranker训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Rapidly-Training-VL-model.html">快速训练VL模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Metax-support.html">Metax支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/AMD-support.html">AMD GPU 支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/More-Best-Practices.html">更多最佳实践</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">swift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">GRPO</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Advanced Research</a></li>
+      <li class="breadcrumb-item active">Rewards as Labels: Revisiting RLVR from a Classification Perspective</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Instruction/GRPO/AdvancedResearch/REAL.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="rewards-as-labels-revisiting-rlvr-from-a-classification-perspective">
+<h1>Rewards as Labels: Revisiting RLVR from a Classification Perspective<a class="headerlink" href="#rewards-as-labels-revisiting-rlvr-from-a-classification-perspective" title="Link to this heading"></a></h1>
+<p>作者： <a class="reference external" href="https://github.com/li2zhi">li2zhi</a></p>
+<p><a class="reference external" href="https://arxiv.org/abs/2602.05630">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a> 针对GRPO提出把奖励视为标签，在group内分类而不是计算advantage，从而将策略优化问题转化为分类问题，以此解决GRPO Loss中存在的正样本<strong>梯度错配</strong>与负样本<strong>梯度主导</strong>问题。</p>
+<section id="id1">
+<h2>背景与动机<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>GRPO目标函数</p>
+<div class="math notranslate nohighlight">
+\[
+J_{\mathrm{GRPO}}(\theta)=\mathbb{E}_{q,o\sim\pi_{\mathrm{od}}(\cdot|q)}\left[\frac{1}{|o|}\sum_{t=1}^{|o|}\left(\min\left(\rho_tA_t,\mathrm{clip}(\rho_t,1-\epsilon,1+\epsilon)A_t\right)\right)\right]
+\]</div>
+<p>其中<span class="math notranslate nohighlight">\(\rho_t=\frac{\pi_\theta(o_t|q)}{\pi_{\mathrm{old}}(o_t|q)}\)</span>为相对概率，<span class="math notranslate nohighlight">\(A_{t}\)</span>为优势函数，故梯度为：</p>
+<div class="math notranslate nohighlight">
+\[
+\nabla_{\theta} J_{\mathrm{GRPO}} = \mathbb { E } \left[ \frac { 1 } { | o | } \sum _ { t = 1 } ^ { | o | } \mathbb { I } _ { \mathrm { clip } } \cdot A _ { t } e ^ { s _ { t } } \nabla _ { \theta } \log \pi _ { \theta } \left( o _ { t } | q \right) \right]
+\]</div>
+<p>其中<span class="math notranslate nohighlight">\(s_t=\log\frac{\pi_\theta(o_t|q)}{\pi_{\mathrm{old}}(o_t|q)}\)</span>作为token的相对对数概率，<span class="math notranslate nohighlight">\(\mathbb { I } _ { \mathrm { clip } }\)</span>为指示函数</p>
+<p>故 GRPO 对单 token 的梯度权重为：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+|\mathcal{W}_{\mathrm{GRPO}}|=\left\{ \begin{array} {ll}\left|A\cdot e^s\right|, &amp; \mathrm{if~}\mathbb{I}_{\mathrm{clip}}=1, \\ 0, &amp; \text{otherwise.} \end{array}\right.
+\end{split}\]</div>
+<p><img alt="Gradient magnitude visualizations in GRPO" src="../../../_images/real.png" /></p>
+<ul class="simple">
+<li><p>正样本的梯度错配（Gradient Misassignment）：对正样本来说，随着相对概率<span class="math notranslate nohighlight">\(s\)</span>变小，梯度更新幅度反而越弱。这违背直觉，因为模型对“不太自信”的正确 token 本来就需要更大的更新幅度来强化，但更多的梯度权重却放到更“自信”的 token，没学好的 token 得不到足够的重视。</p></li>
+<li><p>负样本的梯度主导（Gradient Domination）：对负样本来说，随着相对概率<span class="math notranslate nohighlight">\(s\)</span>变小，梯度更新幅度呈指数级增加。这意味着，只要出现几个模型“盲目自信”的错误 token，它们产生的巨大梯度就会把同组内其他负样本的信号淹没。由于缺乏上限保护，模型在处理这些错误样本时可能会产生过大的参数更新，让训练过程变得不太可控。</p></li>
+</ul>
+<p>为解决上述问题，Real提出将奖励直接视为标签然后进行组内的样本分类训练</p>
+<p><img alt="Real Framework" src="../../../_images/real_framework.png" /></p>
+<p>分类的logits分值设计：</p>
+<div class="math notranslate nohighlight">
+\[
+\bar{s}^k=\frac{1}{|o^k|}\sum_{t=1}^{|o^k|}\left(\log\frac{\pi_\theta(o_t^k\mid q)}{\pi_{\mathrm{old}}(o_t^k\mid q)}\right)
+\]</div>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\bar{s}^k &gt; 0\)</span>: 表示该样本在当前策略下生成的概率比旧策略整体更高，模型倾向于<strong>增强</strong>该样本。</p></li>
+<li><p><span class="math notranslate nohighlight">\(\bar{s}^k &lt; 0\)</span>: 表示该样本在当前策略下生成的概率比旧策略整体更低，模型倾向于<strong>抑制</strong>该样本。</p></li>
+</ul>
+<p>损失函数设计：</p>
+<div class="math notranslate nohighlight">
+\[
+\mathcal{L}_{REAL}=\log\left(1+\sum_{\mathcal{O}_+}e^{-\bar{s}^i/\tau}\right)+\log\left(1+\sum_{\mathcal{O}_-}e^{\bar{s}^j/\tau}\right)
+\]</div>
+<p>梯度特性：
+$<span class="math notranslate nohighlight">\(
+|\mathcal{W}_{\mathrm{REAL}}|=
+\begin{cases}
+\frac{1}{\tau}\frac{1}{1+C_{+}e^{\bar{s}^{k}/\tau}}, &amp; r=1 \\
+ \\
+\frac{1}{\tau}\frac{1}{1+C_{-}e^{-\bar{s}^{k}/\tau}}, &amp; r=0 &amp; &amp; &amp;
+\end{cases}
+\)</span>$</p>
+</section>
+<section id="id2">
+<h2>参数设置<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--loss_type</code></td>
+<td><code>str</code></td>
+<td>-</td>
+<td>设置为 <code>real</code></td>
+</tr>
+<tr>
+<td><code>--real_tau</code></td>
+<td><code>float</code></td>
+<td><code>0.5</code></td>
+<td>温度参数，控制决策边界锐度</td>
+</tr>
+</tbody>
+</table>
+<p>训练脚本参考</p>
+<p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/real.sh">swift</a></p>
+</section>
+<section id="id3">
+<h2>注意事项<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>设置参数时，确保 per_device_train_batch_size 能够被 num_generations 整除，以此保证单个训练batch中能拿到完整的 group 进行分类。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="REINFORCEPP.html" class="btn btn-neutral float-left" title="REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="router_replay.html" class="btn btn-neutral float-right" title="Router Replay (R2/R3)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022-2025, Alibaba ModelScope。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

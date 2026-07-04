@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "vLLM PagedAttention",
+    "subtitle": "paged KV cache and continuous batching",
+    "output": "vllm-pagedattention.html"
+  },
+  "lanes": [
+    {
+      "id": "requests",
+      "label": "Requests"
+    },
+    {
+      "id": "cache",
+      "label": "KV Cache Manager"
+    },
+    {
+      "id": "scheduler",
+      "label": "Serving Scheduler"
+    }
+  ],
+  "phases": [
+    {
+      "id": "prefill",
+      "label": "Prefill",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "decode",
+      "label": "Decode",
+      "fromCol": 2,
+      "toCol": 3
+    },
+    {
+      "id": "serve",
+      "label": "Throughput",
+      "fromCol": 4,
+      "toCol": 5
+    }
+  ],
+  "nodes": [
+    {
+      "id": "req",
+      "lane": "requests",
+      "col": 0,
+      "type": "frontend",
+      "label": "Prompt Batch",
+      "sublabel": "variable length"
+    },
+    {
+      "id": "prefill",
+      "lane": "scheduler",
+      "col": 1,
+      "type": "backend",
+      "label": "Prefill",
+      "sublabel": "build KV"
+    },
+    {
+      "id": "blocks",
+      "lane": "cache",
+      "col": 2,
+      "type": "database",
+      "label": "KV Blocks",
+      "sublabel": "paged layout"
+    },
+    {
+      "id": "decode",
+      "lane": "scheduler",
+      "col": 3,
+      "type": "backend",
+      "label": "Decode Step",
+      "sublabel": "reuse blocks",
+      "width": 86
+    },
+    {
+      "id": "batch",
+      "lane": "scheduler",
+      "col": 5,
+      "type": "cloud",
+      "label": "Batching",
+      "sublabel": "continuous merge",
+      "width": 88
+    },
+    {
+      "id": "prefix",
+      "lane": "cache",
+      "col": 5,
+      "type": "database",
+      "label": "Prefix Cache",
+      "sublabel": "shared prompts"
+    }
+  ],
+  "edges": [
+    {
+      "from": "req",
+      "to": "prefill",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "prefill",
+      "to": "blocks",
+      "label": "allocate pages",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "left",
+      "route": "drop"
+    },
+    {
+      "from": "blocks",
+      "to": "decode",
+      "label": "lookup",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "decode",
+      "to": "batch",
+      "label": "schedule next tokens",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "prefix",
+      "to": "batch",
+      "label": "reuse prefix",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": []
+}

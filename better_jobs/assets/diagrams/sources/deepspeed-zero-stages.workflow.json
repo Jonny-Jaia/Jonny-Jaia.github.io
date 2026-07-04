@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "DeepSpeed ZeRO Stages",
+    "subtitle": "state partitioning from optimizer to parameters",
+    "output": "deepspeed-zero-stages.html"
+  },
+  "lanes": [
+    {
+      "id": "memory",
+      "label": "Replicated State"
+    },
+    {
+      "id": "partition",
+      "label": "Partitioned by DP Rank"
+    },
+    {
+      "id": "tradeoff",
+      "label": "System Tradeoff"
+    }
+  ],
+  "phases": [
+    {
+      "id": "stage0",
+      "label": "Data Parallel Baseline",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "stage12",
+      "label": "ZeRO-1 / ZeRO-2",
+      "fromCol": 2,
+      "toCol": 3
+    },
+    {
+      "id": "stage3",
+      "label": "ZeRO-3 / Offload",
+      "fromCol": 4,
+      "toCol": 5
+    }
+  ],
+  "nodes": [
+    {
+      "id": "dp",
+      "lane": "memory",
+      "col": 0,
+      "type": "backend",
+      "label": "DP Replica",
+      "sublabel": "params + grads + states"
+    },
+    {
+      "id": "z1",
+      "lane": "partition",
+      "col": 2,
+      "type": "database",
+      "label": "ZeRO-1",
+      "sublabel": "optimizer states"
+    },
+    {
+      "id": "z2",
+      "lane": "partition",
+      "col": 3,
+      "type": "database",
+      "label": "ZeRO-2",
+      "sublabel": "states + grads",
+      "width": 86
+    },
+    {
+      "id": "z3",
+      "lane": "partition",
+      "col": 5,
+      "type": "database",
+      "label": "ZeRO-3",
+      "sublabel": "states + grads + params"
+    },
+    {
+      "id": "offload",
+      "lane": "tradeoff",
+      "col": 5,
+      "type": "cloud",
+      "label": "Offload",
+      "sublabel": "CPU / NVMe"
+    }
+  ],
+  "edges": [
+    {
+      "from": "dp",
+      "to": "z1",
+      "label": "remove redundancy",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "z1",
+      "to": "z2",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "z2",
+      "to": "z3",
+      "label": "partition params",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "z3",
+      "to": "offload",
+      "label": "save HBM",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": []
+}

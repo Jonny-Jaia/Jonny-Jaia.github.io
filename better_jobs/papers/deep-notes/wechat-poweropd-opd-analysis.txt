@@ -1,0 +1,319 @@
+涓婚〉锛歨ttp://qingkeai.online/
+闈掔绀惧尯涓虹鐮斾汉鍛樻彁渚涙垚鏋滃浼犳敮鎸侊紝濡傛湁浼樼鐮旂┒鎴愭灉鍒嗕韩鎺ㄥ箍锛屾杩庢姇绋胯仈绯伙細
+aiFreeCode
+馃搫 arXiv锛歨ttps://arxiv.org/abs/2606.17199
+浣滆€呮満鏋勶細涓滄柟鐞嗗伐銆侀娓悊宸ュぇ瀛︺€佷笂娴蜂氦閫氬ぇ瀛︺€乁niversity of Waterloo`
+On-Policy Distillation锛圤PD锛夋鍦ㄦ垚涓哄ぇ妯″瀷鍚庤缁冪殑鏍囧噯缁勪欢銆傚拰浼犵粺 SFT 鍙湪 teacher 鐢熸垚鐨勮建杩逛笂璁粌涓嶅悓锛孫PD 璁?student 鑷繁 rollout锛屽啀鐢?teacher 鍦?student 瀹為檯璁块棶鍒扮殑鐘舵€佷笂鎻愪緵 token-level feedback鈥斺€旀棦缂撹В exposure bias锛屽張鎻愪緵姣?outcome reward 鏇村瘑闆嗙殑瀛︿範淇″彿銆俀wen3銆丮iMo-V2銆丟LM-5銆丏eepSeek-V4 鐨?post-training pipeline 閲岄兘宸茬粡閲囩敤浜?OPD銆?/span>
+OPD 鐨勫師濮嬪舰寮忛渶瑕佸湪姣忎釜 token 浣嶇疆涓婅绠楁暣涓瘝琛ㄧ殑 KL 鏁ｅ害锛岃绠楀紑閿€寰堝ぇ銆傚洜姝わ紝鐜板湪涓绘祦鐨勫仛娉曟槸鍙湪 student 閲囨牱鍒扮殑 token 涓婅绠?teacher-student log-probability ratio 浣滀负 reward锛岃繖鏄 reverse-KL 鐩爣鐨勬棤鍋忓崟鏍锋湰钂欑壒鍗℃礇浼拌锛岄伩鍏嶄簡璇嶈〃缁村害鐨勮绠椼€傝繖灏辨槸 sampled-token OPD锛屼篃鏄湰鏂囨墍璇寸殑 vanilla OPD銆?/span>
+浣嗘垜浠湪瀹炶返涓彂鐜帮紝vanilla OPD 鏈変弗閲嶇殑璁粌鐥呯悊锛歛ccuracy 鍓嶅嚑鐧炬鍏堣穼鍚庢定锛宺esponse length 澶у箙闇囪崱锛屾渶缁堟晥鏋滆繕姣?full-vocab OPD 宸簡 8 涓偣浠ヤ笂銆?/span>
+涓轰粈涔堬紵闂鍑哄湪杩欎釜 token-level reward 涓婏細
+杩欎釜 log-ratio
+鏃犵晫
+鈥斺€斿綋 teacher 鎴?student 瀵规煇涓?token 鐨勬鐜囨帴杩?0 鏃讹紝reward 鍙互鐖嗗埌 -50 鐢氳嚦鏇存瀬绔€?/span>
+鍦?full-vocab OPD 閲岋紝杩欎簺鏋佺鍊间細琚暣涓瘝琛ㄤ笂鐨勬鐜囧姞鏉冩湡鏈涘钩鍧囨帀锛涗絾鍦?sampled-token OPD 閲岋紝student 閲囧埌鍝釜 token锛屾搴﹀氨鐩存帴鍚冨埌閭ｄ釜 token 鐨?reward锛屾瀬绔?log-ratio 浼氭鏃犵紦鍐插湴鍙樻垚楂樻柟宸搴︺€?/span>
+闈㈠杩欎釜涓嶇ǔ瀹氾紝甯歌鐨勫仛娉曟槸鍔?clip銆乼anh銆亃-score 鍋?reward 鍚庡鐞嗐€備絾鎴戜滑鐨勫疄楠岃〃鏄庯紝杩欎簺鏂规硶閮芥病鏈夌湡姝ｈВ鍐抽棶棰樸€?/span>
+鍘熷洜鍦ㄤ簬锛屽畠浠兘淇濈暀浜?log-ratio 浣滀负搴曞眰 reward锛屽彧鏄湪 log 宸茬粡鎶婁綆姒傜巼宸紓鏀惧ぇ鎴愭瀬绔暟鍊?/span>
+涔嬪悗
+鍐嶅仛鍘嬬缉鎴栧綊涓€鍖栤€斺€攃lip 鍜?tanh 鍘嬬缉寰楀お鏅氾紝z-score 鐢氳嚦鍙兘缈昏浆 reward 绗﹀彿銆?/span>
+鎹㈠彞璇濊锛屽彧瑕?log 杩樺湪锛屼粠姒傜巼鍒?reward 鐨勬槧灏勫氨鏄棤鐣岀殑锛屽悗闈㈡€庝箞琛ユ晳閮芥槸鍦ㄥ鐞嗗悗鏋溿€?/span>
+鏃㈢劧鎵€鏈変繚鐣?log 鐨勪慨琛ラ兘澶辫触浜嗭紝缁撹寰堣嚜鐒讹細
+瑕佹崲鎺夌殑涓嶆槸鍚庡鐞嗭紝鑰屾槸 log 鏈韩
+銆傛垜浠彁鍑?nbsp;
+PowerOPD
+锛氱敤 Box-Cox 骞傚彉鎹㈡浛鎹?log锛屽緱鍒颁竴鏃忓ぉ鐒舵湁鐣岋紙
+锛夈€佺鍙蜂竴鑷寸殑 reward鈥斺€?/span>
+銆?/span>
+瀹冧笉浠呬慨澶嶄簡璁粌涓嶇ǔ瀹氾紝杩樿秴杩囦簡 full-vocab OPD锛屽悓鏃剁渷浜?nbsp;
+59.2%
+鐨勮缁冩椂闂村拰
+23.1%
+鐨?GPU 鏄惧瓨銆傚崟涓?benchmark 涓婃渶楂樻彁鍗?nbsp;
++16.75 Avg@8 / +15.00 Pass@8
+銆?/span>
+鍏堢湅鍏ㄨ矊
+鍦ㄥ睍寮€鍏紡涔嬪墠锛屽厛鎶婃暣绡囨枃绔犵殑閫昏緫鍘嬬缉鎴愪簲涓鐐癸細
+鈥?nbsp;
+璇婃柇
+锛歷anilla OPD鐨刲og-ratio reward鏃犵晫锛屼骇鐢熸瀬绔搴︽柟宸紝涓旀瀬绔痳eward闆嗕腑鍦╮ollout鏃╂湡銆佽疮绌挎暣涓缁冭繃绋?/span>
+鈥?nbsp;
+Post-hoc 淇ˉ鏃犳晥
+锛歝lip/tanh鍦╨og宸茬粡鐖嗙偢涔嬪悗鎵嶅帇缂╋紝澶櫄锛泎-score 鍙兘缈昏浆reward绗﹀彿锛屾瘮涓嶄慨杩樺樊
+鈥?nbsp;
+鏂规硶
+锛歅owerOPD 鐢?Box-Cox 骞傚彉鎹㈡浛鎹?log锛宺eward 澶╃劧鏈夌晫锛?/span>
+锛変笖绗﹀彿涓€鑷达紝涓€琛屽叕寮忥細
+鈥?nbsp;
+缁撴灉
+锛氳秴vanilla OPD 鏈€楂?nbsp;
++6.37 Avg@8/+5.71 Pass@8
+锛岃秴 post-hoc 鏈€楂?nbsp;
++3.01/+3.54
+锛岃秴 full-vocab OPD 鏈€楂?nbsp;
++2.59/+8.90
+锛屽悓鏃舵瘮full-vocab
+鐪?9.2% 鏃堕棿銆?3.1% 鏄惧瓨
+鈥?nbsp;
+鐨勫彲瑙ｉ噴鎬?/span>
+锛?/span>
+鏄鐜囧尯鍩熼€夋嫨鍣ㄢ€斺€旇秺澶ц秺鑱氱劍楂樻鐜噒oken銆佽秺鎶戝埗浣庢鐜囧櫔澹帮紝涓€寮?heatmap 涓€鐪肩湅鍑?/span>
+OPD = dense-reward RL
+OPD 鐨勬搴﹀舰寮忎笂灏辨槸涓€涓?dense-reward policy gradient銆傝繖閲屽揩閫熷洖椤炬牳蹇冩帹瀵笺€?/span>
+OPD 鏈€澶у寲璐?reverse KL锛?/span>
+鐢变簬鑷洖褰掑垎瑙ｏ紝sequence-level log-ratio 鎷嗘垚 token-level log-ratio 涔嬪拰銆傚搴旂殑 policy gradient 鏄細
+杩欎竴姝ョ殑鍏抽敭鍚箟鏄細
+浠嶳L鐨勮搴︾湅锛宼eacher-student log-ratio鏄洿鎺ヤ箻鍦?policy gradient 鍓嶉潰鐨?reward
+銆?/span>
+鎵€浠ワ紝濡傛灉涓嶄粠KL浼拌鐨勮搴︾湅锛岃€屾槸浠嶳L鐨剅eward shaping瑙掑害鐪嬶紝涓€鏃﹁繖涓?reward 鐨?shaping 鏈夐棶棰橈紝姣忎竴姝ユ搴︽洿鏂伴兘浼氳瀹冪壍鐫€璧般€?/span>
+Vanilla OPD 鍒板簳鏈夊涓嶇ǔ锛?/span>
+鍦ㄨ璁簉eward璁捐涔嬪墠锛屽厛鐪嬩竴缁勮缁冩洸绾匡紝鐩磋鎰熷彈vanilla OPD鐨勯棶棰樸€?/span>
+鍦?Qwen3-4B teacher鈫扱wen3-1.7B student鐨凪ATH-500 璁剧疆涓嬶紝vanilla OPD鏈変笁涓吀鍨嬬棁鐘躲€?/span>
+绗竴锛宻ample efficiency 宸€?/span>
+璁粌鍓?300 姝ワ紝accuracy 涓嶅崌鍙嶉檷鈥斺€旀湁浜嗗瘑闆嗙殑token-level supervision锛宻tudent灞呯劧鍦ㄥ彉宸€傜洿鍒?00姝ヤ箣鍚庢墠寮€濮嬫仮澶嶃€?/span>
+绗簩锛実eneration dynamics 涓嶇ǔ瀹氥€?/span>
+鐪嬪浘 2(b) 鐨?length 鏇茬嚎锛氬钩鍧?response length 鍦ㄥ墠 400 姝ュ墽鐑堥渿鑽★紝璇存槑 student 鍦ㄨ缁冭繃绋嬩腑涓嶆柇杩涘叆涓嶇ǔ瀹氱殑鐢熸垚鍖哄煙锛岀敓鎴愬拷闀垮拷鐭殑 response銆?/span>
+绗笁锛屽拰 full-vocab OPD 宸窛宸ㄥぇ銆?/span>
+vanilla OPD 鏈€缁堝彧鍒?nbsp;
+54.93%
+accuracy锛岃€?full-vocab OPD 杈惧埌
+63.12%
+锛屽樊浜?nbsp;
+8.19涓偣
+銆倀eacher 鍑嗙‘鐜囨槸 74.89%锛寁anilla OPD 鍙仮澶嶄簡 teacher 鑳藉姏鐨?69.44%銆?/span>
+濡傛灉鍙湅杩欎簺鏇茬嚎锛屽緢瀹规槗鎶婇棶棰樺綊鍥犱负 "sampled-token estimator 鏂瑰樊澶э紝RL 鏈潵灏遍毦璁?銆?/span>
+浣嗛棶棰樻瘮杩欐洿鍏蜂綋鈥斺€斿畠鍑哄湪 reward 鏈韩銆?/span>
+鍥?1锛歅owerOPD vs vanilla OPD vs full-vocab OPD 鐨勮缁冩洸绾裤€?/span>
+鍥?1锛歁ATH-500 璁粌鏇茬嚎锛圦wen3-4B 鈫?Qwen3-1.7B锛夈€侾owerOPD 姣?vanilla OPD 绮惧害楂?9.6 涓偣锛岃揪鍒板悓绛夊噯纭巼鎵€闇€ step 灏?10 鍊嶃€?/span>
+鍥?2锛氳缁冪梾鐞?+ post-hoc 鏂规硶瀵规瘮銆?/span>
+鍥?2锛歷anilla OPD 鐨勮缁冪梾鐞嗐€?a) accuracy 鍏堣穼鍚庢定锛屾渶缁堣惤鍚?full-vocab OPD 8 涓偣浠ヤ笂锛?b) response length 鍦ㄥ墠 400 姝ュ墽鐑堥渿鑽°€俢lip銆乼anh銆亃-score 涓夌 post-hoc 淇ˉ鍧囦笉鑳藉悓鏃惰В鍐宠繖涓や釜闂銆?/span>
+log-ratio reward 鍒板簳鍝噷鍧忎簡锛?/span>
+"璁笉绋?涓嶆槸涓€涓缁熺殑RL闂銆傝鏂囩洿鎺ュ幓鐪?reward 鍒嗗竷锛屽彂鐜?log-ratio reward 鏈変笁涓叿浣撶殑缁撴瀯鎬х梾鐞嗐€?/span>
+鐥呯悊涓€锛歳eward 鏂瑰樊鏋佸ぇ锛岃礋灏炬帴杩?-50
+student 閲囧埌鑷繁瑙夊緱杩樿銆佷絾 teacher 鍑犱箮涓嶈鍙殑token鏃讹紝
+鐩存帴鎶妑eward鎷夊埌鏋佽礋銆傜粺璁″彂鐜帮紝reward 璐熷熬鎺ヨ繎
+-50
+銆備竴涓?token鐨剅eward鍙樻垚-50锛屽畠瀵瑰崟娆℃洿鏂扮殑鏉犳潌灏辨槸姝ｅ父token鐨勫嚑鍗佸€嶃€?/span>
+鐥呯悊浜岋細鏋佺 reward 闆嗕腑鍦?rollout 鏃╂湡
+杩欎簺鏋佺鍊间笉鏄潎鍖€鍒嗗竷鐨勨€斺€斿畠浠ぇ閲忛泦涓湪rollout寮€澶村嚑涓猼oken銆俥arly token鍐冲畾鍚庣画prefix distribution锛屼竴鏃﹁鏋佺 reward 鎺ㄦ锛屽悗闈㈢殑涓婁笅鏂囦篃琚甫鍋忥紝褰㈡垚鍙嶉鍥炶矾锛?/span>
+杩欒В閲婁簡涓轰粈涔坴anilla OPD鐨?response length浼氬ぇ骞呴渿鑽♀€斺€斾笉鏄畝鍗曠殑闀垮害鍋忓ソ闂锛岃€屾槸early prefix琚珮鏂瑰樊reward鎵板姩鍚庢暣鏉¤建杩规紓绉讳簡銆?/span>
+鐥呯悊涓夛細鏋佺reward涓嶄細鑷劧娑堥€€
+濡傛灉鍙槸鍒濆鍖栭棶棰橈紝warmup 鍑犵櫨姝ュ氨濂戒簡銆備絾璁烘枃鏄剧ず锛?/span>
+鏋佺姝ｈ礋reward璐┛鏁翠釜璁粌杩囩▼
+銆傝繖涓嶆槸 transient锛岃€屾槸 log-ratio 鐨勭粨鏋勬€ч棶棰樸€?/span>
+鍥?3锛歷anilla OPD 鐨?reward 鐥呯悊涓夎仈鍥俱€?/span>
+鍥?3锛歷anilla OPD 鐨?reward 鐥呯悊銆?a) reward 鍒嗗竷閲嶈礋灏撅紝鎺ヨ繎 -50锛?b) 鏋佺鍊奸泦涓湪 rollout 鏃╂湡 token锛?c) 鏋佺鍊艰疮绌挎暣涓缁冭繃绋嬶紝涓嶄細闅忚缁冩秷閫€銆?/span>
+涓轰粈涔?clip銆乼anh銆亃-score 娌℃晳锛?/span>
+璁烘枃姣旇緝浜嗕笁绉?post-hoc stabilization锛?/span>
+鈥?nbsp;
+Clip
+锛氱‖鎴柇鍒?nbsp;
+鈥?nbsp;
+Tanh
+锛氬钩婊戝帇缂╁埌
+鈥?nbsp;
+Z-Score
+锛氭寜 batch 鍧囧€兼柟宸爣鍑嗗寲
+缁撴灉锛?/span>
+鍏ㄩ兘涓嶈兘鐪熸瑙ｅ喅闂
+锛堝洖鐪嬪浘 2锛夈€?/span>
+clip 鍜?tanh 鐨勯棶棰樻槸鏃跺簭涓婄殑鈥斺€斿畠浠湪 log-ratio
+宸茬粡鎶婁綆姒傜巼宸紓鏀惧ぇ鎴愭瀬绔暟鍊间箣鍚?/span>
+鎵嶅嚭鎵嬨€傚摢浜?token 琚?log 鍙樻垚"楂樻潬鏉?token"杩欎欢浜嬪凡缁忓彂鐢熶簡锛屽悗闈㈠啀鍘嬬缉鍙槸鍦ㄨˉ鏁戝悗鏋溿€?/span>
+z-score 鐨勯棶棰樻洿涓ラ噸锛歜atch 鏍囧噯鍖栦細鏀瑰彉 reward 绗﹀彿銆備絾鍦?OPD 閲岋紝reward 绗﹀彿灏辨槸瀛︿範鏂瑰悜鈥斺€攖eacher 姒傜巼鏇撮珮搴旇鏄 reward锛宻tudent 姒傜巼鏇撮珮搴旇鏄礋 reward銆?/span>
+涓€鏃︾鍙风炕杞紝涓嶆槸灏哄害闂锛岃€屾槸鐩存帴鎶婂涔犳柟鍚戞悶鍙嶄簡銆?/span>
+闂涓嶅湪鍚庡鐞嗕笉澶燂紝鑰屽湪 log 鏈韩銆傜湡姝ｉ渶瑕佹敼鐨勶紝鏄粠姒傜巼鍒?reward 鐨勬槧灏勫嚱鏁般€?/span>
+璇婃柇娓呮浜嗭紝鑽柟涔熷氨娓呮浜?/span>
+涓変釜鐥呯悊閮芥寚鍚戝悓涓€涓牴鍥狅細
+log浠庣涓€姝ュ氨涓嶈鍑虹幇鍦╮eward閲?/span>
+銆傛垜浠渶瑕佺殑涓嶆槸log涔嬪悗鐨勫悗澶勭悊锛岃€屾槸鍦ㄦ鐜団啋reward鐨勬槧灏勫眰闈紝鐩存帴鎶妉og鎹㈡帀銆?/span>
+涓€涓悎鐞嗙殑OPD reward鑷冲皯瑕佹弧瓒充袱鏉℃€ц川锛?/span>
+P1锛氭湁鐣屾€с€?/span>
+reward涓嶈兘鏃犵晫锛屽惁鍒檙are sampled token浼氫骇鐢?catastrophic gradient update銆?/span>
+P2锛氱鍙蜂竴鑷存€с€?/span>
+teacher姒傜巼鏇撮珮鈫掓reward锛宻tudent姒傜巼鏇撮珮鈫掕礋reward锛岀浉绛夆啋闆躲€?/span>
+vanilla OPD鐨刲og-ratio婊¤冻P2锛坙og鍗曡皟閫掑锛夛紝浣嗕笉婊¤冻P1锛坙og鍦?闄勮繎鍙戞暎锛夈€?/span>
+瑙傚療log-ratio鐨勪唬鏁扮粨鏋勶細
+锛屽叾涓?nbsp;
+銆傝繖涓?"transform-then-subtract" 缁撴瀯鏈韩寰堝ソ鈥斺€斿彧瑕?/span>
+涓ユ牸鍗曡皟閫掑锛岀鍙蜂竴鑷存€у氨鑷姩鎴愮珛銆傞棶棰樺彧鍦?/span>
+鎶?/span>
+鏄犲埌
+锛屽湪0澶勫彂鏁ｃ€?/span>
+淇鏂规锛氫繚鐣檛ransform-then-subtract缁撴瀯锛屾妸
+鎹㈡垚涓€涓湪
+涓婃湁鐣屼笖鍗曡皟閫掑鐨勫嚱鏁般€侭ox-Cox 骞傚彉鎹㈡濂芥弧瓒筹細
+浠ｅ叆 transform-then-subtract锛屽惛鏀跺父鏁?nbsp;
+杩涘涔犵巼锛屽緱鍒?nbsp;
+PowerOPD reward
+锛?/span>
+鐩存帴楠岃瘉锛?/span>
+鈥?nbsp;
+P1
+锛?/span>
+锛屾墍浠?/span>
+銆傛湁鐣屻€?/span>
+鈥?nbsp;
+P2
+锛?/span>
+涓ユ牸鍗曡皟閫掑锛屾墍浠?nbsp;
+銆傜鍙蜂竴鑷淬€?/span>
+鑰寁anilla OPD鐨刲og-ratio姝ｆ槸
+鏃剁殑閫€鍖栨瀬闄愨€斺€擳aylor 灞曞紑
+鍙互鐩存帴楠岃瘉锛?/span>
+vanilla OPD 涓嶆槸鍙︿竴涓畬鍏ㄤ笉鍚岀殑璁捐锛岃€屾槸 PowerOPD 鍦?nbsp;
+鏃剁殑鏃犵晫鏋侀檺銆侾owerOPD 鎶?OPD 浠庤繖涓€€鍖栨瀬闄愭媺鍥炲埌涓€鏃忔湁鐣屻€佺ǔ瀹氱殑 reward shaping 鍑芥暟閲屻€?/span>
+锛氫竴涓鐜囧尯鍩熼€夋嫨鍣?/span>
+鍏堢湅鍥惧啀璁查亾鐞嗐€?/span>
+鍥?4锛歭og reward 涓庝笉鍚?alpha 鐨?heatmap銆?/span>
+鍥?4锛歳eward 鍦?nbsp;
+鑱斿悎姒傜巼绌洪棿涓婄殑鍒嗗竷銆?a) log-ratio 鍙湅姣斿€硷紝浣庢鐜囧尯鍩熶竴鏍锋晱鎰熶笖鏃犵晫锛?b-d) PowerOPD 闅?nbsp;
+澧炲ぇ锛屼綆姒傜巼鍖哄煙閫愭笎鍙樻垚"姝诲尯"锛宺eward 闆嗕腑鍒伴珮姒傜巼 token銆傝繖寮犲浘涓€鐪肩湅鍑?PowerOPD 鍜?log-ratio 鐨勬湰璐ㄥ尯鍒€?/span>
+鐪嬪嚭鏉ヤ簡鍚楋紵
+log-ratio鍙湅姣斿€?/span>
+锛屽缁濆姒傜巼姘村钩瀹屽叏鐩茬洰銆?/span>
+鍜?nbsp;
+锛宺atio閮芥槸20锛宭og缁欎竴鏍峰ぇ鐨剅eward銆備絾鍓嶈€卼eacher鍜宻tudent閮借寰楄繖涓猼oken鍑犱箮涓嶅彲鑳斤紝鍙槸鍦ㄦ瀬浣庢鐜囧尯鍩熸湁涓櫔澹板樊寮傦紱鍚庤€卼eacher鐪熺殑璁や负杩欎釜token plausible銆?/span>
+PowerOPD鍒欐妸reward骞呭害鍜岀粷瀵规鐜囨寕閽╋細
+瓒婂ぇ锛?楂樻鐜?鐨勯棬妲涜秺楂樸€?/span>
+鏃?/span>
+绠楅珮姒傜巼锛?/span>
+鏃?/span>
+锛屽凡缁忓揩琚繃婊ゆ帀浜嗐€?/span>
+鎵€浠?/span>
+鏄竴涓?姒傜巼鍖哄煙閫夋嫨鍣?锛?/span>
+鈥?灏?/span>
+锛氫繚鐣欐洿瀹界殑 token-level 淇″彿
+鈥?澶?/span>
+锛氳繃婊や綆姒傜巼鍣０锛岃仛鐒﹂珮鏀拺 token
+鈥?鏋侀檺
+锛氶€€鍖栧洖log-ratio锛岄噸鏂版毚闇叉棤鐣岄棶棰?/span>
+杩欎篃瑙ｉ噴浜嗗疄楠屼腑涓€涓潪甯哥ǔ瀹氱殑瓒嬪娍锛?/span>
+鏇村ぇ鐨?/span>
+閫氬父甯︽潵鏇撮珮 accuracy銆佹洿鐭?response銆佹洿绋宠缁冦€?/span>
+瀹為獙锛歅owerOPD 涓嶅彧鏄洿绋筹紝杩樻洿寮?/span>
+鍦ㄥ洓缁凲wen3 teacher-student璁剧疆锛?.6B鍜?.7B student脳4B 鍜?8B teacher锛夊拰鍏釜鏁板鎺ㄧ悊 benchmark 涓婂仛浜嗗叏闈㈣瘎浼般€?/span>
+绗竴涓粨璁猴細PowerOPD 澶у箙瓒呰秺 vanilla OPD
+璺ㄥ洓缁勮缃殑骞冲潎鎻愬崌鏄?nbsp;
++4.47 Avg@8/+4.06 Pass@8
+銆傛渶澶?benchmark-averaged gain 鍑虹幇鍦?Qwen3-4B 鈫?Qwen3-0.6B 璁剧疆锛欰vg@8 浠?/span>
+19.13
+鎻愬崌鍒?nbsp;
+25.50
+锛?/span>
++6.37
+锛夛紝Pass@8 浠?nbsp;
+36.18
+鎻愬崌鍒?/span>
+41.89
+锛?/span>
++5.71
+锛夈€傚崟涓猙enchmark涓婏紝鏈€澶ф彁鍗囪揪鍒?nbsp;
++16.75 Avg@8
+锛圓MC23锛夊拰
++15.00 Pass@8
+锛圓MC23锛夈€?/span>
+绗簩涓粨璁猴細瓒呰秺鎵€鏈?post-hoc 淇ˉ
+鏈€澶?benchmark-averaged gain 鏄?nbsp;
++3.01 Avg@8/+3.54 Pass@8
+銆倆-score 鐢氳嚦鍦ㄩ儴鍒嗚缃笅姣?vanilla OPD 杩樺樊锛屽拰鎴戜滑鐨勮瘖鏂竴鑷粹€斺€旂鍙风炕杞瘮涓嶄慨鏇寸碂銆?/span>
+绗笁涓粨璁衡€斺€旇繖涓渶鍙嶇洿瑙?/span>
+Sampled-token 鏂规硶鍦ㄤ紶缁熻鐭ラ噷灏辨槸 "渚垮疁浣嗘湁鏂瑰樊鐨勮繎浼?鈥斺€旀瘮 full-vocab 鐪佽绠楋紝浣嗘晥鏋滀竴瀹氭洿宸€?/span>
+浣?PowerOPD 璇存槑鎭板ソ鐩稿弽銆俿ampled-token+bounded reward锛屼笉浠呮瘮full-vocab OPD鏇村揩锛?/span>
+鐪?59.2% wall-clock time銆?3.1%GPU memory
+锛夛紝鏁堟灉杩樻洿濂斤細鏈€澶ф彁鍗?nbsp;
++2.59Avg@8/+8.90 Pass@8
+銆?/span>
+杩欒鏄?sampled-token OPD 鐨勭摱棰堜粠鏉ヤ笉鏄?"sampled" 鏈韩锛岃€屾槸 reward shaping 娌″仛濂姐€傚綋 reward 浠庢棤鐣?log-ratio 鎹㈡垚鏈夌晫 power reward 鍚庯紝sampled-token OPD鍙嶈€屽彉鎴愪簡鏇撮珮鏁堜篃鏇村己鐨勮缁冪洰鏍囥€?/span>
+瓒婂ぇ锛屾晥鏋滆秺濂姐€侀暱搴﹁秺鐭?/span>
+鍦?Qwen3-4B鈫扱wen3-0.6B 璁剧疆涓嬶細
+鈥?nbsp;
+锛欰vg@8=
+24.16
+锛孭ass@8=
+39.61
+锛屽钩鍧囬暱搴?nbsp;
+2291
+鈥?nbsp;
+锛欰vg@8 =
+25.50
+锛孭ass@8=
+41.89
+锛屽钩鍧囬暱搴?nbsp;
+1875
+鍦?Qwen3-4B鈫扱wen3-1.7B 璁剧疆涓嬶紝Avg@8 浠?/span>
+33.89
+鎻愬崌鍒?nbsp;
+36.02
+锛屽钩鍧囬暱搴︿粠
+1900
+闄嶅埌
+1579
+銆?/span>
+鍜?/span>
+鐨?姒傜巼鍖哄煙閫夋嫨鍣?瑙ｉ噴瀹屽叏涓€鑷达細澶?nbsp;
+鎶婁綆姒傜巼鍖哄煙鐨勫櫔澹板帇鎺夛紝妯″瀷涓昏浠?plausible token 涓婂涔狅紝璁粌鏇寸ǔ锛宺esponse 涔熸洿鍙楁帶銆?/span>
+鍥?5锛氫笉鍚?alpha 鐨勮缁冨姩鎬併€?/span>
+鍥?锛?/span>
+sweep鐨勮缁冨姩鎬侊紙Qwen3-0.6B student锛屽乏鍥?Qwen3-4B teacher锛屽彸鍥?Qwen3-8B teacher锛夈€傛洿澶х殑
+鏀舵暃鏇村揩銆佹渶缁堢簿搴︽洿楂樸€乺esponse length 鏇寸煭涓旀洿绋冲畾銆倂anilla OPD锛堢伆鑹茶櫄绾匡級鏈夋槑鏄剧殑 accuracy delay 鍜?length 澶辨帶銆?/span>
+姊害鑼冩暟锛氫笉鏄劅瑙夋洿绋筹紝鏄?3000 鍊嶇殑宸窛
+PowerOPD 姊害鑼冩暟濮嬬粓鍦?nbsp;
+0.25鈥?.35
+锛岃€?vanilla OPD 鍒濆 spike 鎺ヨ繎
+鈥斺€斿樊浜?nbsp;
+3000 鍊?/span>
+浠ヤ笂銆?/span>
+post-hoc鏂规硶涔熷ソ涓嶅埌鍝幓锛歝lip 鍜?tanh 浠嶇劧棰戠箒瓒呰繃10锛寊-score 浠?3 澧為暱鍒?0浠ヤ笂銆?/span>
+杩欒鏄?PowerOPD 鐨勭ǔ瀹氭€т笉鏄潵鑷伓鐒惰皟鍙傦紝鑰屾槸鏉ヨ嚜 reward shaping 鏈韩銆俵og-ratio 浼氭妸浣庢鐜囧尯鍩熺殑寰皬宸紓鏀惧ぇ鎴愭瀬绔搴︼紱power reward 鍒欎粠涓€寮€濮嬪氨鎶?reward 闄愬埗鍦?nbsp;
+锛岄伩鍏?rare sampled token 涓诲鏁翠釜 update銆?/span>
+鍥?6锛氭搴﹁寖鏁板姣斻€?/span>
+鍥?6锛氭搴﹁寖鏁板姣旓紙Qwen3-4B 鈫?Qwen3-1.7B锛夈€侾owerOPD 鏇茬嚎鍑犱箮璐村湴锛垀0.3锛夛紝vanilla OPD 鏈夋帴杩?1000 鐨勫垵濮?spike锛屽悗鏈熶粛鍦?20 浠ヤ笂銆俻ost-hoc 鏂规硶鍙兘閮ㄥ垎缂撹В銆?/span>
+鏁堢巼锛歴ampled-token 鐨勫ぉ鐒朵紭鍔?/span>
+鎸囨爣
+Full-vocab OPD
+PowerOPD
+鑺傜渷
+TFLOPs/update
+402.7
+346.6
+13.9%
+Wall-clock time/step
+22.14s
+9.03s
+59.2%
+Peak GPU memory
+78.99 GiB
+60.72 GiB
+23.1%
+PowerOPD 涓嶉渶瑕佽绠楁暣涓?vocabulary 鐨?KL锛屽彧闇€瑕?sampled token 鐨勬鐜囧箓娆″樊銆傝繖涓嶆槸杩戜技鈥斺€旇€屾槸涓€涓洿濂界殑 reward design 鎭板ソ涔熸洿鐪佽绠椼€?/span>
+Takeaway
+OPD 璁粌涓嶇ǔ瀹氾紝涓嶆槸on-policy鏈韩鐨勯棶棰橈紝涔熶笉鏄疪L鎶€宸ф病璋冨ソ銆?/span>
+鐪熸鐨勯棶棰樻槸锛歷anilla OPD鎶婃棤鐣?log-ratio鐩存帴褰搑eward锛屼簬鏄綆姒傜巼鍖哄煙鐨勫伓鐒跺樊寮傝鏀惧ぇ鎴愭瀬绔搴︺€侾owerOPD 鐨勮В娉曞緢骞插噣鈥斺€旀妸log鎹㈡垚 bounded power reward锛岀敤涓€涓寚鏁?nbsp;
+鎺у埗reward鑱氱劍鐨勬鐜囧尯鍩熴€備竴琛屽叕寮忥紝drop-in鏇挎崲锛屼笉鏀箁ollout銆佷笉鏀箃eacher scoring銆佷笉鏀筽olicy-gradient妗嗘灦銆?/span>
+鏈€缁堟晥鏋滐細鏇寸ǔ锛堟搴?3000脳鈫擄級銆佹洿寮猴紙Avg@8/Pass@8 鏄捐憲鎻愬崌锛夈€佹洿鐪侊紙59.2%time鈫撱€?3.1%memory鈫擄級銆?/span>
+寰€鏈熸帹鑽?/span>
+涓轰粈涔?Pretrain Loss鐩稿悓锛屼絾涓嬫父浠诲姟琛ㄧ幇鍗村ぉ宸湴鍒紵
+娣卞叆鐞嗚В Agentic RL 涓殑琛屼负宕╁鐜拌薄
+xOPD 婕旇繘锝滄⒊鐞嗚繎鏈?OPD 鐨勬敼杩涘伐浣滐細鍝簺鏄悓涓€涓棶棰樻崲璇存硶銆佸摢浜涙槸鍔ㄤ簡涓嶅悓鐨勬ā鍧?/a>
+鎶婃姇鏈洪噰鏍疯閫忥細浠?SGLang 涓殑 EAGLE-2 涓轰緥
+鍔犲叆闈掔AI鎶€鏈氦娴佺兢
+鍔犲叆闈掔AI鎶€鏈氦娴佺兢锛屼笉浠呰兘涓庢潵鑷?/span>
+MIT銆佹腐涓枃銆丆MU銆乁CLA銆佹柉鍧︾銆佹竻鍗庛€侀樋閲屻€佽吘璁?/span>
+绛夊悕鏍″悕浼丄I鐮旂┒鍛?寮€鍙戣€呬竴璧疯繘琛屾妧鏈氦娴侊紝鍚屾椂杩樻湁涓€绾块潚骞碅I鐮旂┒鍛?寮€鍙戣€呯殑
+Talk鍒嗕韩
+銆?/span>
+闈掔Tea
+銆?/span>
+璁烘枃绮捐
+銆?/span>
+鎷涜仒鍐呮帹
+銆?/span>
+鍥藉唴澶栫/鍗氱敵璇?/a>
+銆?/span>
+澶фā鍨嬫妧鏈姤鍛婅В璇?/a>
+绛夈€?/span>
+澶囨敞锛氬鍚?瀛︽牎/鍏徃+鏂瑰悜锛屾殫鍙?
+AI
+"浼樺厛瀹℃牳閫氳繃!
+閮界湅鍒拌繖浜嗭紝
+鐐逛釜鍏虫敞鍐嶈蛋
+鍚ю煣愶綖

@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Agent Runtime Architecture",
+    "subtitle": "Orchestrator, memory, RAG, tools, evaluator, and safety loop",
+    "output": "assets/diagrams/html/agent-runtime-architecture.html",
+    "viewBox": [
+      720,
+      840
+    ]
+  },
+  "lanes": [
+    {
+      "id": "user",
+      "label": "User / Task"
+    },
+    {
+      "id": "control",
+      "label": "Control Plane"
+    },
+    {
+      "id": "context",
+      "label": "Context Plane"
+    },
+    {
+      "id": "execution",
+      "label": "Execution Plane"
+    },
+    {
+      "id": "quality",
+      "label": "Quality / Safety"
+    }
+  ],
+  "phases": [
+    {
+      "id": "intake",
+      "label": "Intake",
+      "fromCol": 0,
+      "toCol": 1,
+      "variant": "dashed"
+    },
+    {
+      "id": "reason",
+      "label": "Plan + Context",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "act",
+      "label": "Act + Check",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "context-group",
+      "label": "Memory and retrieval",
+      "lane": "context",
+      "fromCol": 3,
+      "toCol": 5,
+      "variant": "dashed"
+    },
+    {
+      "id": "exec-group",
+      "label": "Tool execution boundary",
+      "lane": "execution",
+      "fromCol": 3,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "goal",
+      "lane": "user",
+      "col": 0,
+      "type": "external",
+      "label": "User Goal",
+      "sublabel": "task input"
+    },
+    {
+      "id": "response",
+      "lane": "quality",
+      "col": 5,
+      "type": "frontend",
+      "label": "Response",
+      "sublabel": "answer / artifact"
+    },
+    {
+      "id": "orchestrator",
+      "lane": "control",
+      "col": 1,
+      "type": "backend",
+      "label": "Orchestrator",
+      "sublabel": "state + budget"
+    },
+    {
+      "id": "planner",
+      "lane": "control",
+      "col": 3,
+      "type": "backend",
+      "label": "Planner",
+      "sublabel": "steps + stop"
+    },
+    {
+      "id": "memory",
+      "lane": "context",
+      "col": 3,
+      "type": "database",
+      "label": "Memory",
+      "sublabel": "profile / history"
+    },
+    {
+      "id": "rag",
+      "lane": "context",
+      "col": 5,
+      "type": "database",
+      "label": "RAG",
+      "sublabel": "evidence + cite"
+    },
+    {
+      "id": "tool",
+      "lane": "execution",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Tool Registry",
+      "sublabel": "schema + policy",
+      "width": 108
+    },
+    {
+      "id": "executor",
+      "lane": "execution",
+      "col": 5,
+      "type": "cloud",
+      "label": "Executor",
+      "sublabel": "API / sandbox"
+    },
+    {
+      "id": "evaluator",
+      "lane": "quality",
+      "col": 4,
+      "type": "security",
+      "label": "Evaluator",
+      "sublabel": "verify / reflect"
+    },
+    {
+      "id": "safety",
+      "lane": "quality",
+      "col": 2,
+      "type": "security",
+      "label": "Safety Gate",
+      "sublabel": "permission"
+    }
+  ],
+  "edges": [
+    {
+      "from": "goal",
+      "to": "orchestrator",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "orchestrator",
+      "to": "planner"
+    },
+    {
+      "from": "planner",
+      "to": "memory",
+      "label": "read state",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "memory",
+      "to": "rag",
+      "variant": "dashed"
+    },
+    {
+      "from": "rag",
+      "to": "tool",
+      "label": "context",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "tool",
+      "to": "executor",
+      "variant": "emphasis"
+    },
+    {
+      "from": "executor",
+      "to": "evaluator",
+      "label": "observation",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "evaluator",
+      "to": "response",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Interview angle",
+      "items": [
+        "Agent is a system, not just ReAct",
+        "State, context, action, verification are separate planes",
+        "Safety and evaluator decide retry or stop"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "LLM Framework Landscape",
+    "subtitle": "training, RL orchestration, rollout, and serving",
+    "output": "framework-landscape.html"
+  },
+  "lanes": [
+    {
+      "id": "train",
+      "label": "Distributed Training"
+    },
+    {
+      "id": "rl",
+      "label": "RL Post-training"
+    },
+    {
+      "id": "serve",
+      "label": "Inference / Serving"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase-train",
+      "label": "Scale model states",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "phase-rl",
+      "label": "Orchestrate rollout-reward-update",
+      "fromCol": 2,
+      "toCol": 3
+    },
+    {
+      "id": "phase-serve",
+      "label": "Optimize KV cache and requests",
+      "fromCol": 4,
+      "toCol": 5
+    }
+  ],
+  "nodes": [
+    {
+      "id": "ds",
+      "lane": "train",
+      "col": 0,
+      "type": "backend",
+      "label": "DeepSpeed",
+      "sublabel": "ZeRO / offload"
+    },
+    {
+      "id": "mg",
+      "lane": "train",
+      "col": 2,
+      "type": "backend",
+      "label": "Megatron-LM",
+      "sublabel": "TP / PP / EP"
+    },
+    {
+      "id": "swift",
+      "lane": "rl",
+      "col": 0,
+      "type": "frontend",
+      "label": "SWIFT",
+      "sublabel": "recipes / eval"
+    },
+    {
+      "id": "verl",
+      "lane": "rl",
+      "col": 2,
+      "type": "messagebus",
+      "label": "VeRL",
+      "sublabel": "HybridFlow"
+    },
+    {
+      "id": "slime",
+      "lane": "rl",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Slime",
+      "sublabel": "Megatron + SGLang"
+    },
+    {
+      "id": "vllm",
+      "lane": "serve",
+      "col": 3,
+      "type": "cloud",
+      "label": "vLLM",
+      "sublabel": "PagedAttention"
+    },
+    {
+      "id": "sg",
+      "lane": "serve",
+      "col": 5,
+      "type": "cloud",
+      "label": "SGLang",
+      "sublabel": "RadixAttention"
+    }
+  ],
+  "edges": [
+    {
+      "from": "ds",
+      "to": "mg",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "mg",
+      "to": "verl",
+      "label": "training backend",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "swift",
+      "to": "verl",
+      "label": "algorithm recipes",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "verl",
+      "to": "slime",
+      "label": "scaling loop",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "verl",
+      "to": "vllm",
+      "label": "rollout engine",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "slime",
+      "to": "sg",
+      "label": "agentic rollout",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "vllm",
+      "to": "sg",
+      "label": "serving choices",
+      "fromSide": "right",
+      "toSide": "left"
+    }
+  ],
+  "cards": []
+}

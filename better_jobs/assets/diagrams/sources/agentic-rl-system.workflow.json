@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Agentic RL 系统链路",
+    "subtitle": "从多轮 Agent rollout 到 reward loop，再到 policy update",
+    "output": "assets/diagrams/html/agentic-rl-system.html",
+    "viewBox": [
+      720,
+      860
+    ]
+  },
+  "lanes": [
+    {
+      "id": "task",
+      "label": "任务与环境"
+    },
+    {
+      "id": "agent",
+      "label": "Agent Loop"
+    },
+    {
+      "id": "trace",
+      "label": "可训练轨迹"
+    },
+    {
+      "id": "reward",
+      "label": "Reward Loop"
+    },
+    {
+      "id": "update",
+      "label": "策略更新"
+    }
+  ],
+  "phases": [
+    {
+      "id": "rollout",
+      "label": "Rollout",
+      "fromCol": 0,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "scoring",
+      "label": "Scoring",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "dashed"
+    },
+    {
+      "id": "learning",
+      "label": "Learning",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "agent-loop",
+      "label": "多轮交互闭环",
+      "lane": "agent",
+      "fromCol": 1,
+      "toCol": 5,
+      "variant": "emphasis"
+    },
+    {
+      "id": "reward-workers",
+      "label": "并行 reward workers",
+      "lane": "reward",
+      "fromCol": 3,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "prompt",
+    "generate",
+    "tool",
+    "trajectory",
+    "reward-loop",
+    "advantage",
+    "policy-update"
+  ],
+  "nodes": [
+    {
+      "id": "prompt",
+      "lane": "task",
+      "col": 0,
+      "type": "external",
+      "label": "Prompt / Task",
+      "sublabel": "任务入口"
+    },
+    {
+      "id": "observation",
+      "lane": "task",
+      "col": 4,
+      "type": "cloud",
+      "label": "Observation",
+      "sublabel": "环境反馈"
+    },
+    {
+      "id": "generate",
+      "lane": "agent",
+      "col": 1,
+      "type": "backend",
+      "label": "LLM Generate",
+      "sublabel": "action / tool call"
+    },
+    {
+      "id": "tool",
+      "lane": "agent",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Tool / Env",
+      "sublabel": "执行动作"
+    },
+    {
+      "id": "stop",
+      "lane": "agent",
+      "col": 5,
+      "type": "security",
+      "label": "Stop Check",
+      "sublabel": "继续或结束"
+    },
+    {
+      "id": "trajectory",
+      "lane": "trace",
+      "col": 3,
+      "type": "database",
+      "label": "Trajectory",
+      "sublabel": "tokens + trace"
+    },
+    {
+      "id": "mask",
+      "lane": "trace",
+      "col": 5,
+      "type": "security",
+      "label": "response_mask",
+      "sublabel": "tool obs = 0"
+    },
+    {
+      "id": "reward-loop",
+      "lane": "reward",
+      "col": 3,
+      "type": "backend",
+      "label": "Reward Loop",
+      "sublabel": "rule / RM / judge"
+    },
+    {
+      "id": "advantage",
+      "lane": "reward",
+      "col": 5,
+      "type": "database",
+      "label": "Credit Assign",
+      "sublabel": "step / token"
+    },
+    {
+      "id": "policy-update",
+      "lane": "update",
+      "col": 5,
+      "type": "backend",
+      "label": "Policy Update",
+      "sublabel": "GRPO / PPO / DPO"
+    }
+  ],
+  "edges": [
+    {
+      "from": "prompt",
+      "to": "generate",
+      "label": "sample",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "generate",
+      "to": "tool",
+      "variant": "default"
+    },
+    {
+      "from": "tool",
+      "to": "observation",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "drop",
+      "labelDy": -10
+    },
+    {
+      "from": "observation",
+      "to": "stop",
+      "label": "append context",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "stop",
+      "to": "generate",
+      "variant": "dashed",
+      "role": "return",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "route": "bottom-channel",
+      "labelDy": -8
+    },
+    {
+      "from": "tool",
+      "to": "trajectory",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "stop",
+      "to": "trajectory",
+      "label": "final trace",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "trajectory",
+      "to": "mask",
+      "variant": "security"
+    },
+    {
+      "from": "trajectory",
+      "to": "reward-loop",
+      "label": "batch / stream",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "reward-loop",
+      "to": "advantage",
+      "variant": "default"
+    },
+    {
+      "from": "advantage",
+      "to": "policy-update",
+      "label": "masked loss",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "outside-right"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "面试抓手",
+      "items": [
+        "Agentic RL 的样本是多轮 trace，不是普通 response",
+        "response_mask 决定哪些 token 进入 policy loss",
+        "Reward Loop 要能并行、可复现、可审计"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "常见故障",
+      "items": [
+        "tool observation 被错误算进 loss",
+        "reward 只看最终答案，无法定位失败步骤",
+        "rollout 和训练模板不一致导致 logprob 错位"
+      ]
+    }
+  ]
+}

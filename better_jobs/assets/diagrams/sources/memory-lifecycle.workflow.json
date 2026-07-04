@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Agent Memory Lifecycle",
+    "subtitle": "Write admission, validation, storage, retrieval, injection, and decay",
+    "output": "assets/diagrams/html/memory-lifecycle.html",
+    "viewBox": [
+      720,
+      760
+    ]
+  },
+  "lanes": [
+    {
+      "id": "interaction",
+      "label": "Interaction"
+    },
+    {
+      "id": "write",
+      "label": "Write Path"
+    },
+    {
+      "id": "read",
+      "label": "Read Path"
+    },
+    {
+      "id": "govern",
+      "label": "Governance"
+    }
+  ],
+  "phases": [
+    {
+      "id": "capture",
+      "label": "Capture",
+      "fromCol": 0,
+      "toCol": 1,
+      "variant": "dashed"
+    },
+    {
+      "id": "store",
+      "label": "Store",
+      "fromCol": 2,
+      "toCol": 3,
+      "variant": "emphasis"
+    },
+    {
+      "id": "use",
+      "label": "Use",
+      "fromCol": 4,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "quality",
+      "label": "Quality gate",
+      "lane": "write",
+      "fromCol": 1,
+      "toCol": 3,
+      "variant": "security"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "interaction",
+      "lane": "interaction",
+      "col": 0,
+      "type": "external",
+      "label": "Interaction",
+      "sublabel": "user / task"
+    },
+    {
+      "id": "extract",
+      "lane": "write",
+      "col": 1,
+      "type": "backend",
+      "label": "Extract",
+      "sublabel": "candidate"
+    },
+    {
+      "id": "validate",
+      "lane": "write",
+      "col": 3,
+      "type": "security",
+      "label": "Validate",
+      "sublabel": "tag + privacy"
+    },
+    {
+      "id": "store-memory",
+      "lane": "write",
+      "col": 5,
+      "type": "database",
+      "label": "Memory Store",
+      "sublabel": "structured"
+    },
+    {
+      "id": "retrieve",
+      "lane": "read",
+      "col": 3,
+      "type": "database",
+      "label": "Retrieve",
+      "sublabel": "task matched"
+    },
+    {
+      "id": "inject",
+      "lane": "read",
+      "col": 5,
+      "type": "frontend",
+      "label": "Inject",
+      "sublabel": "context pack"
+    },
+    {
+      "id": "decay",
+      "lane": "govern",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Decay",
+      "sublabel": "expire / update"
+    },
+    {
+      "id": "conflict",
+      "lane": "govern",
+      "col": 3,
+      "type": "security",
+      "label": "Conflict",
+      "sublabel": "resolve"
+    }
+  ],
+  "edges": [
+    {
+      "from": "interaction",
+      "to": "extract",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "extract",
+      "to": "validate",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "from": "validate",
+      "to": "store-memory",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left",
+      "route": "straight"
+    },
+    {
+      "from": "store-memory",
+      "to": "retrieve",
+      "label": "query time",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "retrieve",
+      "to": "inject",
+      "variant": "emphasis"
+    },
+    {
+      "from": "decay",
+      "to": "conflict",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Key idea",
+      "items": [
+        "Memory should not store everything",
+        "Use admission, expiry, confidence, source, privacy level",
+        "Retrieval needs recency, importance, similarity, conflict check"
+      ]
+    }
+  ]
+}

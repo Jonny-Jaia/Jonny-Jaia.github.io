@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "VeRL HybridFlow Dataflow",
+    "subtitle": "Controller, WorkerGroup, DataProto, rollout, reward, advantage, and update",
+    "output": "assets/diagrams/html/verl-hybridflow-dataflow.html",
+    "viewBox": [
+      720,
+      860
+    ]
+  },
+  "lanes": [
+    {
+      "id": "controller",
+      "label": "Controller"
+    },
+    {
+      "id": "rollout",
+      "label": "Rollout Workers"
+    },
+    {
+      "id": "scoring",
+      "label": "Reference / Reward / Critic"
+    },
+    {
+      "id": "training",
+      "label": "Actor / Critic Update"
+    },
+    {
+      "id": "system",
+      "label": "System State"
+    }
+  ],
+  "phases": [
+    {
+      "id": "sample",
+      "label": "Sample",
+      "fromCol": 0,
+      "toCol": 2,
+      "variant": "emphasis"
+    },
+    {
+      "id": "score",
+      "label": "Score",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "dashed"
+    },
+    {
+      "id": "update",
+      "label": "Update",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "workers",
+      "label": "Distributed WorkerGroups",
+      "lane": "scoring",
+      "fromCol": 3,
+      "toCol": 5,
+      "variant": "emphasis"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "prompts",
+      "lane": "controller",
+      "col": 0,
+      "type": "external",
+      "label": "Prompt Batch",
+      "sublabel": "dataset metadata"
+    },
+    {
+      "id": "dataproto",
+      "lane": "controller",
+      "col": 1,
+      "type": "database",
+      "label": "DataProto",
+      "sublabel": "fields contract"
+    },
+    {
+      "id": "advantage",
+      "lane": "controller",
+      "col": 5,
+      "type": "backend",
+      "label": "Advantage",
+      "sublabel": "GRPO / GAE / OPD"
+    },
+    {
+      "id": "generate",
+      "lane": "rollout",
+      "col": 2,
+      "type": "cloud",
+      "label": "Generate",
+      "sublabel": "vLLM / SGLang"
+    },
+    {
+      "id": "logprob",
+      "lane": "scoring",
+      "col": 3,
+      "type": "backend",
+      "label": "Logprobs",
+      "sublabel": "actor / ref"
+    },
+    {
+      "id": "reward",
+      "lane": "scoring",
+      "col": 5,
+      "type": "security",
+      "label": "Reward",
+      "sublabel": "RM / verifier"
+    },
+    {
+      "id": "actor-update",
+      "lane": "training",
+      "col": 5,
+      "type": "backend",
+      "label": "Actor Update",
+      "sublabel": "masked loss"
+    },
+    {
+      "id": "resource",
+      "lane": "system",
+      "col": 3,
+      "type": "messagebus",
+      "label": "ResourcePool",
+      "sublabel": "GPU placement"
+    },
+    {
+      "id": "metrics",
+      "lane": "system",
+      "col": 5,
+      "type": "database",
+      "label": "Metrics",
+      "sublabel": "KL / length / reward"
+    }
+  ],
+  "edges": [
+    {
+      "from": "prompts",
+      "to": "dataproto"
+    },
+    {
+      "from": "dataproto",
+      "to": "generate",
+      "label": "dispatch",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "generate",
+      "to": "logprob",
+      "label": "responses + mask",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "logprob",
+      "to": "reward",
+      "variant": "default"
+    },
+    {
+      "from": "reward",
+      "to": "advantage",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "drop"
+    },
+    {
+      "from": "advantage",
+      "to": "actor-update",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "right",
+      "route": "outside-right"
+    },
+    {
+      "from": "resource",
+      "to": "generate",
+      "label": "placement",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "route": "drop"
+    },
+    {
+      "from": "actor-update",
+      "to": "metrics",
+      "label": "report",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Interview angle",
+      "items": [
+        "Control flow stays in the controller",
+        "Heavy computation runs in WorkerGroups",
+        "DataProto is the field contract between roles"
+      ]
+    }
+  ]
+}

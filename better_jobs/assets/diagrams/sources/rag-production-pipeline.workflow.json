@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "RAG 生产链路",
+    "subtitle": "离线索引、在线检索、答案生成与可观测闭环",
+    "output": "assets/diagrams/html/rag-production-pipeline.html",
+    "viewBox": [
+      720,
+      820
+    ]
+  },
+  "lanes": [
+    {
+      "id": "offline",
+      "label": "离线知识建设"
+    },
+    {
+      "id": "online",
+      "label": "在线查询链路"
+    },
+    {
+      "id": "llm",
+      "label": "生成与引用"
+    },
+    {
+      "id": "quality",
+      "label": "评估与监控"
+    }
+  ],
+  "phases": [
+    {
+      "id": "index",
+      "label": "Index",
+      "fromCol": 0,
+      "toCol": 2,
+      "variant": "dashed"
+    },
+    {
+      "id": "retrieve",
+      "label": "Retrieve",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "answer",
+      "label": "Answer",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "security"
+    }
+  ],
+  "groups": [
+    {
+      "id": "recall",
+      "label": "召回与精排",
+      "lane": "online",
+      "fromCol": 2,
+      "toCol": 4,
+      "variant": "emphasis"
+    }
+  ],
+  "mainPath": [
+    "query",
+    "hybrid",
+    "rerank",
+    "context",
+    "answer"
+  ],
+  "nodes": [
+    {
+      "id": "docs",
+      "lane": "offline",
+      "col": 0,
+      "type": "external",
+      "label": "Documents",
+      "sublabel": "清洗 / 权限"
+    },
+    {
+      "id": "chunk",
+      "lane": "offline",
+      "col": 2,
+      "type": "backend",
+      "label": "Chunking",
+      "sublabel": "结构化切分"
+    },
+    {
+      "id": "store",
+      "lane": "offline",
+      "col": 4,
+      "type": "database",
+      "label": "Index Store",
+      "sublabel": "BM25 + vector"
+    },
+    {
+      "id": "query",
+      "lane": "online",
+      "col": 0,
+      "type": "frontend",
+      "label": "User Query",
+      "sublabel": "rewrite / intent"
+    },
+    {
+      "id": "hybrid",
+      "lane": "online",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Hybrid Recall",
+      "sublabel": "sparse + dense"
+    },
+    {
+      "id": "rerank",
+      "lane": "online",
+      "col": 4,
+      "type": "backend",
+      "label": "Rerank",
+      "sublabel": "cross encoder"
+    },
+    {
+      "id": "context",
+      "lane": "llm",
+      "col": 4,
+      "type": "database",
+      "label": "Context Pack",
+      "sublabel": "去重 / 引用"
+    },
+    {
+      "id": "answer",
+      "lane": "llm",
+      "col": 5,
+      "type": "backend",
+      "label": "Answer",
+      "sublabel": "grounded output"
+    },
+    {
+      "id": "eval",
+      "lane": "quality",
+      "col": 4,
+      "type": "security",
+      "label": "Eval",
+      "sublabel": "Recall / faithfulness"
+    },
+    {
+      "id": "monitor",
+      "lane": "quality",
+      "col": 5,
+      "type": "database",
+      "label": "Monitor",
+      "sublabel": "日志 / 漂移"
+    }
+  ],
+  "edges": [
+    {
+      "from": "docs",
+      "to": "chunk",
+      "variant": "default"
+    },
+    {
+      "from": "chunk",
+      "to": "store",
+      "variant": "default"
+    },
+    {
+      "from": "store",
+      "to": "hybrid",
+      "label": "candidate docs",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "query",
+      "to": "hybrid",
+      "variant": "emphasis"
+    },
+    {
+      "from": "hybrid",
+      "to": "rerank",
+      "variant": "emphasis"
+    },
+    {
+      "from": "rerank",
+      "to": "context",
+      "label": "top-k evidence",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "context",
+      "to": "answer",
+      "variant": "emphasis"
+    },
+    {
+      "from": "answer",
+      "to": "monitor",
+      "label": "logs",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "context",
+      "to": "eval",
+      "label": "evidence quality",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "eval",
+      "to": "monitor",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "核心结论",
+      "items": [
+        "RAG 把知识更新与模型行为解耦",
+        "瓶颈通常在召回、排序、上下文组织和忠实生成",
+        "生产系统必须同时处理权限、版本、评估和监控"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DAPO: An Open-Source LLM Reinforcement Learning System at Scale &mdash; swift 4.5.0.dev0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4942388b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <script src="../../../_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+    <link rel="next" title="DeepEyes: Incentivizing &#34;Thinking with Images&#34; via Reinforcement Learning" href="deepeyes.html" />
+    <link rel="prev" title="Clipped Importance Sampling Policy Optimization (CISPO)" href="CISPO.html" /> 
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="swift-zh" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/Instruction/GRPO/AdvancedResearch/DAPO.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            swift
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/SWIFT-installation.html">SWIFT安装</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Web-UI.html">Web-UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instruction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Pre-training-and-Fine-tuning.html">预训练与微调</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">GRPO</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GetStarted/index.html">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../DeveloperGuide/index.html">Developer Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Advanced Research</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="entropy_mask.html">Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CISPO.html">Clipped Importance Sampling Policy Optimization (CISPO)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#clip-higher">Clip Higher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dynamic-sampling">Dynamic Sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#token-level-loss">Token level Loss</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#overlong-filtering">Overlong Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soft-overlong-punishment">Soft Overlong Punishment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">参数设置</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="deepeyes.html">DeepEyes: Incentivizing &quot;Thinking with Images&quot; via Reinforcement Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="FIPO.html">FIPO: Future-KL Influenced Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GSPO.html">Group Sequence Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CHORD.html">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="RLOO.html">REINFORCE Leave-One-Out (RLOO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REINFORCEPP.html">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REAL.html">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="router_replay.html">Router Replay (R2/R3)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SAPO.html">Soft Adaptive Policy Optimization (SAPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="training_inference_mismatch.html">Training-Inference-Mismatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="treepo.html">TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Distillation.html">知识蒸馏（Knowledge Distillation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RLHF.html">人类对齐</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Inference-and-deployment.html">推理和部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Sample.html">采样</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Evaluation.html">评测</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Export-and-push.html">导出与推送</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray.html">ray的支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Reinforced-Fine-tuning.html">强化微调</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Agent-support.html">Agent支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supported-models-and-datasets.html">支持的模型和数据集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Use-tuners.html">使用Tuners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Frequently-asked-questions.html">常见问题整理</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Megatron-SWIFT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/LoRA-Training.html">LoRA训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Multimodal-Model.html">多模态模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Mcore-Bridge.html">Mcore-Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GRPO.html">GRPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GKD.html">GKD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Ascend.html">Ascend NPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Custom-Model.html">自定义Megatron模型</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Architecture.html">架构介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-model.html">自定义模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-dataset.html">自定义数据集</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO.html">GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Multi-Modal-Training.html">多模态GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Code-Training.html">GRPO代码训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-Best-Practice.html">Qwen3最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-VL-Best-Practice.html">Qwen3-VL最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3_5-Best-Practice.html">Qwen3.5 最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/deepseek-v4.html">DeepSeek-V4 训练支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/MLLM-Registration.html">注册多模态模型最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Embedding.html">Embedding训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Reranker.html">Reranker训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Rapidly-Training-VL-model.html">快速训练VL模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Metax-support.html">Metax支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/AMD-support.html">AMD GPU 支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/More-Best-Practices.html">更多最佳实践</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">swift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">GRPO</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Advanced Research</a></li>
+      <li class="breadcrumb-item active">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Instruction/GRPO/AdvancedResearch/DAPO.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="dapo-an-open-source-llm-reinforcement-learning-system-at-scale">
+<h1>DAPO: An Open-Source LLM Reinforcement Learning System at Scale<a class="headerlink" href="#dapo-an-open-source-llm-reinforcement-learning-system-at-scale" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://arxiv.org/abs/2503.14476">Decoupled Clip and Dynamic sAmpling Policy Optimization (DAPO)</a>在GRPO的基础上设置了几种trick，分别是</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#clip-higher"><span class="xref myst">Clip Higher</span></a></p></li>
+<li><p><a class="reference internal" href="#dynamic-sampling"><span class="xref myst">Dynamic Sampling</span></a></p></li>
+<li><p><a class="reference internal" href="#token-level-loss"><span class="xref myst">Token level Loss</span></a></p></li>
+<li><p><a class="reference internal" href="#overlong-filtering"><span class="xref myst">Overlong Filtering</span></a></p></li>
+<li><p><a class="reference internal" href="#soft-overlong-punishment"><span class="xref myst">Soft Overlong Punishment</span></a></p></li>
+</ul>
+<section id="clip-higher">
+<h2>Clip Higher<a class="headerlink" href="#clip-higher" title="Link to this heading"></a></h2>
+<p>PPO和GRPO使用对称裁剪范围(如±0.2)限制策略更新幅度，虽然保证了稳定性，但也制约了模型的探索能力。特别是当某些token在旧策略中概率极低时，即使当前梯度显示其应被强化(A&gt;0)，最大增幅也被严格限制。</p>
+<p>DAPO使用非对称裁剪范围, 提高上裁剪范围来鼓励模型进行探索：</p>
+<ul class="simple">
+<li><p>上界(鼓励侧)放宽至0.28</p></li>
+<li><p>下界(抑制侧)保持0.2不变</p></li>
+</ul>
+<p>GRPO中，默认使用<code class="docutils literal notranslate"><span class="pre">epsilon</span></code>设置用对称裁剪范围</p>
+<p>使用参数</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">epsilon_high</span></code> 设置上裁剪范围，此时参数<code class="docutils literal notranslate"><span class="pre">epsilon</span></code> 为下裁剪范围</p></li>
+</ul>
+</section>
+<section id="dynamic-sampling">
+<h2>Dynamic Sampling<a class="headerlink" href="#dynamic-sampling" title="Link to this heading"></a></h2>
+<p>GRPO对每个问题采样多个回答计算组间优势，</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{A}_{i,t} = \frac{R_i - \text{mean}(\{R_j\}_{j=1}^G)}{\text{std}(\{R_j\}_{j=1}^G)}
+\]</div>
+<p>而当生成的所有输出{oi}获得相同奖励时，组间优势等于0，会出现梯度消失导致训练效率下降</p>
+<p>DAPO引入动态采样策略解决这一问题：</p>
+<ul class="simple">
+<li><p>采样阶段跳过组间奖励标准差为0的数据</p></li>
+<li><p>持续生成样本直到填满批次</p></li>
+</ul>
+<p>使用参数</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic_sample</span> <span class="pre">true</span></code> 来开启动态采样</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_resample_times</span></code> 设置最多重采样次数</p></li>
+</ul>
+</section>
+<section id="token-level-loss">
+<h2>Token level Loss<a class="headerlink" href="#token-level-loss" title="Link to this heading"></a></h2>
+<p>GRPO 在归一化损失时采用句子级归一化，这会导致损失计算具有长度偏差。</p>
+<p>DAPO 使用token级归一化，避免了回答长度在损失计算上的偏差。</p>
+<p>使用参数</p>
+<ul class="simple">
+<li><p>loss_type bnpo/dapo 来使用token级归一化</p></li>
+</ul>
+<blockquote>
+<div><p>loss_type 计算公式可参考<a class="reference internal" href="../DeveloperGuide/loss_types.html"><span class="std std-doc">文档</span></a></p>
+</div></blockquote>
+</section>
+<section id="overlong-filtering">
+<h2>Overlong Filtering<a class="headerlink" href="#overlong-filtering" title="Link to this heading"></a></h2>
+<p>DAPO 认为被强制截断的回复的奖励噪声较大，可能会导致模型难以区分质量问题和长度问题。为此，DAPO 筛除了训练中被截断的数据，使其不参与损失计算。</p>
+<p>使用参数</p>
+<ul class="simple">
+<li><p>overlong_filter 开启对超长样本的过滤</p></li>
+</ul>
+</section>
+<section id="soft-overlong-punishment">
+<h2>Soft Overlong Punishment<a class="headerlink" href="#soft-overlong-punishment" title="Link to this heading"></a></h2>
+<p>语言模型常面临生成长度控制难题：</p>
+<ul class="simple">
+<li><p>过长输出可能被截断，导致正确内容被误判</p></li>
+<li><p>无约束生成长度影响实用性和计算效率</p></li>
+</ul>
+<p>DAPO 设计了三段式长度惩罚函数：</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+R_{\text{length}}(L) =
+\begin{cases}
+0, &amp; L \leq L_{\text{max}} - L_{\text{cache}} \\[10pt]
+\dfrac{(L_{\text{max}} - L_{\text{cache}}) - L}{L_{\text{cache}}}, &amp; L_{\text{max}} - L_{\text{cache}} &lt; L \leq L_{\text{max}} \\[10pt]
+-1, &amp;  L &gt; L_{\text{max}}
+\end{cases}
+\end{split}\]</div>
+<p>在长度位于 <span class="math notranslate nohighlight">\((L_{\text{max}} - L_{\text{cache}} &lt; L \leq L_{\text{max}})\)</span> 区间时设置线性递增惩罚，在 <span class="math notranslate nohighlight">\((L &gt; L_{\text{max}})\)</span> 时设置最大惩罚(-1)</p>
+<p>使用参数</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reward_funcs</span> <span class="pre">soft_overlong</span></code> 启用该奖励函数</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">soft_max_length</span></code> 设置L_max，默认等于为模型的最长输出长度(max_completion_length)。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">soft_cache_length</span></code>: 设置L_cache</p></li>
+</ul>
+</section>
+<section id="id1">
+<h2>参数设置<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>综上所述，我们可以基于GRPOTrainer，设置以下参数实现 DAPO 训练。</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--loss_type</code></td>
+<td><code>str</code></td>
+<td><code>bnpo</code>/<code>dapo</code></td>
+</tr>
+<tr>
+<td><code>--epsilon_high</code></td>
+<td><code>float</code></td>
+<td><code>0.28</code></td>
+</tr>
+<tr>
+<td><code>--dynamic_sample</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>--max_resample_times</code></td>
+<td><code>int</code></td>
+<td><code>3</code></td>
+</tr>
+<tr>
+<td><code>--overlong_filter</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>--reward_funcs</code></td>
+<td><code>str</code></td>
+<td><code>soft_overlong</code></td>
+</tr>
+<tr>
+<td><code>--soft_cache_length</code></td>
+<td><code>int</code></td>
+<td><code>4096</code></td>
+</tr>
+</tbody>
+</table></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="CISPO.html" class="btn btn-neutral float-left" title="Clipped Importance Sampling Policy Optimization (CISPO)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="deepeyes.html" class="btn btn-neutral float-right" title="DeepEyes: Incentivizing &#34;Thinking with Images&#34; via Reinforcement Learning" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022-2025, Alibaba ModelScope。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

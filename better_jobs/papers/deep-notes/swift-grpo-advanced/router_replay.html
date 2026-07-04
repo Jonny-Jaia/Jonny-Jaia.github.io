@@ -1,0 +1,369 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Router Replay (R2/R3) &mdash; swift 4.5.0.dev0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4942388b"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=ccdb6887"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <script src="../../../_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" />
+    <link rel="next" title="Soft Adaptive Policy Optimization (SAPO)" href="SAPO.html" />
+    <link rel="prev" title="Rewards as Labels: Revisiting RLVR from a Classification Perspective" href="REAL.html" /> 
+<script async type="text/javascript" src="/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="swift-zh" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/Instruction/GRPO/AdvancedResearch/router_replay.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            swift
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/SWIFT-installation.html">SWIFT安装</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GetStarted/Web-UI.html">Web-UI</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Instruction</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Pre-training-and-Fine-tuning.html">预训练与微调</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">GRPO</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../GetStarted/index.html">Get Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../DeveloperGuide/index.html">Developer Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Advanced Research</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="entropy_mask.html">Beyond the 80/20 Rule: High-Entropy Minority Tokens Drive Effective Reinforcement Learning for LLM Reasoning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CISPO.html">Clipped Importance Sampling Policy Optimization (CISPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="DAPO.html">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="deepeyes.html">DeepEyes: Incentivizing &quot;Thinking with Images&quot; via Reinforcement Learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="FIPO.html">FIPO: Future-KL Influenced Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GSPO.html">Group Sequence Policy Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="CHORD.html">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="RLOO.html">REINFORCE Leave-One-Out (RLOO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REINFORCEPP.html">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="REAL.html">Rewards as Labels: Revisiting RLVR from a Classification Perspective</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Router Replay (R2/R3)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#r2-vanilla-routing-replay">R2: Vanilla Routing Replay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#r3-rollout-routing-replay">R3: Rollout Routing Replay</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#router-mask-caching">Router Mask Caching</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#swift">Swift 实现</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">参考资料</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="SAPO.html">Soft Adaptive Policy Optimization (SAPO)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="training_inference_mismatch.html">Training-Inference-Mismatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="treepo.html">TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Distillation.html">知识蒸馏（Knowledge Distillation）</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../RLHF.html">人类对齐</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Inference-and-deployment.html">推理和部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Sample.html">采样</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Evaluation.html">评测</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Export-and-push.html">导出与推送</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray.html">ray的支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Reinforced-Fine-tuning.html">强化微调</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Agent-support.html">Agent支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Supported-models-and-datasets.html">支持的模型和数据集</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Use-tuners.html">使用Tuners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Frequently-asked-questions.html">常见问题整理</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Megatron-SWIFT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Quick-start.html">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Command-line-parameters.html">命令行参数</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/LoRA-Training.html">LoRA训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Multimodal-Model.html">多模态模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Mcore-Bridge.html">Mcore-Bridge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GRPO.html">GRPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/GKD.html">GKD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Ascend.html">Ascend NPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Megatron-SWIFT/Custom-Model.html">自定义Megatron模型</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Architecture.html">架构介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-model.html">自定义模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Customization/Custom-dataset.html">自定义数据集</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Best Practices</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO.html">GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Multi-Modal-Training.html">多模态GRPO完整实验流程</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/GRPO-Code-Training.html">GRPO代码训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-Best-Practice.html">Qwen3最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3-VL-Best-Practice.html">Qwen3-VL最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Qwen3_5-Best-Practice.html">Qwen3.5 最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/deepseek-v4.html">DeepSeek-V4 训练支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/MLLM-Registration.html">注册多模态模型最佳实践</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Embedding.html">Embedding训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Reranker.html">Reranker训练</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Rapidly-Training-VL-model.html">快速训练VL模型</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/Metax-support.html">Metax支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/AMD-support.html">AMD GPU 支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../BestPractices/More-Best-Practices.html">更多最佳实践</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">swift</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">GRPO</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Advanced Research</a></li>
+      <li class="breadcrumb-item active">Router Replay (R2/R3)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/Instruction/GRPO/AdvancedResearch/router_replay.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="router-replay-r2-r3">
+<h1>Router Replay (R2/R3)<a class="headerlink" href="#router-replay-r2-r3" title="Link to this heading"></a></h1>
+<p><strong>TL;DR</strong>: 在 MoE 模型的 RL 训练中，训练引擎与推理引擎之间的路由（expert routing）不一致会显著放大训推偏差，甚至导致训练崩溃。Router Replay 通过在训练前向传播中回放固定的路由掩码来消除这一不一致。根据回放来源的不同，分为 R2（Vanilla Routing Replay）和 R3（Rollout Routing Replay）两种策略。</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<section id="moe-rl">
+<h3>MoE RL 中的三个策略<a class="headerlink" href="#moe-rl" title="Link to this heading"></a></h3>
+<p>在 MoE 模型的 GRPO 训练中，存在三个不同阶段的策略，它们共享相同的模型权重，但路由行为可能不同：</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>策略</th>
+<th>符号</th>
+<th>路由结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>训练策略</strong></td>
+<td>$\pi_\theta$</td>
+<td>$e^{\pi}_t$</td>
+<td>梯度更新中的模型</td>
+</tr>
+<tr>
+<td><strong>Old Policy</strong></td>
+<td>$\pi_{\theta_{\text{old}}}$</td>
+<td>$e^{\pi}_{\text{old},t}$</td>
+<td>批次更新前的模型状态</td>
+</tr>
+<tr>
+<td><strong>Rollout Policy</strong></td>
+<td>$\mu_{\theta_{\text{old}}}$</td>
+<td>$e^{\mu}_{\text{old},t}$</td>
+<td>推理引擎（如vLLM）中的采样策略，权重与 old policy 相同，但 kernel 实现、精度等差异导致路由不同</td>
+</tr>
+</tbody>
+</table>
+<p>其中，<span class="math notranslate nohighlight">\(\pi_{\theta_{\text{old}}}\)</span> 和 <span class="math notranslate nohighlight">\(\mu_{\theta_{\text{old}}}\)</span> 的权重在采样时完全一致，但由于推理引擎与训练引擎的实现差异（如算子实现），即使输入相同，路由结果也可能不同。</p>
+</section>
+<section id="id1">
+<h3>训推不一致的分解<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>根据 <a class="reference external" href="https://arxiv.org/abs/2507.18071">论文</a> 的分析，token 级重要性采样比可以分解为两个因子：</p>
+<div class="math notranslate nohighlight">
+\[
+\frac{\pi_\theta(y_t|x, y_{&lt;t})}{\mu_{\theta_{\text{old}}}(y_t|x, y_{&lt;t})} = \underbrace{\frac{\pi_{\theta_{\text{old}}}(y_t|x, y_{&lt;t})}{\mu_{\theta_{\text{old}}}(y_t|x, y_{&lt;t})}}_{\text{training-inference discrepancy}} \times \underbrace{\frac{\pi_\theta(y_t|x, y_{&lt;t})}{\pi_{\theta_{\text{old}}}(y_t|x, y_{&lt;t})}}_{\text{policy staleness}}
+\]</div>
+<p>对于 MoE 模型，专家路由与这两个因子深度耦合：</p>
+<ul class="simple">
+<li><p><strong>Training-inference discrepancy</strong>：训练引擎和推理引擎的路由不一致（<span class="math notranslate nohighlight">\(e^{\pi}_{\text{old},t} \neq e^{\mu}_{\text{old},t}\)</span>），放大输出差异</p></li>
+<li><p><strong>Policy staleness</strong>：随着 mini-batch 更新，路由也随之漂移（<span class="math notranslate nohighlight">\(e^{\pi}_t \neq e^{\pi}_{\text{old},t}\)</span>），进一步偏离采样时的策略</p></li>
+</ul>
+</section>
+</section>
+<section id="r2-vanilla-routing-replay">
+<h2>R2: Vanilla Routing Replay<a class="headerlink" href="#r2-vanilla-routing-replay" title="Link to this heading"></a></h2>
+<p>R2 的核心思想是在梯度更新时，<strong>回放 old policy 在训练引擎中确定的路由</strong>（<span class="math notranslate nohighlight">\(e^{\pi}_{\text{old},t}\)</span>）。</p>
+<section id="id2">
+<h3>原理<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>在训练前向传播中，先用 old policy 的权重做一次前向，记录每一层 MoE Router 选择的 expert indices，然后在训练模型 <span class="math notranslate nohighlight">\(\pi_\theta\)</span> 的前向传播中强制使用这些 indices：</p>
+<div class="math notranslate nohighlight">
+\[
+g_{\text{replay},i} = \frac{I^{\pi}_{\text{old},i} \cdot \exp(s_{\text{train},i})}{\sum_j I^{\pi}_{\text{old},j} \cdot \exp(s_{\text{train},j})}
+\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(I^{\pi}_{\text{old}}\)</span> 是 old policy 的路由掩码，<span class="math notranslate nohighlight">\(s_{\text{train}}\)</span> 是训练模型计算的 router logits。softmax 仍作用于训练 logits，因此梯度可以正常回传到 router 权重。</p>
+</section>
+<section id="id3">
+<h3>特性<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>场景</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>首个 mini-batch</strong>（on-policy）</td>
+<td>$\theta = \theta_{\text{old}}$，故 $e^{\pi}<em>t = e^{\pi}</em>{\text{old},t}$，<strong>target policy 不变</strong>（无 bias）</td>
+</tr>
+<tr>
+<td><strong>后续 mini-batch</strong>（off-policy）</td>
+<td>$\theta \neq \theta_{\text{old}}$，故 $e^{\pi}<em>t \neq e^{\pi}</em>{\text{old},t}$，<strong>target policy 被改变</strong>（有 bias），但 policy staleness 被控制</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="r3-rollout-routing-replay">
+<h2>R3: Rollout Routing Replay<a class="headerlink" href="#r3-rollout-routing-replay" title="Link to this heading"></a></h2>
+<p>R3 的核心思想是在训练前向传播中，<strong>回放 rollout policy 在推理引擎中确定的路由</strong>（<span class="math notranslate nohighlight">\(e^{\mu}_{\text{old},t}\)</span>）。</p>
+<section id="id4">
+<h3>原理<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>在推理引擎（如 vLLM）采样时，额外记录每个 token 在每一层 MoE Router 的 expert indices（路由掩码），然后将这些掩码传递到训练引擎，在 <span class="math notranslate nohighlight">\(\pi_\theta\)</span> 的前向传播中强制使用：</p>
+<div class="math notranslate nohighlight">
+\[
+g_{\text{replay},i} = \frac{I^{\mu}_{\text{old},i} \cdot \exp(s_{\text{train},i})}{\sum_j I^{\mu}_{\text{old},j} \cdot \exp(s_{\text{train},j})}
+\]</div>
+</section>
+<section id="id5">
+<h3>与其他方法的兼容性<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>R3 与 <strong>GSPO</strong> 正交，组合使用可进一步提升</p></li>
+<li><p>R3 与 <strong>TIS</strong> 组合不一定有增益（R3 已从根源消除不一致，TIS 的额外修正可能多余）</p></li>
+<li><p>Router Replay 与 <strong>Clipping</strong> 在 off-policy 训练中缺一不可</p></li>
+</ul>
+</section>
+</section>
+<section id="router-mask-caching">
+<h2>Router Mask Caching<a class="headerlink" href="#router-mask-caching" title="Link to this heading"></a></h2>
+<p>R3 论文还提出路由掩码可以与 KV Cache 一起缓存：对于相同的前缀 token，MoE Router 的输出是确定性的，因此路由掩码可以随 prefix KVCache 一起存储和复用。这在多轮 Agent 场景（tool calling）中尤为重要，避免了重新 prefill 前缀来获取路由掩码，整体 rollout 延迟开销 &lt; 3%。</p>
+</section>
+<section id="swift">
+<h2>Swift 实现<a class="headerlink" href="#swift" title="Link to this heading"></a></h2>
+<section id="id6">
+<h3>参数设置<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">--router_replay_mode</span></code> 参数选择路由回放策略：</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>参数值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>disabled</code>（默认）</td>
+<td>不启用路由回放</td>
+</tr>
+<tr>
+<td><code>R2</code></td>
+<td>Vanilla Routing Replay：在训练引擎中记录 old policy 路由并回放</td>
+</tr>
+<tr>
+<td><code>R3</code></td>
+<td>Rollout Routing Replay：从推理引擎导出路由掩码并在训练中回放</td>
+</tr>
+</tbody>
+</table>
+<p>环境依赖:</p>
+<ul class="simple">
+<li><p>R3 需要 vLLM ≥ 0.14.0 以支持返回 <code class="docutils literal notranslate"><span class="pre">routed_experts</span></code> 信息。</p></li>
+<li><p>当前 Router Replay 仅在 Megatron backend 下可用，需要 megatron-core ≥ 0.16.0。</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>与训推校正的关系<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Router Replay 与 <a class="reference internal" href="training_inference_mismatch.html"><span class="std std-doc">Training-Inference Mismatch</span></a> 中介绍的重要性采样校正（IS correction）是互补的：</p>
+<ul class="simple">
+<li><p><strong>IS correction</strong>：在 loss 层面通过权重修正训推概率偏差</p></li>
+<li><p><strong>Router Replay</strong>：在模型结构层面通过固定路由消除偏差来源</p></li>
+</ul>
+</section>
+</section>
+<section id="id8">
+<h2>参考资料<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/2510.11370">Stabilizing MoE Reinforcement Learning by Aligning Training and Inference Routers</a></p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2507.18071">Group Sequence Policy Optimization</a></p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2512.01374">Stabilizing Reinforcement Learning with LLMs: Formulation and Practices</a></p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/megatron-core/developer-guide/nightly/api-guide/router_replay.html">Megatron Core Router Replay Design Document</a></p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="REAL.html" class="btn btn-neutral float-left" title="Rewards as Labels: Revisiting RLVR from a Classification Perspective" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="SAPO.html" class="btn btn-neutral float-right" title="Soft Adaptive Policy Optimization (SAPO)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022-2025, Alibaba ModelScope。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Megatron Parallelism Map",
+    "subtitle": "batch, layers, matrices, experts, and context",
+    "output": "megatron-parallelism.html"
+  },
+  "lanes": [
+    {
+      "id": "global",
+      "label": "Global Workload"
+    },
+    {
+      "id": "model",
+      "label": "Model Parallel Axes"
+    },
+    {
+      "id": "runtime",
+      "label": "Runtime Cost"
+    }
+  ],
+  "phases": [
+    {
+      "id": "data",
+      "label": "Data Parallel",
+      "fromCol": 0,
+      "toCol": 1
+    },
+    {
+      "id": "model",
+      "label": "Model Parallel",
+      "fromCol": 2,
+      "toCol": 4
+    },
+    {
+      "id": "runtime",
+      "label": "Schedule",
+      "fromCol": 5,
+      "toCol": 5
+    }
+  ],
+  "nodes": [
+    {
+      "id": "batch",
+      "lane": "global",
+      "col": 0,
+      "type": "frontend",
+      "label": "Global Batch",
+      "sublabel": "DP groups"
+    },
+    {
+      "id": "pp",
+      "lane": "model",
+      "col": 1,
+      "type": "backend",
+      "label": "Pipeline",
+      "sublabel": "layers",
+      "width": 84
+    },
+    {
+      "id": "tp",
+      "lane": "model",
+      "col": 3,
+      "type": "backend",
+      "label": "Tensor",
+      "sublabel": "matmul / heads",
+      "width": 82
+    },
+    {
+      "id": "ep",
+      "lane": "model",
+      "col": 5,
+      "type": "backend",
+      "label": "Expert",
+      "sublabel": "MoE experts",
+      "width": 82
+    },
+    {
+      "id": "cp",
+      "lane": "runtime",
+      "col": 5,
+      "type": "backend",
+      "label": "Context",
+      "sublabel": "long context",
+      "width": 84
+    },
+    {
+      "id": "bubble",
+      "lane": "runtime",
+      "col": 1,
+      "type": "messagebus",
+      "label": "Bubble",
+      "sublabel": "micro-batch schedule",
+      "width": 82
+    },
+    {
+      "id": "comm",
+      "lane": "runtime",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Comm",
+      "sublabel": "all-reduce / all-to-all",
+      "width": 82
+    }
+  ],
+  "edges": [
+    {
+      "from": "batch",
+      "to": "pp",
+      "label": "split batch/layers",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "pp",
+      "to": "tp",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "tp",
+      "to": "ep",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "from": "ep",
+      "to": "cp",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "label": "sequence shards",
+      "route": "drop"
+    },
+    {
+      "from": "pp",
+      "to": "bubble",
+      "label": "pipeline cost",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    },
+    {
+      "from": "ep",
+      "to": "comm",
+      "label": "routing cost",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "route": "drop"
+    }
+  ],
+  "cards": []
+}
